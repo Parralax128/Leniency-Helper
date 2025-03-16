@@ -1,0 +1,13 @@
+- Name: LeniencyHelper
+  Version: 0.1.0
+  DLL: bin/LeniencyHelper.dll
+  Dependencies:
+    - Name: EverestCore
+      Version: 1.4673.0
+  OptionalDependencies:
+    - Name: MaxHelpingHand
+      Version: 1.30.0
+    - Name: ShroomHelper
+      Version: 1.0.0
+    - Name: VivHelper
+      Version: 1.12.3
