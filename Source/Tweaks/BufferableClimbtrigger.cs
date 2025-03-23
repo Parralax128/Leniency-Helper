@@ -57,6 +57,7 @@ public class BufferableClimbtrigger
     }
     
     private static int safeClimbtriggerDir;
+    private static bool useOrigCheck = false;
 
 
     private static void ClimbTriggerOnClimbJump(On.Celeste.Player.orig_ClimbJump orig, Player self)
@@ -182,7 +183,5 @@ public class BufferableClimbtrigger
     {
         return LeniencyHelperModule.Session.TweaksEnabled["BufferableClimbtrigger"]
             && (bool)LeniencyHelperModule.Settings.GetSetting("BufferableClimbtrigger", "onNormalUpdate");
-    }
-    private static bool useOrigCheck = false;
-    
+    }    
 }
