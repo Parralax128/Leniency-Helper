@@ -1,6 +1,5 @@
 using Monocle;
-using Microsoft.Xna.Framework;
-using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
+using Microsoft.Xna.Framework;  
 using System;
 using static Celeste.Mod.LeniencyHelper.CrossModSupport.GravityHelperImports;
 using System.Linq;
@@ -26,8 +25,7 @@ public class CornerWaveLeniency
 
         if ((new int[] { 2, 4, 5 }).Contains(player.StateMachine.State))
         {
-            return (player.DashDir.X != 0f && player.DashDir.Y > 0f)
-                && player.Speed.Y > 0f;
+            return player.DashDir.X != 0f && player.DashDir.Y > 0f && player.Speed.Y > 0f;
         }
         else
         {
@@ -68,11 +66,7 @@ public class CornerWaveLeniency
         if (Math.Sign(self.Speed.X) == dir && CheckCorner(self, dir))
         {
             var s = LeniencyHelperModule.Session;
-            if(s.climbSolid is not null)
-            {
-                s.forceForceRide = true;
-            }
-            if ((new int[] { 2,4,5 }).Contains(self.StateMachine.State))
+            if ((new int[] { 2, 4, 5 }).Contains(self.StateMachine.State))
             {
                 self.Ducking = (self.DashDir.Y > 0f && self.DashDir.X != 0f);
                 if (self.StateMachine.State != 5) self.SuperJump();
@@ -85,7 +79,7 @@ public class CornerWaveLeniency
                 self.Jump();
                 DoCCorection(self);
                 RefillDashIfCan(self);
-            }            
+            }
             return;
         }
         orig(self, dir);
@@ -162,20 +156,9 @@ public class CornerWaveLeniency
     {
         float possiblePosY = player.Position.Y;
 
-        for (int i = 0; i <= 4 && currentGravity == 1; i++)
+        for (int i = 0; i <= 4; i++)
         {
-            possiblePosY -= i;
-            if (!player.CollideCheck<Solid>(new Vector2(player.Position.X + (player.Speed.X / Engine.FPS), possiblePosY)))
-            {
-                player.MoveVExact(-i);
-                player.MoveHExact((int)(player.Speed.X * Engine.DeltaTime));
-                break;
-            }
-
-        }
-        for (int i = 0; i <= 4 && currentGravity == -1; i++)
-        {
-            possiblePosY += i;
+            possiblePosY -= currentGravity;
             if (!player.CollideCheck<Solid>(new Vector2(player.Position.X + (player.Speed.X / Engine.FPS), possiblePosY)))
             {
                 player.MoveVExact(-i);
