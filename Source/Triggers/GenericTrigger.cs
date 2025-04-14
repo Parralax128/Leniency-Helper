@@ -1,6 +1,5 @@
 ﻿using System;
 using Monocle;
-using Celeste;
 using Microsoft.Xna.Framework;
 using Celeste.Mod.Entities;
 using Celeste.Mod.LeniencyHelper.Tweaks;
@@ -10,13 +9,13 @@ using IL.MonoMod;
 
 namespace Celeste.Mod.LeniencyHelper.Triggers
 {
-    public class GenericTrigger : Trigger
+    public abstract class GenericTrigger : Trigger
     {
         public bool enabled;
-        public string flag;
+        private string flag;
         public bool oneUse;
         public bool revertOnLeave;
-        public bool wasEnabled;
+        public bool savedEnabled;
 
         public GenericTrigger(EntityData data, Vector2 offset) : base(data, offset)
         {
@@ -49,13 +48,13 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
         {
             base.OnStay(player);
 
-            if(!oneUse) ApplySettings();
+            if (!oneUse) ApplySettings();
         }
         public override void OnLeave(Player player)
         {
             base.OnLeave(player);
 
-            if(!oneUse && revertOnLeave) UndoSettings();
+            if (!oneUse && revertOnLeave) UndoSettings();
         }
 
         public override void Update()
