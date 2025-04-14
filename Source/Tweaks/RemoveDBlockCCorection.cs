@@ -6,17 +6,20 @@ using Mono.Cecil.Cil;
 using Celeste.Mod.Helpers;
 using static Celeste.Mod.Helpers.ILCursorExtensions;
 using System.Reflection;
+using Celeste.Mod.LeniencyHelper.CrossModSupport;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class RemoveDBlockCCorection
 {
-    public static bool isEnabled => LeniencyHelperModule.Session.TweaksEnabled["RemoveDBlockCCorection"];
+    public static bool isEnabled => LeniencyHelperModule.Session.Tweaks["RemoveDBlockCCorection"].Enabled;
+    [OnLoad]
     public static void LoadHooks()
     {
         IL.Celeste.Player.OnCollideH += CustomOnCollideH;
         IL.Celeste.Player.OnCollideV += CustomOnCollideV;
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         IL.Celeste.Player.OnCollideH -= CustomOnCollideH;
@@ -46,12 +49,8 @@ public class RemoveDBlockCCorection
             instr => instr.MatchCallvirt<Player>("DashCorrectCheck"),
             instr => instr.MatchBrtrue(out label)))
         {
-            cursor.Emit(OpCodes.Ldarg_0);
-            cursor.EmitLdloc(4);
-            cursor.Emit(OpCodes.Ldloc_2);
-
-            cursor.EmitDelegate((Entity player, Vector2 vec2, int j) => isEnabled &&
-            player.CollideCheck<DreamBlock>(vec2 - Vector2.UnitY * (float)j));
+            cursor.EmitLdarg0();
+            cursor.EmitDelegate(CollidingDBlockX);
 
             cursor.EmitBrtrue(label);
         }
@@ -63,7 +62,7 @@ public class RemoveDBlockCCorection
     }
     private static bool CollidingDBlockY(Vector2 at, Player player, int shift)
     {
-        return player.CollideCheck<DreamBlock>(at + Vector2.UnitY * shift) && isEnabled;
+        return player.CollideCheck<DreamBlock>(at + Vector2.UnitY * shift * GravityHelperImports.currentGravity) && isEnabled;
     }
     public static void CustomOnCollideV(ILContext il)
     {

@@ -2,17 +2,19 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Linq;
 using Monocle;
-using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
+using static Celeste.Mod.LeniencyHelper.SettingMaster;
 using Celeste.Mod.MaxHelpingHand.Entities;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class WallAttraction
 {
+    [OnLoad]
     public static void LoadHooks()
     {
         On.Celeste.Player.Update += AttractUpdate;
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         On.Celeste.Player.Update -= AttractUpdate;
@@ -22,7 +24,7 @@ public class WallAttraction
 
     private static void AttractUpdate(On.Celeste.Player.orig_Update orig, Player self)
     {
-        if (!LeniencyHelperModule.Session.TweaksEnabled["WallAttraction"])
+        if (!LeniencyHelperModule.Session.Tweaks["WallAttraction"].Enabled)
         {
             orig(self);
             return;
@@ -31,10 +33,8 @@ public class WallAttraction
         if (Input.GrabCheck && !self.IsTired && !noGrabStates.Contains(self.StateMachine.State) && self.CanUnDuck &&
             Math.Sign(self.Speed.X) != -(int)self.Facing && self.Holding == null && self.Speed.Y >= 0)
         {
-            var settings = LeniencyHelperModule.Settings;
-
-            float distance = (float)settings.GetSetting("WallAttraction", "wallApproachTime") * (Math.Abs(self.Speed.X) /
-                ((bool)settings.GetSetting("WallAttraction", "countAttractionTimeInFrames") ? Engine.FPS : 1f));
+            float distance = GetSetting<float>("wallApproachTime") * (Math.Abs(self.Speed.X) /
+                (GetSetting<bool>("countAttractionTimeInFrames") ? Engine.FPS : 1f));
 
             Vector2 origPos = self.Position;
             for (int c = 0; c < (int)distance; c++)
@@ -48,7 +48,7 @@ public class WallAttraction
                     break;
                 }
                 else if (self.ClimbBoundsCheck((int)self.Facing) && self.CollideCheck<Solid>(solidCheckPos) 
-                    || (ModsLoaded[("MaxHelpingHand", new Version(1,30,0))] && CollidingWithSideways(self, solidCheckPos)))
+                    || (LeniencyHelperModule.ModsLoaded[("MaxHelpingHand", new Version(1,30,0))] && CollidingWithSideways(self, solidCheckPos)))
                 {
                     break;
                 }

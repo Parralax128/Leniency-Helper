@@ -4,24 +4,39 @@ using System;
 using static Celeste.Mod.LeniencyHelper.CrossModSupport.GravityHelperImports;
 using System.Linq;
 using MonoMod.Cil;
+using MonoMod.RuntimeDetour;
+using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
+using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class CornerWaveLeniency
 {
+    private static ILHook origUpdateHook;
+    [OnLoad]
     public static void LoadHooks()
     {
         On.Celeste.Player.WallJump += WJIntoWave;
         IL.Celeste.Player.OnCollideV += RemoveDiagCCorection;
+        origUpdateHook = new ILHook(typeof(Player).GetMethod(nameof(Player.orig_Update)), HookedUpdate);
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         On.Celeste.Player.WallJump -= WJIntoWave;
         IL.Celeste.Player.OnCollideV -= RemoveDiagCCorection;
+        origUpdateHook.Dispose();
+    }
+    private static void HookedUpdate(ILContext il)
+    {
+        ILCursor c = new ILCursor(il);
+        c.GotoNext(MoveType.Before, i => i.MatchLdfld<Player>("dashRefillCooldownTimer"));
+        c.EmitLdstr("refill check");
+        c.EmitDelegate(Log);
     }
     private static bool CheckDiag(Player player)
     {
-        if (!LeniencyHelperModule.Session.TweaksEnabled["CornerWaveLeniency"]) return false;
+        if (!LeniencyHelperModule.Session.Tweaks["CornerWaveLeniency"].Enabled) return false;
 
         if ((new int[] { 2, 4, 5 }).Contains(player.StateMachine.State))
         {
@@ -58,28 +73,31 @@ public class CornerWaveLeniency
     }
     private static void WJIntoWave(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
     {
-        if (!LeniencyHelperModule.Session.TweaksEnabled["CornerWaveLeniency"])
+        if (!LeniencyHelperModule.Session.Tweaks["CornerWaveLeniency"].Enabled)
         {
             orig(self, dir);
             return;
         }
-        if (Math.Sign(self.Speed.X) == dir && CheckCorner(self, dir))
+        if (Math.Sign(self.Speed.X) == dir && CheckCorner(self, dir, out Vector2? moveTo))
         {
-            var s = LeniencyHelperModule.Session;
-            if ((new int[] { 2, 4, 5 }).Contains(self.StateMachine.State))
+            self.Position = moveTo.Value;
+            self.OnCollideV(GetCollisionData(self.Position, self));
+            if (self.StateMachine.State == 2)
             {
                 self.Ducking = (self.DashDir.Y > 0f && self.DashDir.X != 0f);
-                if (self.StateMachine.State != 5) self.SuperJump();
-                else self.Jump();
-                DoCCorection(self);
-                RefillDashIfCan(self);
+                self.SuperJump();
+                LeniencyHelperModule.Log("superjump!");
             }
-            else
+            else 
             {
+                
+                LeniencyHelperModule.Log("jump!");
                 self.Jump();
-                DoCCorection(self);
-                RefillDashIfCan(self);
             }
+            FloorCorrect(self);
+
+            RefillDashIfCan(self);
+
             return;
         }
         orig(self, dir);
@@ -101,7 +119,7 @@ public class CornerWaveLeniency
 
         return data;
     }
-    private static bool CheckCorner(Player player, int dir)
+    private static bool CheckCorner(Player player, int dir, out Vector2? movePlayerTo)
     {
         Vector2 origPos = player.Position;
         Vector2 checkPos = origPos;
@@ -116,32 +134,34 @@ public class CornerWaveLeniency
             {
                 if(!player.OnGround(checkPos + Vector2.UnitY * -(c+1) * currentGravity))
                 {
-
-                    if ((bool)LeniencyHelperModule.Settings.GetSetting("CornerWaveLeniency", "allowSpikedFloor"))
+                    if (SettingMaster.GetSetting<bool>("allowSpikedFloor"))
                     {
-                        player.OnCollideV(GetCollisionData(checkPos + Vector2.UnitY * -c * currentGravity, player));
+                        movePlayerTo = checkPos + Vector2.UnitY * -(c + 1);
                         return true;
                     }
-
+                    
                     foreach (Entity entity in player.Scene.Entities)
                     {
                         if (player.CollideCheck(entity, checkPos))
                         {
                             bool hasSwitchComponent = entity.Get<Switch>() != null;
-
                             if (!player.CollideCheck(entity) && entity is not Trigger
                                 && entity is not Solid && entity is not Actor && !hasSwitchComponent && 
                                 entity.GetType().Name.ToLower().Contains("spike"))
                             {
+                                movePlayerTo = null;
                                 return false;
                             }
                         }
                     }
+                    
+                    movePlayerTo = checkPos + Vector2.UnitY * -(c + 1);
                     return true;
                 }
                 
             }
         }
+        movePlayerTo = null;
         return false;
     }
     private static void RefillDashIfCan(Player player)
@@ -152,13 +172,13 @@ public class CornerWaveLeniency
         }
         player.RefillStamina();
     }
-    private static void DoCCorection(Player player)
+    private static void FloorCorrect(Player player)
     {
         float possiblePosY = player.Position.Y;
 
         for (int i = 0; i <= 4; i++)
         {
-            possiblePosY -= currentGravity;
+            possiblePosY -= currentGravity; // moving up if normal gravity, down if inverted
             if (!player.CollideCheck<Solid>(new Vector2(player.Position.X + (player.Speed.X / Engine.FPS), possiblePosY)))
             {
                 player.MoveVExact(-i);

@@ -8,11 +8,13 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks
 {
     public class SuperOverWalljump
     {
+        [OnLoad]
         public static void LoadHooks()
         {
             IL.Celeste.Player.DashUpdate += PreventStupidThing;
             IL.Celeste.Player.RedDashUpdate += PreventStupidThing;
         }
+        [OnUnload]
         public static void UnloadHooks()
         {
             IL.Celeste.Player.DashUpdate -= PreventStupidThing;
@@ -44,7 +46,7 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks
         private static bool CanWJ(Player player, int dir)
         {
             var s = LeniencyHelperModule.Session;
-            if (!s.TweaksEnabled["SuperOverWalljump"] || ClimbJumpCheck(player, dir) || Math.Abs(player.DashDir.Y) > 0.2f) return true;
+            if (!s.Tweaks["SuperOverWalljump"].Enabled || ClimbJumpCheck(player, dir) || Math.Abs(player.DashDir.Y) > 0.2f) return true;
 
             int trueSign = Math.Sign(player.Speed.X) == 0 ? Math.Sign(player.DashDir.X) : Math.Sign(player.Speed.X);
             Vector2 groundOffset = new Vector2(trueSign * s.wjDist, s.savedCornerCorrection * -currentGravity);

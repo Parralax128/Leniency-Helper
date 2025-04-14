@@ -3,18 +3,21 @@ using System;
 using MonoMod.Cil;
 using Celeste.Mod.Helpers;
 using static Celeste.Mod.Helpers.ILCursorExtensions;
+using static Celeste.Mod.LeniencyHelper.SettingMaster;
 using System.Linq;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class DynamicCornerCorrection
 {
+    [OnLoad]
     public static void LoadHooks()
     {
         IL.Celeste.Player.OnCollideH += CustomOnCollideH;
         IL.Celeste.Player.OnCollideV += CustomOnCollideV;
         IL.Celeste.Player.DashUpdate += CustomJumpThruCorrection;
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         IL.Celeste.Player.OnCollideH -= CustomOnCollideH;
@@ -23,28 +26,23 @@ public class DynamicCornerCorrection
     }
     private static int GetDynamicCorrection(int defaultValue, Player player, bool vertical)
     {
-        if (!LeniencyHelperModule.Session.TweaksEnabled["DynamicCornerCorrection"] ||
+        if (!LeniencyHelperModule.Session.Tweaks["DynamicCornerCorrection"].Enabled ||
             (Math.Abs(player.DashDir.X) > 0.01f && Math.Abs(player.DashDir.Y) > 0.01f))
         {
             LeniencyHelperModule.Session.savedCornerCorrection = defaultValue;
             return defaultValue;
         }
 
-        var settings = LeniencyHelperModule.Settings;
-
         float resultingTime;
-
         if (vertical)
         {
-            resultingTime = (bool)settings.GetSetting("DynamicCornerCorrection", "ccorectionTimingInFrames") ?
-                ((float)settings.GetSetting("DynamicCornerCorrection", "FloorCorrectionTiming") / 2f / Engine.FPS) :
-                ((float)settings.GetSetting("DynamicCornerCorrection", "FloorCorrectionTiming") / 2f);
+            resultingTime = GetSetting<bool>("ccorectionTimingInFrames") ?
+                GetSetting<float>("FloorCorrectionTiming") / 2f / Engine.FPS : GetSetting<float>("FloorCorrectionTiming") / 2f;
         }
         else
         {
-            resultingTime = (bool)settings.GetSetting("DynamicCornerCorrection", "ccorectionTimingInFrames")  ?
-                ((float)settings.GetSetting("DynamicCornerCorrection", "WallCorrectionTiming") / Engine.FPS) : 
-                ((float)settings.GetSetting("DynamicCornerCorrection", "WallCorrectionTiming"));
+            resultingTime = GetSetting<bool>("ccorectionTimingInFrames")  ?
+                GetSetting<float>("WallCorrectionTiming") / Engine.FPS : GetSetting<float>("WallCorrectionTiming");
         }
 
         float maxSpeedY = Math.Abs(player.Speed.Y);
@@ -129,7 +127,7 @@ public class DynamicCornerCorrection
     }
     private static float DoubleAbs(float value)
     {
-        if (LeniencyHelperModule.Session.TweaksEnabled["DynamicCornerCorrection"]) return (value < 0f ? value * -2f : value);
+        if (LeniencyHelperModule.Session.Tweaks["DynamicCornerCorrection"].Enabled) return (value < 0f ? value * -2f : value);
         else return value;
     }
     private static void CustomJumpThruCorrection(ILContext il)
@@ -174,7 +172,7 @@ public class DynamicCornerCorrection
 
     private static bool CheckEnabled()
     {
-        return LeniencyHelperModule.Session.TweaksEnabled["DynamicCornerCorrection"];
+        return LeniencyHelperModule.Session.Tweaks["DynamicCornerCorrection"].Enabled;
     }
     private static bool InBounds(Entity entity, Player player)
     {

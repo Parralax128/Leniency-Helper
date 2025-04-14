@@ -1,5 +1,4 @@
 using Monocle;
-using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
 using MonoMod.RuntimeDetour;
 using MonoMod.Cil;
 using MonoMod.Utils;
@@ -9,6 +8,8 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 public class ExtendBufferOnFreezeAndPickup
 {
     private static ILHook customPickupDelayHook;
+
+    [OnLoad]
     public static void LoadHooks()
     {
         On.Celeste.Celeste.Freeze += ExtendBufferTimer;
@@ -16,6 +17,7 @@ public class ExtendBufferOnFreezeAndPickup
         customPickupDelayHook = new ILHook(typeof(Player).GetMethod("PickupCoroutine",
             BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(), GetCustomPickupDelayHook);
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         On.Celeste.Celeste.Freeze -= ExtendBufferTimer;
@@ -25,19 +27,17 @@ public class ExtendBufferOnFreezeAndPickup
     private static void ExtendBufferOnPickup(On.Celeste.Player.orig_Update orig, Player self)
     {
         var s = LeniencyHelperModule.Session;
-        if (!(LeniencyHelperModule.Session.TweaksEnabled["ExtendBufferOnFreezeAndPickup"] && 
-            (bool)LeniencyHelperModule.Settings.GetSetting("ExtendBufferOnFreezeAndPickup", "ExtendBufferOnPickup")))
+        if (!(LeniencyHelperModule.Session.Tweaks["ExtendBufferOnFreezeAndPickup"].Enabled && 
+            SettingMaster.GetSetting<bool>("ExtendBufferOnPickup")))
         {
             orig(self);
             return;
         }
-        if (s.pickupTimeLeft > 0f)
-            s.pickupTimeLeft -= Engine.DeltaTime;
+        if (s.pickupTimeLeft > 0f) s.pickupTimeLeft -= Engine.DeltaTime;
         
         if (self.StateMachine.State == 8)
         {
-            if (s.prevFrameState != 8)
-                s.pickupTimeLeft = s.pickupDelay;
+            if (s.prevFrameState != 8) s.pickupTimeLeft = s.pickupDelay;
 
             if(s.pickupTimeLeft > 0f)
             {
@@ -86,8 +86,8 @@ public class ExtendBufferOnFreezeAndPickup
     {
         orig(time);
         
-        if (!(LeniencyHelperModule.Session.TweaksEnabled["ExtendBufferOnFreezeAndPickup"]
-            && (bool)LeniencyHelperModule.Settings.GetSetting("ExtendBufferOnFreezeAndPickup", "ExtendBufferOnFreeze"))) return;
+        if (!(LeniencyHelperModule.Session.Tweaks["ExtendBufferOnFreezeAndPickup"].Enabled
+            && SettingMaster.GetSetting<bool>("ExtendBufferOnFreeze"))) return;
 
         if(Input.Dash.bufferCounter > 0f) Input.Dash.bufferCounter += time;
         if(Input.CrouchDash.bufferCounter > 0f) Input.CrouchDash.bufferCounter += time;

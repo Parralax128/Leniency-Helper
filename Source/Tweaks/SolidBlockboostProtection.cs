@@ -17,9 +17,10 @@ public class SolidBlockboostProtection
     private static ILHook SidewaysUpdate = null;
 
     #region normal platforms
+    [OnLoad]
     public static void LoadHooks()
     {
-        On.Celeste.Platform.Update += RecieveSavedBlockboost;
+        On.Celeste.Platform.Update += GainSavedBlockboost;
         On.Celeste.Platform.ctor += GiveComponentToPlatform;
 
         IL.Celeste.JumpThru.MoveHExact += ComponentOnMove;
@@ -27,9 +28,10 @@ public class SolidBlockboostProtection
         IL.Celeste.JumpThru.MoveVExact += ComponentOnMove;
         IL.Celeste.Solid.MoveVExact += ComponentOnMove;
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
-        On.Celeste.Platform.Update -= RecieveSavedBlockboost;
+        On.Celeste.Platform.Update -= GainSavedBlockboost;
         On.Celeste.Platform.ctor -= GiveComponentToPlatform;
 
         IL.Celeste.JumpThru.MoveHExact -= ComponentOnMove;
@@ -50,48 +52,45 @@ public class SolidBlockboostProtection
 
         if (self is not SolidTiles) self.Add(new SolidLiftboostComponent());
     }
-    private static void RecieveSavedBlockboost(On.Celeste.Platform.orig_Update orig, Platform self)
+    private static void GainSavedBlockboost(On.Celeste.Platform.orig_Update orig, Platform self)
     {
         orig(self);
 
-        if (!LeniencyHelperModule.Session.TweaksEnabled["SolidBlockboostProtection"]) return;
+        if (!LeniencyHelperModule.Session.Tweaks["SolidBlockboostProtection"].Enabled) return;
 
         SolidLiftboostComponent component = self.Get<SolidLiftboostComponent>();
-        if (component is null) return;
+        if (component is null || component.boostSaveTimer <= 0f) return;
 
-
-        if (component.boostSaveTimer > 0f)
+        if (self.Collidable && self.LiftSpeed.LengthSquared() <= 0.01f)
         {
-            if (self.Collidable && self.LiftSpeed.LengthSquared() <= 0.01f)
+            foreach (Actor actor in self.Scene.Tracker.GetEntities<Actor>())
             {
-                foreach (Actor actor in self.Scene.Tracker.GetEntities<Actor>())
+                if (!actor.AllowPushing) continue;
+
+                bool saveCollidable = actor.Collidable;
+                actor.Collidable = true;
+
+
+                if ((self is JumpThru jt && actor.IsRiding(jt)) || (self is Solid solid && actor.IsRiding(solid)))
                 {
-                    if (!actor.AllowPushing) continue;
-
-                    bool saveCollidable = actor.Collidable;
-                    actor.Collidable = true;
-
-
-                    if ((self is JumpThru jt && actor.IsRiding(jt)) || (self is Solid solid && actor.IsRiding(solid)))
-                    {
-                        actor.LiftSpeed = component.savedLiftSpeed;
-                    }
-                    else if(self.CollideCheck(actor, self.Position + (Math.Sign(component.savedLiftSpeed.X) * LeniencyHelperModule.Session.wjDist)*Vector2.UnitX))
-                    {
-                        actor.LiftSpeed = actor.LiftSpeed with { X = component.savedLiftSpeed.X };
-                    }
-                    else if(self.CollideCheck(actor, self.Position + Math.Sign(component.savedLiftSpeed.Y)*Vector2.UnitY))
-                    {
-                        actor.LiftSpeed = actor.LiftSpeed with { Y = component.savedLiftSpeed.Y };
-                    }
-
-                    actor.Collidable = saveCollidable;
+                    actor.LiftSpeed = component.savedLiftSpeed;
                 }
-            }
+                else if(self.CollideCheck(actor, self.Position + (Math.Sign(component.savedLiftSpeed.X) * LeniencyHelperModule.Session.wjDist)*Vector2.UnitX))
+                {
+                    actor.LiftSpeed = actor.LiftSpeed with { X = component.savedLiftSpeed.X };
+                }
+                else if(self.CollideCheck(actor, self.Position + Math.Sign(component.savedLiftSpeed.Y)*Vector2.UnitY))
+                {
+                    actor.LiftSpeed = actor.LiftSpeed with { Y = component.savedLiftSpeed.Y };
+                }
 
-            component.boostSaveTimer -= Engine.DeltaTime;
+                actor.Collidable = saveCollidable;
+            }
         }
+
+        component.boostSaveTimer -= Engine.DeltaTime;
     }
+    
     private static void ComponentOnMove(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
@@ -105,7 +104,7 @@ public class SolidBlockboostProtection
     }
     private static void MoveDelegate(Entity self)
     {
-        if (LeniencyHelperModule.Session.TweaksEnabled["SolidBlockboostProtection"] &&
+        if (LeniencyHelperModule.Session.Tweaks["SolidBlockboostProtection"].Enabled &&
             self is Platform p && p.LiftSpeed.LengthSquared() > 0.01f)
         {
             p.Get<SolidLiftboostComponent>().OnMove();
@@ -138,7 +137,7 @@ public class SolidBlockboostProtection
     {
         orig(platform, playerInteractingSolid, left, move);
 
-        if(LeniencyHelperModule.Session.TweaksEnabled["SolidBlockboostProtection"] &&
+        if(LeniencyHelperModule.Session.Tweaks["SolidBlockboostProtection"].Enabled &&
             ModsLoaded[("MaxHelpingHand", new Version(1, 30, 0))] && (platform is AttachedSidewaysJumpThru))
         {
             platform.Get<SolidLiftboostComponent>().OnSidewaysMove(playerInteractingSolid.LiftSpeed);
@@ -161,53 +160,50 @@ public class SolidBlockboostProtection
         c.EmitIsinst(typeof(AttachedSidewaysJumpThru));
         c.EmitDup();
         c.EmitLdfld(typeof(AttachedSidewaysJumpThru).GetField("playerInteractingSolid", BindingFlags.NonPublic | BindingFlags.Instance));
-        c.EmitDelegate(RecieveSidewaysBlockboost);
+        c.EmitDelegate(GainSidewaysBlockboost);
 
         c.MarkLabel(skip);
     }
 
-    private static void RecieveSidewaysBlockboost(AttachedSidewaysJumpThru self, Solid interactSolid)
+    private static void GainSidewaysBlockboost(AttachedSidewaysJumpThru self, Solid interactSolid)
     {
-        if (!LeniencyHelperModule.Session.TweaksEnabled["SolidBlockboostProtection"]) return;
+        if (!LeniencyHelperModule.Session.Tweaks["SolidBlockboostProtection"].Enabled) return;
 
         SolidLiftboostComponent component = self.Get<SolidLiftboostComponent>();
-        if (component is null) return;
+        if (component is null || component.boostSaveTimer <= 0f) return;
 
 
-        if (component.boostSaveTimer > 0f)
+        if (self.Collidable && interactSolid.LiftSpeed.LengthSquared() <= 0.01f)
         {
-            if (self.Collidable && interactSolid.LiftSpeed.LengthSquared() <= 0.01f)
+            foreach (Actor actor in self.Scene.Tracker.GetEntities<Actor>())
             {
-                foreach (Actor actor in self.Scene.Tracker.GetEntities<Actor>())
+                if (!actor.AllowPushing) continue;
+
+                bool saveCollidable = actor.Collidable;
+                actor.Collidable = true;
+
+                Vector2 collideCheckOffset = new Vector2(
+                    Math.Sign(component.savedLiftSpeed.X) * LeniencyHelperModule.Session.wjDist,
+                    Math.Sign(component.savedLiftSpeed.Y));
+
+                if (self.CollideCheck(actor, self.Position + collideCheckOffset) || actor.IsRiding(interactSolid))
                 {
-                    if (!actor.AllowPushing) continue;
-
-                    bool saveCollidable = actor.Collidable;
-                    actor.Collidable = true;
-
-                    Vector2 collideCheckOffset = new Vector2(
-                        Math.Sign(component.savedLiftSpeed.X) * LeniencyHelperModule.Session.wjDist,
-                        Math.Sign(component.savedLiftSpeed.Y));
-
-                    if (self.CollideCheck(actor, self.Position + collideCheckOffset) || actor.IsRiding(interactSolid))
-                    {
-                        actor.LiftSpeed = component.savedLiftSpeed;
-                    }
-                    else if(self.CollideCheck(actor, self.Position + (Math.Sign(component.savedLiftSpeed.X) * LeniencyHelperModule.Session.wjDist)*Vector2.UnitX))
-                    {
-                        actor.LiftSpeed = actor.LiftSpeed with { X = component.savedLiftSpeed.X };
-                    }
-                    else if(self.CollideCheck(actor, self.Position + Math.Sign(component.savedLiftSpeed.Y) * Vector2.UnitY))
-                    {
-                        actor.LiftSpeed = actor.LiftSpeed with { Y = component.savedLiftSpeed.Y };
-                    }
-
-                    actor.Collidable = saveCollidable;
+                    actor.LiftSpeed = component.savedLiftSpeed;
                 }
-            }
+                else if(self.CollideCheck(actor, self.Position + (Math.Sign(component.savedLiftSpeed.X) * LeniencyHelperModule.Session.wjDist)*Vector2.UnitX))
+                {
+                    actor.LiftSpeed = actor.LiftSpeed with { X = component.savedLiftSpeed.X };
+                }
+                else if(self.CollideCheck(actor, self.Position + Math.Sign(component.savedLiftSpeed.Y) * Vector2.UnitY))
+                {
+                    actor.LiftSpeed = actor.LiftSpeed with { Y = component.savedLiftSpeed.Y };
+                }
 
-            component.boostSaveTimer -= Engine.DeltaTime;
+                actor.Collidable = saveCollidable;
+            }
         }
+        component.boostSaveTimer -= Engine.DeltaTime;
     }
+
     #endregion
 }

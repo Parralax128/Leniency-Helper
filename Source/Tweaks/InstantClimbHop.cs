@@ -4,11 +4,13 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class InstantClimbHop
 {
+    [OnLoad]
     public static void LoadHooks()
     {
         On.Celeste.Player.Update += InstantClimbhopUpdate;
         On.Celeste.Player.ClimbHop += RedoMoveDown;
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         On.Celeste.Player.Update -= InstantClimbhopUpdate;
@@ -19,7 +21,7 @@ public class InstantClimbHop
         orig(self);
         var s = LeniencyHelperModule.Session;
 
-        if (s.TweaksEnabled["InstantClimbHop"])
+        if (s.Tweaks["InstantClimbHop"].Enabled)
         {
             s.savedClimbHopSolid = self.climbHopSolid;
             s.movedDown = false;
@@ -29,7 +31,7 @@ public class InstantClimbHop
     {
         orig(self);
 
-        if(!LeniencyHelperModule.Session.TweaksEnabled["InstantClimbHop"]) return;
+        if(!LeniencyHelperModule.Session.Tweaks["InstantClimbHop"].Enabled) return;
 
         var s = LeniencyHelperModule.Session;
 

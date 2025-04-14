@@ -7,17 +7,17 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class ConsistentDashOnDBlockExit
 {
+    [OnLoad]
     public static void LoadHooks()
     {
         IL.Celeste.Player.DreamDashUpdate += InstantDBlockExit;
-        On.Celeste.Player.DreamDashBegin += ProtectInstaExit;
         On.Celeste.Player.DreamDashEnd += DetectDreamDashEnd;
         On.Celeste.Player.Update += MoveToDBlock;
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         IL.Celeste.Player.DreamDashUpdate -= InstantDBlockExit;
-        On.Celeste.Player.DreamDashBegin -= ProtectInstaExit;
         On.Celeste.Player.DreamDashEnd -= DetectDreamDashEnd;
         On.Celeste.Player.Update -= MoveToDBlock;
     }
@@ -27,13 +27,13 @@ public class ConsistentDashOnDBlockExit
         orig(self);
 
         var s = LeniencyHelperModule.Session;
-        if(s.TweaksEnabled["ConsistentDashOnDBlockExit"]) s.dreamDashEnded = true;
+        if(s.Tweaks["ConsistentDashOnDBlockExit"].Enabled) s.dreamDashEnded = true;
     }
     private static void MoveToDBlock(On.Celeste.Player.orig_Update orig, Player self)
     {
         orig(self);
 
-        if (LeniencyHelperModule.Session.TweaksEnabled["ConsistentDashOnDBlockExit"] && LeniencyHelperModule.Session.dreamDashEnded)
+        if (LeniencyHelperModule.Session.Tweaks["ConsistentDashOnDBlockExit"].Enabled && LeniencyHelperModule.Session.dreamDashEnded)
         {
             int negSign = -Math.Sign(self.Speed.X);
             for (int c = 0; c < Math.Abs(self.Speed.X * Engine.DeltaTime * 2f); c++)
@@ -48,22 +48,15 @@ public class ConsistentDashOnDBlockExit
             LeniencyHelperModule.Session.dreamDashEnded = false;
         }
     }
-    
-    private static void ProtectInstaExit(On.Celeste.Player.orig_DreamDashBegin orig, Player self)
-    {
-        orig(self);
-        if (LeniencyHelperModule.Session.TweaksEnabled["ConsistentDashOnDBlockExit"]) LeniencyHelperModule.Session.justEntered = true;
-    }
     private static float ZeroIfEnabled(float orig)
     {
-        if (!LeniencyHelperModule.Session.TweaksEnabled["ConsistentDashOnDBlockExit"]) return orig;
+        if (!LeniencyHelperModule.Session.Tweaks["ConsistentDashOnDBlockExit"].Enabled) return orig;
         else return 0f;
     }
 
     private static void ResetDashCDifEnabled(Player player)
     {
-        if(LeniencyHelperModule.Session.TweaksEnabled["ConsistentDashOnDBlockExit"] &&
-            (bool)LeniencyHelperModule.Settings.GetSetting("ConsistentDashOnDBlockExit", "resetDashCDonLeave"))
+        if(LeniencyHelperModule.Session.Tweaks["ConsistentDashOnDBlockExit"].Enabled && SettingMaster.GetSetting<bool>("resetDashCDonLeave"))
         {
             player.dashCooldownTimer = 0f;
         }

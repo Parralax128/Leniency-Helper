@@ -1,8 +1,9 @@
 using Microsoft.Xna.Framework;
-using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
+using static Celeste.Mod.LeniencyHelper.SettingMaster;
 using System;
 using MonoMod.Cil;
 using static Celeste.Mod.Helpers.ILCursorExtensions;
+using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
 using VivHelper.Entities;
 using MonoMod.RuntimeDetour;
 using System.Reflection;
@@ -11,17 +12,18 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class BufferableClimbtrigger
 {
+    [OnLoad]
     public static void LoadHooks()
     {
         On.Celeste.Player.ClimbJump += ClimbTriggerOnClimbJump;
         On.Celeste.Player.DashUpdate += ClimbTriggerDuringDash;
         IL.Celeste.Player.NormalUpdate += ClimbTriggerOnFlyingUp;
 
+        On.Celeste.Player.ClimbTrigger += GetDefaultDir;
         On.Celeste.Player.Update += ClearSafeClimbTrigger;
 
         On.Celeste.Player.IsRiding_Solid += ForceRideSolid;
         On.Celeste.Solid.GetPlayerClimbing += ForceClimbSolid;
-        On.Celeste.Player.ClimbTrigger += GetDefaultDir;
         On.Celeste.BounceBlock.WindUpPlayerCheck += ForceCoreBlockTrigger;
         
         IL.Celeste.Solid.MoveHExact += DontMovePlayer;
@@ -33,6 +35,7 @@ public class BufferableClimbtrigger
         customWindUpHook = new Hook(typeof(ReskinnableBounceBlock).GetMethod("WindUpPlayerCheck",
             BindingFlags.NonPublic | BindingFlags.Instance), ForceCustomCoreblockTrigger);
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         On.Celeste.Player.ClimbJump -= ClimbTriggerOnClimbJump;
@@ -49,7 +52,7 @@ public class BufferableClimbtrigger
         IL.Celeste.Solid.MoveHExact -= DontMovePlayer;
         IL.Celeste.Solid.MoveVExact -= DontMovePlayer;
 
-        if (ModsLoaded[("VivHelper", new Version(1, 12, 3))]) UnloadVivHelperHooks();
+        if (LeniencyHelperModule.ModsLoaded[("VivHelper", new Version(1, 12, 3))]) UnloadVivHelperHooks();
     }
     public static void UnloadVivHelperHooks()
     {
@@ -65,22 +68,19 @@ public class BufferableClimbtrigger
         orig(self);
         var s = LeniencyHelperModule.Session;
 
-        if (s.TweaksEnabled["BufferableClimbtrigger"])
+        if (s.Tweaks["BufferableClimbtrigger"].Enabled)
         {
             self.ClimbTrigger((int)self.Facing);
         }
     }
     private static int ClimbTriggerDuringDash(On.Celeste.Player.orig_DashUpdate orig, Player self)
     {
-        if (LeniencyHelperModule.Session.TweaksEnabled["BufferableClimbtrigger"])
+        if (LeniencyHelperModule.Session.Tweaks["BufferableClimbtrigger"].Enabled && GetSetting<bool>("onDash"))
         {
-            if (self.Speed.Y >= 0f || (bool)LeniencyHelperModule.Settings.GetSetting("BufferableClimbtrigger", "onNormalUpdate"))
+            if (self.Holding == null && Math.Sign(self.Speed.X) != 0 - self.Facing && self.ClimbBoundsCheck((int)self.Facing)
+                && Input.GrabCheck && !self.IsTired && !self.Ducking)
             {
-                if (self.Holding == null && Math.Sign(self.Speed.X) != 0 - self.Facing && self.ClimbBoundsCheck((int)self.Facing)
-                    && Input.GrabCheck && !self.IsTired && !self.Ducking)
-                {
-                    safeClimbtriggerDir = (int)self.Facing;
-                }
+                safeClimbtriggerDir = (int)self.Facing;
             }
         }
         return orig(self);
@@ -142,7 +142,7 @@ public class BufferableClimbtrigger
 
     private static bool ClimbTriggering(Solid solid)
     {
-        if (!LeniencyHelperModule.Session.TweaksEnabled["BufferableClimbtrigger"]) return false;
+        if (!LeniencyHelperModule.Session.Tweaks["BufferableClimbtrigger"].Enabled) return false;
 
         Player p = solid.Scene.Tracker.GetNearestEntity<Player>(solid.Center);
         if (p is null || safeClimbtriggerDir == 0) return false;
@@ -181,7 +181,6 @@ public class BufferableClimbtrigger
     
     private static bool CheckEnabled(Player player)
     {
-        return LeniencyHelperModule.Session.TweaksEnabled["BufferableClimbtrigger"]
-            && (bool)LeniencyHelperModule.Settings.GetSetting("BufferableClimbtrigger", "onNormalUpdate");
+        return LeniencyHelperModule.Session.Tweaks["BufferableClimbtrigger"].Enabled && GetSetting<bool>("onNormalUpdate");
     }    
 }

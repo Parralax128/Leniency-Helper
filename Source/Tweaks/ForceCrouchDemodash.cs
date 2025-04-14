@@ -2,10 +2,12 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class ForceCrouchDemodash
 {
+    [OnLoad]
     public static void LoadHooks()
     {
         On.Celeste.Player.DashBegin += ForceCrouchDemodashDashBegin;
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         On.Celeste.Player.DashBegin -= ForceCrouchDemodashDashBegin;
@@ -14,6 +16,6 @@ public class ForceCrouchDemodash
     public static void ForceCrouchDemodashDashBegin(On.Celeste.Player.orig_DashBegin orig, Player self)
     {
         orig(self);
-        if (LeniencyHelperModule.Session.TweaksEnabled["ForceCrouchDemodash"] && self.demoDashed) self.Ducking = true;
+        if (LeniencyHelperModule.Session.Tweaks["ForceCrouchDemodash"].Enabled && self.demoDashed) self.Ducking = true;
     }
 }

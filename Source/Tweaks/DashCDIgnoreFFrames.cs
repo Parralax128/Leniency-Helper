@@ -7,6 +7,7 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class DashCDIgnoreFFrames
 {
+    [OnLoad]
     public static void LoadHooks()
     {
         On.Celeste.Celeste.Freeze += UpdateDashCDOnFreeze;
@@ -14,6 +15,7 @@ public class DashCDIgnoreFFrames
         On.Celeste.Player.DashBegin += UseDefaultFFOnDash;
         On.Celeste.Player.DashUpdate += InstantDashBegin;
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         On.Celeste.Celeste.Freeze -= UpdateDashCDOnFreeze;
@@ -40,7 +42,7 @@ public class DashCDIgnoreFFrames
     {
         var s = LeniencyHelperModule.Session;
         orig(time);
-        if(!LeniencyHelperModule.Session.TweaksEnabled["DashCDIgnoreFFrames"] || s.useOrigFreeze) return;
+        if(!LeniencyHelperModule.Session.Tweaks["DashCDIgnoreFFrames"].Enabled || s.useOrigFreeze) return;
         {
             if (s.modifiedPlayer is not null)
                 s.modifiedPlayer.dashCooldownTimer -= time;
@@ -49,7 +51,7 @@ public class DashCDIgnoreFFrames
 
     public static int InstantDashBegin(On.Celeste.Player.orig_DashUpdate orig, Player self)
     {
-        if (!LeniencyHelperModule.Session.TweaksEnabled["DashCDIgnoreFFrames"]) return orig(self);
+        if (!LeniencyHelperModule.Session.Tweaks["DashCDIgnoreFFrames"].Enabled) return orig(self);
 
         if (self.CanDash)
         {

@@ -1,7 +1,6 @@
 ﻿using System;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
-using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
 using Monocle;
 using System.Reflection;
 
@@ -10,10 +9,12 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks
     class BackwardsRetention
     {
         private static ILHook origUpdateHook;
+        [OnLoad]
         public static void LoadHooks()
         {
             origUpdateHook = new ILHook(typeof(Player).GetMethod(nameof(Player.orig_Update)), HookedUpdate);
         }
+        [OnUnload]
         public static void UnloadHooks()
         {
             origUpdateHook.Dispose();
@@ -21,7 +22,7 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks
         
         private static bool CanSkipCancel(Player player)
         {
-            if (!LeniencyHelperModule.Session.TweaksEnabled["BackwardsRetention"]) return false;
+            if (!LeniencyHelperModule.Session.Tweaks["BackwardsRetention"].Enabled) return false;
             return (Math.Abs(player.Speed.X) < 40f); // ~40 is speed player can reach in their wallRetainTime from zero with air-movement
         }
         private static void HookedUpdate(ILContext il)
@@ -57,7 +58,7 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks
         }
         private static float AddCollideCheckDist(float defalutValue)
         {
-            return defalutValue * (LeniencyHelperModule.Session.TweaksEnabled["BackwardsRetention"] ? 4 : 1);
+            return defalutValue * (LeniencyHelperModule.Session.Tweaks["BackwardsRetention"].Enabled ? 4 : 1);
         }
     }
 }

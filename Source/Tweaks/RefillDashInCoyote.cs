@@ -9,24 +9,39 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 public class RefillDashInCoyote
 {
     private static ILHook origUpdateHook;
+
+    [OnLoad]
     public static void LoadHooks()
     {
         origUpdateHook = new ILHook(typeof(Player).GetMethod(nameof(Player.orig_Update)), HookedUpdate);
+        IL.Celeste.Player.Jump += CancelRefillOnJump;
+        IL.Celeste.Player.SuperJump += CancelRefillOnJump;
+        IL.Celeste.Player.ClimbJump += CancelRefillOnJump;
+        IL.Celeste.Player.WallJump += CancelRefillOnJump;
+        IL.Celeste.Player.SuperWallJump += CancelRefillOnJump;
+        IL.Celeste.Player.HiccupJump += CancelRefillOnJump;
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         origUpdateHook.Dispose();
+        IL.Celeste.Player.Jump -= CancelRefillOnJump;
+        IL.Celeste.Player.SuperJump -= CancelRefillOnJump;
+        IL.Celeste.Player.ClimbJump -= CancelRefillOnJump;
+        IL.Celeste.Player.WallJump -= CancelRefillOnJump;
+        IL.Celeste.Player.SuperWallJump -= CancelRefillOnJump;
+        IL.Celeste.Player.HiccupJump -= CancelRefillOnJump;
     }
 
-    private static void HookedUpdate(ILContext il) //tl;dr we goto dash refill check as if player.dashRefillCDtimer was >0f
+    private static void HookedUpdate(ILContext il) //tl;dr we goto dash refill check as if player.dashRefillCDtimer was <= 0f
     {
-        ILCursor c = new ILCursor(il);
+        ILCursor cursor = new ILCursor(il);
 
         ILLabel gotoRefillCheck = il.DefineLabel();
         ILLabel goOutPreventRefill = il.DefineLabel();
         ILLabel trueRefill = il.DefineLabel();
 
-        if(c.TryGotoNextBestFit(MoveType.After,
+        if(cursor.TryGotoNextBestFit(MoveType.After,
             instr => instr.MatchLdsfld<SaveData>("Instance"),
             instr => instr.MatchLdflda<SaveData>("Assists"),
             instr => instr.MatchLdfld<Assists>("Invincible"),
@@ -34,30 +49,30 @@ public class RefillDashInCoyote
             instr => instr.MatchLdarg0(),
             instr => instr.MatchCallvirt<Player>("RefillDash")))
         {
-            c.GotoPrev(MoveType.Before, instr => instr.MatchCallvirt<Player>("RefillDash"));
-            c.EmitDelegate(SetTimerAndPreventRefillOnCheck);
-            c.EmitBrtrue(goOutPreventRefill);
-            c.EmitLdarg0();
+            cursor.GotoPrev(MoveType.Before, instr => instr.MatchCallvirt<Player>("RefillDash"));
+            cursor.EmitDelegate(OnRefillCheck);
+            cursor.EmitBrtrue(goOutPreventRefill);
+            cursor.EmitLdarg0();
 
-            if (c.TryGotoPrev(MoveType.Before, instr => instr.MatchLdarg0(), instr => instr.MatchLdfld<Player>("onGround")))
+            if (cursor.TryGotoPrev(MoveType.Before, instr => instr.MatchLdarg0(), instr => instr.MatchLdfld<Player>("onGround")))
             {
-                c.MarkLabel(gotoRefillCheck); // represents label of the start of refill check
+                cursor.MarkLabel(gotoRefillCheck); // represents label of the start of refill check
 
-                if (c.TryGotoPrevBestFit(MoveType.After,
+                if (cursor.TryGotoPrevBestFit(MoveType.After,
                     instr => instr.MatchCall<Engine>("get_DeltaTime"),
                     instr => instr.MatchSub(),
                     instr => instr.MatchStfld<Player>("dashRefillCooldownTimer")))
                 {
-                    c.EmitDelegate(StartChecking);
-                    c.EmitBrtrue(gotoRefillCheck);
+                    cursor.EmitDelegate(StartChecking);
+                    cursor.EmitBrtrue(gotoRefillCheck);
 
-                    if (c.TryGotoPrevBestFit(MoveType.After,
+                    if (cursor.TryGotoPrevBestFit(MoveType.After,
                         instr => instr.MatchLdfld<Player>("dashRefillCooldownTimer"),
                         instr => instr.MatchLdcR4(0f),
                         instr => instr.MatchBleUn(out trueRefill)))
                     {
-                        c.GotoLabel(trueRefill);
-                        c.EmitDelegate(CancelArtificialCheck);
+                        cursor.GotoLabel(trueRefill);
+                        cursor.EmitDelegate(CancelArtificialCheck);
                     }
                 }
             }
@@ -66,7 +81,7 @@ public class RefillDashInCoyote
     private static bool StartChecking()
     {
         var s = LeniencyHelperModule.Session;
-        if (s.TweaksEnabled["RefillDashInCoyote"])
+        if (s.Tweaks["RefillDashInCoyote"].Enabled)
         {
             s.artificialChecking = true;
             return true;
@@ -75,13 +90,12 @@ public class RefillDashInCoyote
     }
     private static void CancelArtificialCheck()
     {
-        var s = LeniencyHelperModule.Session;
-        if (s.TweaksEnabled["RefillDashInCoyote"])
-            s.artificialChecking = false;
+        if (LeniencyHelperModule.Session.Tweaks["RefillDashInCoyote"].Enabled)
+            LeniencyHelperModule.Session.artificialChecking = false;
     }
-    private static bool SetTimerAndPreventRefillOnCheck(Player player)
+    private static bool OnRefillCheck(Player player)
     {
-        if (LeniencyHelperModule.Session.artificialChecking && LeniencyHelperModule.Session.TweaksEnabled["RefillDashInCoyote"])
+        if (LeniencyHelperModule.Session.artificialChecking && LeniencyHelperModule.Session.Tweaks["RefillDashInCoyote"].Enabled)
         {
             RefillCoyoteComponent component = player.Get<RefillCoyoteComponent>();
             int saveDashes = player.Dashes;
@@ -96,5 +110,15 @@ public class RefillDashInCoyote
         }
         
         return false;
+    }
+    private static void CancelRefillOnJump(ILContext il)
+    {
+        ILCursor c = new ILCursor(il);
+        c.EmitLdarg0();
+        c.EmitDelegate(CallComponentCancle);
+    }
+    private static void CallComponentCancle(Player player)
+    {
+        player.Get<RefillCoyoteComponent>()?.Cancel();
     }
 }

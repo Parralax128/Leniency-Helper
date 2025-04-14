@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using Monocle;
-using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
 using Celeste.Mod.ShroomHelper.Entities;
 using System.Linq;
 
@@ -11,10 +10,12 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class IceWallIncreaseWallLeniency
 {
+    [OnLoad]
     public static void LoadHooks()
     {
         IL.Celeste.Player.WallJumpCheck += CustomWJCheck;
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         IL.Celeste.Player.WallJumpCheck -= CustomWJCheck;
@@ -24,12 +25,10 @@ public class IceWallIncreaseWallLeniency
     {
         if (returnOrig) return defaultValue;
 
-        var settings = LeniencyHelperModule.Settings;
         var s = LeniencyHelperModule.Session;
-
         int newValue = defaultValue;
 
-        if (s.TweaksEnabled["DynamicWallLeniency"] &&
+        if (s.Tweaks["DynamicWallLeniency"].Enabled &&
             (Math.Sign(player.Speed.X) != dir || (player.DashAttacking && player.SuperWallJumpAngleCheck)))
         {
             newValue = DynamicWallLeniency.GetDynamicLeniency(player, defaultValue);
@@ -37,25 +36,26 @@ public class IceWallIncreaseWallLeniency
 
         s.wjDist = newValue;
 
-        if (!s.TweaksEnabled["IceWallIncreaseWallLeniency"])
+        if (!s.Tweaks["IceWallIncreaseWallLeniency"].Enabled)
             return newValue;
 
-        for (int c = 0; c < newValue + (int)settings.GetSetting("IceWallIncreaseWallLeniency", "iceWJLeniency") + 1; c++)
+        int iceLeni = SettingMaster.GetSetting<int>("iceWJLeniency");
+        for (int c = 0; c < newValue + iceLeni + 1; c++)
         {
             Vector2 at = player.Position + Vector2.UnitX * dir * c;
             if (player.CollideCheck<WallBooster>(at))
             {
                 if ((int)player.CollideFirst<WallBooster>(player.Position + Vector2.UnitX * dir * c).Facing == dir)
                 {
-                    s.wjDist = ((int)settings.GetSetting("IceWallIncreaseWallLeniency", "iceWJLeniency") + newValue);
+                    s.wjDist = iceLeni + newValue;
                     return s.wjDist;
                 }
             }
-            else if (ModsLoaded[("ShroomHelper", new Version(1, 0, 0))])
+            else if (LeniencyHelperModule.ModsLoaded[("ShroomHelper", new Version(1, 0, 0))])
             {
                 if (CollidingAttachedIceWall(player, at, dir, c))
                 {
-                    s.wjDist = ((int)settings.GetSetting("IceWallIncreaseWallLeniency", "iceWJLeniency") + newValue);
+                    s.wjDist = iceLeni + newValue;
                     return s.wjDist;
                 }
             }
@@ -64,7 +64,7 @@ public class IceWallIncreaseWallLeniency
     }
     private static bool CollidingAttachedIceWall(Player player, Vector2 at, int dir, int c)
     {
-        if (!ModsLoaded[("ShroomHelper", new Version(1, 0, 0))]) return false;
+        if (!LeniencyHelperModule.ModsLoaded[("ShroomHelper", new Version(1, 0, 0))]) return false;
 
         return (player.CollideCheck<AttachedIceWall>(at) &&
             (int)player.CollideFirst<AttachedIceWall>(player.Position + Vector2.UnitX * dir * c).Facing == dir);
@@ -120,7 +120,7 @@ public class IceWallIncreaseWallLeniency
             cursor.GotoPrev(MoveType.After, i => i.MatchLdcI4(5));
             cursor.MarkLabel(getWbLeni);
 
-            cursor.EmitPop(); // to get rid of "this" or "5" in stack
+            cursor.EmitPop();
             cursor.EmitLdcI4(0);
             cursor.EmitStloc(trueFlag);
             cursor.EmitLdcI4(5);
@@ -157,13 +157,16 @@ public class IceWallIncreaseWallLeniency
     }
     private static bool TrueIfBothDisabled()
     {
-        return (!LeniencyHelperModule.Session.TweaksEnabled["IceWallIncreaseWallLeniency"] && 
-            !LeniencyHelperModule.Session.TweaksEnabled["DynamicWallLeniency"]);
+        return (!LeniencyHelperModule.Session.Tweaks["IceWallIncreaseWallLeniency"].Enabled && 
+            !LeniencyHelperModule.Session.Tweaks["DynamicWallLeniency"].Enabled);
     }
     private static void ReturnOrigPos(Player player, Vector2 pos)
     {
-        if(LeniencyHelperModule.Session.TweaksEnabled["IceWallIncreaseWallLeniency"] || LeniencyHelperModule.Session.TweaksEnabled["DynamicWallLeniency"])
+        if (LeniencyHelperModule.Session.Tweaks["IceWallIncreaseWallLeniency"].Enabled
+            || LeniencyHelperModule.Session.Tweaks["DynamicWallLeniency"].Enabled)
+        {
             player.Position = pos;
+        }
     }
     private static Vector2 MovePlayer(Player player, int newWjDist, int origWjDist, int dir)
     {

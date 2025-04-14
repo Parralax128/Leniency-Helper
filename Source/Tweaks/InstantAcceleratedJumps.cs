@@ -4,10 +4,12 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class InstantAcceleratedJumps
 {
+    [OnLoad]
     public static void LoadHooks()
     {
         On.Celeste.Player.Jump += GetFullWalkSpeed;
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         On.Celeste.Player.Jump -= GetFullWalkSpeed;
@@ -15,7 +17,7 @@ public class InstantAcceleratedJumps
     private static void GetFullWalkSpeed(On.Celeste.Player.orig_Jump orig, Player self,
         bool particles, bool playSfx)
     {
-        if(!self.onGround || !LeniencyHelperModule.Session.TweaksEnabled["InstantAcceleratedJumps"])
+        if(!self.onGround || !LeniencyHelperModule.Session.Tweaks["InstantAcceleratedJumps"].Enabled)
         {
             orig(self, particles, playSfx);
             return; 
