@@ -1,13 +1,12 @@
 ﻿using Monocle;
+using static Celeste.Mod.LeniencyHelper.SettingMaster;
 
 namespace Celeste.Mod.LeniencyHelper.Components;
 
 public class RefillCoyoteComponent : Component
 {
-    public static float RefillCoyoteTime =>
-    ((bool)LeniencyHelperModule.Settings.GetSetting("RefillDashInCoyote", "CountRefillCoyoteTimeInFrames") ?
-    (float)LeniencyHelperModule.Settings.GetSetting("RefillDashInCoyote", "RefillCoyoteTime") / Engine.FPS :
-    (float)LeniencyHelperModule.Settings.GetSetting("RefillDashInCoyote", "RefillCoyoteTime"));
+    public static float RefillCoyoteTime => GetSetting<bool>("CountRefillCoyoteTimeInFrames") ?
+        GetSetting<float>("RefillCoyoteTime") / Engine.FPS : GetSetting<float>("RefillCoyoteTime");
 
     public float refillCoyoteTimer;
     public RefillCoyoteComponent() : base(true, true) 
@@ -32,5 +31,10 @@ public class RefillCoyoteComponent : Component
     public void ResetTimer()
     {
         refillCoyoteTimer = RefillCoyoteTime;
+    }
+
+    public void Cancel()
+    {
+        refillCoyoteTimer = 0f;
     }
 }

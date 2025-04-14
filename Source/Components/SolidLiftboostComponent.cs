@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using static Celeste.Mod.LeniencyHelper.SettingMaster;
 using Monocle;
 
 namespace Celeste.Mod.LeniencyHelper.Components;
@@ -10,9 +11,9 @@ public class SolidLiftboostComponent : Component
     {
         get
         {
-            return (bool)LeniencyHelperModule.Settings.GetSetting("SolidBlockboostProtection", "countSolidBoostSaveTimeInFrames") ?
-                (float)LeniencyHelperModule.Settings.GetSetting("SolidBlockboostProtection", "bboostSaveTime")/Engine.FPS :
-                (float)LeniencyHelperModule.Settings.GetSetting("SolidBlockboostProtection", "bboostSaveTime");
+            return GetSetting<bool>("countSolidBoostSaveTimeInFrames") ?
+                GetSetting<float>("bboostSaveTime") / Engine.FPS :
+                GetSetting<float>("bboostSaveTime");
         }
     }
     public float boostSaveTimer = 0f;
@@ -23,7 +24,7 @@ public class SolidLiftboostComponent : Component
 
     public void OnMove()
     {
-        if (LeniencyHelperModule.Session.TweaksEnabled["SolidBlockboostProtection"])
+        if (LeniencyHelperModule.Session.Tweaks["SolidBlockboostProtection"].Enabled)
         {
             if(Entity is Platform p && p.LiftSpeed != Vector2.Zero)
             {

@@ -4,10 +4,8 @@ namespace Celeste.Mod.LeniencyHelper.Components;
 
 public class WallCoyoteFramesComponent : Component
 {
-    public float wallCoyoteTime => LeniencyHelperModule.Settings is null ?
-        0f : (float)LeniencyHelperModule.Settings.GetSetting("WallCoyoteFrames", "wallCoyoteTime");
-    public float wallCoyoteTimer => LeniencyHelperModule.Session is null?
-        0f : LeniencyHelperModule.Session.wallCoyoteTimer;
+    public float wallCoyoteTime => LeniencyHelperModule.Settings is null ? 0f : SettingMaster.GetSetting<float>("wallCoyoteTime");
+    public float wallCoyoteTimer => LeniencyHelperModule.Session is null? 0f : LeniencyHelperModule.Session.wallCoyoteTimer;
     public enum WallCoyoteTypes
     {
         Left,
@@ -20,7 +18,7 @@ public class WallCoyoteFramesComponent : Component
     {
         base.Update();
 
-        if (!LeniencyHelperModule.Session.TweaksEnabled["WallCoyoteFrames"])
+        if (!LeniencyHelperModule.Session.Tweaks["WallCoyoteFrames"].Enabled)
         {
             LeniencyHelperModule.Session.prevWallCoyoteTime = wallCoyoteTime;
         }

@@ -6,10 +6,12 @@ namespace Celeste.Mod.LeniencyHelper.Components;
 
 public class ComponentManager
 {
+    [OnLoad]
     public static void LoadHooks()
     {
         On.Celeste.Player.Update += ManageComponents;
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         On.Celeste.Player.Update -= ManageComponents;
@@ -21,8 +23,8 @@ public class ComponentManager
 
         Component[] result = Array.Empty<Component>();
 
-        if (s.TweaksEnabled["WallCoyoteFrames"]) result = result.Append(s.WCFcomponent).ToArray();
-        if (s.TweaksEnabled["RefillDashInCoyote"]) result = result.Append(s.RCcomponent).ToArray();
+        if (s.Tweaks["WallCoyoteFrames"].Enabled) result = result.Append(s.WCFcomponent).ToArray();
+        if (s.Tweaks["RefillDashInCoyote"].Enabled) result = result.Append(s.RCcomponent).ToArray();
 
         return result;
     }
@@ -32,8 +34,8 @@ public class ComponentManager
 
         Component[] result = Array.Empty<Component>();
 
-        if (!s.TweaksEnabled["WallCoyoteFrames"]) result = result.Append(s.WCFcomponent).ToArray();
-        if (!s.TweaksEnabled["RefillDashInCoyote"]) result = result.Append(s.RCcomponent).ToArray();
+        if (!s.Tweaks["WallCoyoteFrames"].Enabled) result = result.Append(s.WCFcomponent).ToArray();
+        if (!s.Tweaks["RefillDashInCoyote"].Enabled) result = result.Append(s.RCcomponent).ToArray();
 
         return result;
     }
