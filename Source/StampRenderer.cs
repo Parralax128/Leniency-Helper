@@ -1,9 +1,9 @@
 ﻿using Monocle;
 using Microsoft.Xna.Framework;
-using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
 
 namespace Celeste.Mod.LeniencyHelper;
 
+[Tracked(false)]
 public class StampRenderer : Entity
 {
     private Vector2 stampPos;
@@ -21,14 +21,9 @@ public class StampRenderer : Entity
 
         if (LeniencyHelperModule.Settings is null || LeniencyHelperModule.Session is null) return;
         
-        foreach (string tweak in LeniencyHelperModule.Tweaks)
+        foreach (string tweak in LeniencyHelperModule.tweakList)
         {
-            if (!LeniencyHelperModule.Session.TweaksByMap.ContainsKey(tweak))
-            {
-                Log("missing");
-                continue;
-            }
-            if (LeniencyHelperModule.Settings.TweaksByPlayer[tweak] == true && LeniencyHelperModule.Session.TweaksByMap[tweak] == false)
+            if (LeniencyHelperModule.Session.Tweaks[tweak].playerValue == true && LeniencyHelperModule.Session.Tweaks[tweak].MapEnabled == false)
             {
                 Stamp.DrawCentered(stampPos, Color.White * 0.15f, 0.35f);
                 break;
