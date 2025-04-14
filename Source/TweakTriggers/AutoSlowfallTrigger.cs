@@ -6,8 +6,8 @@ namespace Celeste.Mod.LeniencyHelper.TweakTriggers;
 [CustomEntity("LeniencyHelper/Triggers/AutoSlowfall")]
 public class AutoSlowfallTrigger : GenericTweakTrigger
 {
-    public AutoSlowfallTrigger(EntityData data, Vector2 offset) : base(data, offset)
+    public AutoSlowfallTrigger(EntityData data, Vector2 offset) : base(data, offset, "AutoSlowfall")
     {
-        tweakName = "AutoSlowfall";
+
     }
 }

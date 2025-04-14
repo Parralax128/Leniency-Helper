@@ -6,8 +6,8 @@ namespace Celeste.Mod.LeniencyHelper.TweakTriggers;
 [CustomEntity("LeniencyHelper/Triggers/DashCDIgnoreFFrames")]
 public class DashCDIgnoreFFramesTrigger : GenericTweakTrigger
 {
-    public DashCDIgnoreFFramesTrigger(EntityData data, Vector2 offset) : base(data, offset)
+    public DashCDIgnoreFFramesTrigger(EntityData data, Vector2 offset) : base(data, offset, "DashCDIgnoreFFrames")
     {
-        tweakName = "DashCDIgnoreFFrames";
+
     }
 }

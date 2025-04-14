@@ -7,10 +7,8 @@ namespace Celeste.Mod.LeniencyHelper.TweakTriggers;
 [CustomEntity("LeniencyHelper/Triggers/IceWallIncreaseWallLeniency")]
 public class IceWallIncreaseWallLeniencyTrigger : GenericTweakTrigger
 {
-    public IceWallIncreaseWallLeniencyTrigger(EntityData data, Vector2 offset) : base(data, offset)
+    public IceWallIncreaseWallLeniencyTrigger(EntityData data, Vector2 offset) : base(data, offset, "IceWallIncreaseWallLeniency")
     {
-        tweakName = "IceWallIncreaseWallLeniency";
 
-        fullData = fullData.Append(new TriggerData(3, "iceWJLeniency", "AdditionalLeniency", "int")).ToArray();
     }
 }

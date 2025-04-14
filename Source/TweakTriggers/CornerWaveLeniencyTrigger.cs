@@ -7,10 +7,8 @@ namespace Celeste.Mod.LeniencyHelper.TweakTriggers;
 [CustomEntity("LeniencyHelper/Triggers/CornerWaveLeniency")]
 public class CornerWaveLeniencyTrigger : GenericTweakTrigger
 {
-    public CornerWaveLeniencyTrigger(EntityData data, Vector2 offset) : base(data, offset)
+    public CornerWaveLeniencyTrigger(EntityData data, Vector2 offset) : base(data, offset, "CornerWaveLeniency")
     {
-        tweakName = "CornerWaveLeniency";
 
-        fullData = fullData.Append(new TriggerData(false, "allowSpikedFloor", "AllowSpikedFloor", "bool")).ToArray();
     }
 }

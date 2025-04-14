@@ -7,10 +7,8 @@ namespace Celeste.Mod.LeniencyHelper.TweakTriggers;
 [CustomEntity("LeniencyHelper/Triggers/BufferableClimbtrigger")]
 public class BufferableClimbtriggerTrigger : GenericTweakTrigger
 {
-    public BufferableClimbtriggerTrigger(EntityData data, Vector2 offset) : base(data, offset)
+    public BufferableClimbtriggerTrigger(EntityData data, Vector2 offset) : base(data, offset, "BufferableClimbtrigger")
     {
-        tweakName = "BufferableClimbtrigger";
 
-        fullData = fullData.Append(new TriggerData(false, "onlyOnClimbjumps", "DisableInstantUpwardClimbActivation", "bool")).ToArray();
     }
 }
