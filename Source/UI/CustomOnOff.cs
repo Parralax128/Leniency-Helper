@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using YamlDotNet.Core.Tokens;
-
+using static Celeste.Mod.LeniencyHelper.SettingMaster;
 
 namespace Celeste.Mod.LeniencyHelper.UI
 {
@@ -10,50 +8,47 @@ namespace Celeste.Mod.LeniencyHelper.UI
     {
         public bool value;
         private string text => Dialog.Clean($"MODOPTIONS_LENIENCYHELPER_ENUMVALUES_{(value?"ON":"OFF")}");
-        public float len => 120f + ActiveFont.Measure(text).X;
-        private string sessionVar;
-        public bool framesModeToggler;
-        
-        private bool GetDefaultValue()
+        public float len;
+        private float Measure(bool on)
         {
-            return true;
-
+            return ActiveFont.Measure(Dialog.Clean($"MODOPTIONS_LENIENCYHELPER_ENUMVALUES_{(on ? "ON" : "OFF")}")).X;
         }
-        public CustomOnOff(string label, bool defaultValue, bool framesToggler, string sessionName) : base(label)
+
+        public string settingName;
+        public bool framesModeToggler;
+        public CustomOnOff(string label, bool defaultValue, bool framesToggler, string settingName) : base(label)
         {
             value = defaultValue;
-            sessionVar = sessionName;
+            this.settingName = settingName;
             framesModeToggler = framesToggler;
+            len = 120f + Math.Max(Measure(true), Measure(false));
 
-            this.OnValueChange += (value) =>
-            {
-                LeniencyHelperModule.Settings.SetValue(sessionVar, value);
-            };
+            OnValueChange += (value) => { SetPlayerSetting(this.settingName, value); };
         }
 
         public override void RightPressed()
         {
             if (!value)
             {
-                Audio.Play("event:/ui/main/button_toggle_on");
-                lastDir = 1;
-                ValueWiggler.Start();
+                lastDir = 1;   
                 
                 value = true;
                 if (OnValueChange != null) OnValueChange(value);
             }
+            Audio.Play("event:/ui/main/button_toggle_on");
+            ValueWiggler.Start();
         }
         public override void LeftPressed()
         {
             if (value)
             {
-                Audio.Play("event:/ui/main/button_toggle_off");
                 lastDir = -1;
-                ValueWiggler.Start();
                 
                 value = false;
                 if (OnValueChange != null) OnValueChange(value);
             }
+            Audio.Play("event:/ui/main/button_toggle_off");
+            ValueWiggler.Start();
         }
         public override void ConfirmPressed()
         {
@@ -66,12 +61,12 @@ namespace Celeste.Mod.LeniencyHelper.UI
                 Audio.Play("event:/ui/main/button_toggle_off");
             }
 
-            if (value == GetDefaultValue() || (value == false && GetDefaultValue() == true)) lastDir = 1;
+            if (value == GetDefaultSetting<bool>(settingName) || (value == false && GetDefaultSetting<bool>(settingName) == true)) lastDir = 1;
             else lastDir = -1;
 
             ValueWiggler.Start();
-            
-            value = GetDefaultValue();
+
+            value = GetDefaultSetting<bool>(settingName);
             if (OnValueChange != null) OnValueChange(value);
         }
 

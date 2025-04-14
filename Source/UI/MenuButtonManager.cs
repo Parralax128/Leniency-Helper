@@ -1,23 +1,25 @@
 ﻿using Monocle;
-using static Celeste.Mod.LeniencyHelper.Tweaks.CustomBufferTime;
-using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
+using System;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
 
 public static class MenuButtonManager
 {
+    [OnLoad]
     public static void LoadHooks()
     {
         On.Celeste.TextMenu.MoveSelection += RestrictMove;
     }
+    [OnUnload]
     public static void UnloadHooks()
     {
         On.Celeste.TextMenu.MoveSelection += RestrictMove;
     }
+
     private static void RestrictMove(On.Celeste.TextMenu.orig_MoveSelection orig, TextMenu self, int dir, bool wiggle)
     {
-        if (self.Components.Get<LHmenuTracker>() is not null &&
-            InSingleItemSuboptionsMenu && InSubOptionMode) return;
+        if (self.Components.Get<LHmenuTracker>() != null && InSingleItemSuboptionsMenu && InSubOptionMode)
+            return;
 
         orig(self, dir, wiggle);
     }
@@ -37,34 +39,32 @@ public static class MenuButtonManager
     }
     private static void AddItemsToMenu(TextMenu menu)
     {
-        var session = LeniencyHelperModule.Session;
+        TextMenu.Button resetTweaksButton = new TextMenu.Button(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENU_RESETTWEAKS"));
+        resetTweaksButton.OnPressed = () => Audio.Play("event:/ui/main/button_toggle_off");
+        
+        TextMenu.Button resetSettingsButton = new TextMenu.Button(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENU_RESETSETTINGS"));
+        resetSettingsButton.OnPressed = () =>
+        {
+            Audio.Play("event:/ui/main/button_toggle_off");
+            SettingMaster.ResetPlayerSettings();
+        };
 
-        foreach (string tweak in session.TweaksEnabled.Keys)
+        menu.Add(new SubOptionsOffset(32));
+
+        foreach (string tweak in LeniencyHelperModule.tweakList)
         {
             SpecialSlider newTweak = new SpecialSlider(Dialog.Clean($"LENIENCYTWEAKS_{tweak.ToUpper()}"),
                 tweak, SpecialSlider.GetIndexFromTweakName(tweak));
             newTweak.menu = menu;
 
-            newTweak.OnValueChange += (index) =>
-            {
-                LeniencyHelperModule.Settings.TweaksByPlayer[tweak] = GetPlayerValueFromIndex(index);
-                session.UpdateTweak(tweak);
+            resetTweaksButton.OnPressed += () => { while (newTweak.Index > 0) newTweak.ChangeValue(-1); };
+            resetSettingsButton.OnPressed += () => newTweak.UpdateSubsettings();
 
-                if (!session.TweaksEnabled[tweak]) newTweak.CloseDetailOptions();
-            };
-            
             menu.Add(newTweak);
         }
-    }
-    private static bool? GetPlayerValueFromIndex(int index)
-    {
-        switch (index)
-        {
-            case 0: return null;
-            case 1: return true;
-            case 2: return false;
-            default: return null;
-        }
+        menu.Insert(1, resetTweaksButton);
+        menu.Insert(2, resetSettingsButton);
+        menu.Selection = 1;
     }
     private static void OnButtonPress(TextMenu parentMenu)
     {
@@ -84,9 +84,9 @@ public static class MenuButtonManager
             {
                 foreach(TextMenu.Item item in thisMenu.Items)
                 {
-                    if (item is SpecialSlider slider && slider.addedDetailOptions)
+                    if (item is SpecialSlider slider && slider.addedSuboptions)
                     {
-                        slider.CloseDetailOptions();
+                        slider.CloseSuboptions();
                         break;
                     }
                 }
@@ -124,11 +124,7 @@ public static class MenuButtonManager
     public static TextMenu.Button BuildMenuButton(TextMenu parentMenu)
     {
         TextMenu.Button thisButton = new TextMenu.Button(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENUBUTTON"));
-        thisButton.OnPressed = () =>
-        { 
-            OnButtonPress(parentMenu);
-        };
-
+        thisButton.OnPressed = () => OnButtonPress(parentMenu);
         return thisButton;
     }
 

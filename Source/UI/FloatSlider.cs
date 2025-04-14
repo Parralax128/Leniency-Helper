@@ -1,13 +1,10 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using MonoMod.Utils;
 using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
+using static Celeste.Mod.LeniencyHelper.SettingMaster;
 using static Celeste.TextMenu;
 using Monocle;
-using Celeste.Mod.LeniencyHelper.Components;
-using System.Linq;
 using Celeste.Mod.LeniencyHelper.Tweaks;
-using System.Diagnostics;
 
 namespace Celeste.Mod.LeniencyHelper.UI
 {
@@ -15,28 +12,6 @@ namespace Celeste.Mod.LeniencyHelper.UI
     {
         public float value = 0f;
         public bool isTimer = false;
-        private float GetDefaultValue()
-        {
-            if (sessionVar is null || sessionVar == "") return 1f;
-            else if (sessionVar.ToLower().Contains("buffertime")) return 0.08f;
-            else
-            {
-                switch(sessionVar)
-                {
-                    case "DirectionalBufferTime": return 0.05f;
-                    case "WallCorrectionTiming": return 0.05f;
-                    case "FloorCorrectionTiming": return 0.1f;
-                    case "wallLeniencyTiming": return 0.05f;
-                    case "reversedFreezeTime": return 0.034f;
-                    case "RefillCoyoteTime": return 0.05f;
-                    case "RetainCbSpeedTime": return 0.1f;
-                    case "bboostSaveTime": return 0.1f;
-                    case "wallApproachTime": return 0.05f;
-                    case "wallCoyoteTime": return 0.05f;
-                    default: return 0.1f;
-                }
-            }
-        }
 
         private float min, max;
         private int framesMin, framesMax;
@@ -45,17 +20,20 @@ namespace Celeste.Mod.LeniencyHelper.UI
         public bool transitionIntoFrames = false;
 
         private float len = 0f;
-        public string sessionVar;
+        public string settingName;
         public FloatSlider(string label, float min, float max, float defaultValue, int digits, string sessionName) 
             : base(label)
         {
             value = (float)Math.Round(defaultValue, digits);
-            this.max = max;
+
+            this.max = (float)Math.Round(max, digits);
+            if (this.max > max) this.max = (float)Math.Round(max - (float)Math.Pow(10, -digits), digits);
+
             this.min = min;
             framesMax = (int)Math.Floor(max * Engine.FPS);
             framesMin = (int)Math.Floor(min * Engine.FPS);
             this.digits = digits;
-            sessionVar = sessionName;
+            settingName = sessionName;
 
             float maxLen = 0;
             for (float c = min; c < max; 
@@ -104,43 +82,13 @@ namespace Celeste.Mod.LeniencyHelper.UI
         }
         public void ChangedValue()
         {
-            var s = LeniencyHelperModule.Settings;
-
-            float actualBufferTime = value;
-            if (sessionVar.Contains("Buffer"))
-                actualBufferTime = (bool)LeniencyHelperModule.Settings.GetSetting("CustomBufferTime", "countBufferTimeInFrames")? value / Engine.FPS : value;
-            
-            switch (sessionVar)
-            {
-                case "JumpBufferTime":
-                    s.buffers[Inputs.Jump] = value;
-                    if (CustomBufferTime.newBuffers.ContainsKey(Inputs.Jump))
-                        CustomBufferTime.newBuffers.Remove(Inputs.Jump);
-                    CustomBufferTime.newBuffers.Add(Inputs.Jump, actualBufferTime);
-                    break;
-
-                case "DashBufferTime":
-                    s.buffers[Inputs.Dash] = value;
-                    if (CustomBufferTime.newBuffers.ContainsKey(Inputs.Dash))
-                        CustomBufferTime.newBuffers.Remove(Inputs.Dash);
-                    CustomBufferTime.newBuffers.Add(Inputs.Dash, actualBufferTime);
-                    break;
-
-                case "DemoBufferTime":
-                    s.buffers[Inputs.Demo] = value;
-                    if(CustomBufferTime.newBuffers.ContainsKey(Inputs.Demo))
-                        CustomBufferTime.newBuffers.Remove(Inputs.Demo);
-                    CustomBufferTime.newBuffers.Add(Inputs.Demo, actualBufferTime);
-                    break;
-
-                default:
-                    LeniencyHelperModule.Settings.SetValue(sessionVar, value);
-                    break;
-            }
+            SetPlayerSetting(settingName, value);
+            if (OnValueChange != null) OnValueChange(value);
         }
+        
         public override void ConfirmPressed()
         {
-            value = transitionIntoFrames? (float)Math.Floor(GetDefaultValue() * Engine.FPS) : GetDefaultValue();
+            value = transitionIntoFrames ? (float)Math.Floor(GetDefaultSetting<float>(settingName) * Engine.FPS) : GetDefaultSetting<float>(settingName);
             ChangedValue();
         }
         public override float RightWidth() { return len; }
