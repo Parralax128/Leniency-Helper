@@ -1,40 +1,12 @@
-﻿using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System;
 using Celeste.Mod.LeniencyHelper.Triggers;
 using System.Linq;
+using System.Reflection;
+using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper;
-public struct TweakSubSetting
-{
-    public string tweakName;
-    public Type type;
-
-    public object playerValue;
-
-    public object controllerValue;
-    public object triggerValue;
-
-    public object vanillaValue;
-    public object defaultValue;
-
-    public TweakSubSetting(Type t, string tweak, object vanillaValue, object defaultValue)
-    {
-        tweakName = tweak;
-        this.vanillaValue = vanillaValue;
-        this.defaultValue = playerValue = defaultValue;
-        triggerValue = controllerValue = null;
-        type = t;
-    }
-    public TweakSubSetting(Type t, string tweak, object defaultVanillaValue)
-    {
-        tweakName = tweak;
-        vanillaValue = defaultValue = playerValue = defaultVanillaValue;
-        triggerValue = controllerValue = null;
-        type = t;
-    }
-}
 public static class SettingMaster
 {
     #region tweaks
@@ -51,32 +23,24 @@ public static class SettingMaster
         On.Celeste.LevelLoader.ctor -= DisableTweaksOnLoad;
     }
 
-    public struct TweakState
+    public static bool GetTweakEnabled(string tweak)
     {
-        public bool? playerValue;
+        if (LeniencyHelperModule.Settings.PlayerTweaks[tweak].HasValue)
+            return LeniencyHelperModule.Settings.PlayerTweaks[tweak].Value;
 
-        public bool triggerValue;
-        public bool controllerValue;
-        public bool useController;
-
-        public bool MapEnabled => useController ? controllerValue : triggerValue;
-        public bool Enabled => playerValue != null ? playerValue.Value : MapEnabled;
-        public TweakState(bool? playerValue)
-        {
-            this.playerValue = playerValue;
-            triggerValue = controllerValue = useController = false;
-        }
+        return LeniencyHelperModule.Session.UseController[tweak] ?
+            LeniencyHelperModule.Session.ControllerTweaks[tweak] : LeniencyHelperModule.Session.TriggerTweaks[tweak];
     }
-    public static Dictionary<string, TweakState> Tweaks
+    public static void SetPlayerTweak(string tweak, bool? newValue)
     {
-        get { return LeniencyHelperModule.Session.Tweaks; }
-        set { LeniencyHelperModule.Session.Tweaks = value; }
+        LeniencyHelperModule.Settings.PlayerTweaks[tweak] = newValue;
     }
-
-    public static void SetPlayerTweak(string tweak, bool? newValue) => Tweaks[tweak] = Tweaks[tweak] with { playerValue = newValue };
-    public static void SetTriggerTweak(string tweak, bool newValue) => Tweaks[tweak] = Tweaks[tweak] with { triggerValue = newValue };
-    public static void SetControllerTweak(string tweak, bool newValue) => Tweaks[tweak] = Tweaks[tweak] with { controllerValue = newValue };
-    public static void SetUseController(string tweak, bool useController) => Tweaks[tweak] = Tweaks[tweak] with { useController = useController };
+    public static void SetTriggerTweak(string tweak, bool newValue) => LeniencyHelperModule.Session.TriggerTweaks[tweak] = newValue;
+    public static void SetControllerTweak(string tweak, bool newValue)
+    {
+        LeniencyHelperModule.Session.ControllerTweaks[tweak] = newValue;
+    }
+    public static void SetUseController(string tweak, bool useController) => LeniencyHelperModule.Session.UseController[tweak] = useController;
 
     public static void DisableTweaksOnRespawn(On.Celeste.Player.orig_ctor orig,
         Player self, Vector2 pos, PlayerSpriteMode spriteMode)
@@ -84,6 +48,9 @@ public static class SettingMaster
         orig(self, pos, spriteMode);
 
         DisableTweaks();
+
+        self.Add(new Components.WallCoyoteFramesComponent()); // adding tweak components
+        self.Add(new Components.RefillCoyoteComponent());
     }
     public static void DisableTweaksOnLoad(On.Celeste.LevelLoader.orig_ctor orig,
         LevelLoader self, Session session, Vector2? startPos)
@@ -96,129 +63,75 @@ public static class SettingMaster
     {
         var s = LeniencyHelperModule.Session;
 
-        foreach (string tweak in tweakList)
+        foreach (string tweak in LeniencyHelperModule.TweakList)
         {
             SetTriggerTweak(tweak, false);
         }
 
-        if (s is not null)
-        {
-            if (s.BindList is not null)
-                s.BindList = Array.Empty<InputRequiresBlockboostTrigger.BindInfo>();
+        if (s.BindList is not null)
+            s.BindList = Array.Empty<InputRequiresBlockboostTrigger.BindInfo>();
 
-            s.airMovementDisabled = false;
-            s.clearBlockBoostActivated = false;
-        }
+        s.airMovementDisabled = false;
+        s.clearBlockBoostActivated = false;
     }
+
     public static void ResetPlayerSettings()
     {
-        foreach (string setting in TweakSettings.Keys)
+        List<string> allSettings = new List<string>();
+        foreach (List<string> setting in AssociatedTweaks.Values.Where(list => list != null))
+            allSettings.AddRange(setting);
+
+        foreach (string setting in allSettings)
         {
-            SetPlayerSetting(setting, TweakSettings[setting].defaultValue);
+            SetPlayerSetting(setting, LeniencyHelperModule.DefaultSettings.Get(setting));
         }
     }
     #endregion
 
 
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=//
-    
+
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=//
 
 
     #region subsettings
-    public static Dictionary<string, TweakSubSetting> TweakSettings = new Dictionary<string, TweakSubSetting>
+    public static T GetSetting<T>(string name, string tweakName)
     {
-        { "onNormalUpdate", new TweakSubSetting(typeof(bool), "BufferableClimbtrigger", false, true) },
-        { "onDash", new TweakSubSetting(typeof(bool), "BufferableClimbtrigger", false, true) },
-
-        { "forceWaitForRefill", new TweakSubSetting(typeof(bool), "BufferableExtends", false) },
-
-        { "resetDashCDonLeave", new TweakSubSetting(typeof(bool), "ConsistentDashOnDBlockExit", false, true) },
-
-        { "allowSpikedFloor", new TweakSubSetting(typeof(bool), "CornerWaveLeniency", false) },
-
-        { "JumpBufferTime", new TweakSubSetting(typeof(float), "CustomBufferTime", 0.08f) },
-        { "DashBufferTime", new TweakSubSetting(typeof(float), "CustomBufferTime", 0.08f) },
-        { "DemoBufferTime", new TweakSubSetting(typeof(float), "CustomBufferTime", 0.08f) },
-        { "countBufferTimeInFrames", new TweakSubSetting(typeof(bool), "CustomBufferTime", false) },
-
-        { "dashbounceTiming", new TweakSubSetting(typeof(float), "CustomDashbounceTiming", 0.05f) },
-        { "countDashbounceTimingInFrames", new TweakSubSetting(typeof(bool), "CustomDashbounceTiming", false) },
-
-        { "dashDir", new TweakSubSetting(typeof(Dirs), "DirectionalReleaseProtection", Dirs.None, Dirs.Down) },
-        { "jumpDir", new TweakSubSetting(typeof(Dirs), "DirectionalReleaseProtection", Dirs.None) },
-        { "DirectionalBufferTime", new TweakSubSetting(typeof(float), "DirectionalReleaseProtection", 0f, 0.1f) },
-        { "CountProtectionTimeInFrames", new TweakSubSetting(typeof(bool), "DirectionalReleaseProtection", false) },
-
-        { "FloorCorrectionTiming", new TweakSubSetting(typeof(float), "DynamicCornerCorrection", 0f, 0.05f) },
-        { "WallCorrectionTiming", new TweakSubSetting(typeof(float), "DynamicCornerCorrection", 0f, 0.05f) },
-        { "ccorectionTimingInFrames", new TweakSubSetting(typeof(bool), "DynamicCornerCorrection", false) },
-
-        { "wallLeniencyTiming", new TweakSubSetting(typeof(float), "DynamicWallLeniency", 0f, 0.05f) },
-        { "countWallTimingInFrames", new TweakSubSetting(typeof(bool), "DynamicWallLeniency", false) },
-
-        { "ExtendBufferOnFreeze", new TweakSubSetting(typeof(bool), "ExtendBufferOnFreezeAndPickup", false, true) },
-        { "ExtendBufferOnPickup", new TweakSubSetting(typeof(bool), "ExtendBufferOnFreezeAndPickup", false) },
-
-        { "iceWJLeniency", new TweakSubSetting(typeof(int), "IceWallIncreaseWallLeniency", 0, 3) },
-
-        { "RefillCoyoteTime", new TweakSubSetting(typeof(float), "RefillDashInCoyote", 0f, 0.05f) },
-        { "CountRefillCoyoteTimeInFrames", new TweakSubSetting(typeof(bool), "RefillDashInCoyote", false) },
-
-        { "RetainCbSpeedTime", new TweakSubSetting(typeof(float), "RetainSpeedCornerboost", 0f, 0.1f) },
-        { "countRetainTimeInFrames", new TweakSubSetting(typeof(bool), "RetainSpeedCornerboost", false) },
-
-        { "bboostSaveTime", new TweakSubSetting(typeof(float), "SolidBlockboostProtection", 0f, 0.1f) },
-        { "countSolidBoostSaveTimeInFrames", new TweakSubSetting(typeof(bool), "SolidBlockboostProtection", false) },
-
-        { "wallApproachTime", new TweakSubSetting(typeof(float), "WallAttraction", 0f, 0.08f) },
-        { "countAttractionTimeInFrames", new TweakSubSetting(typeof(bool), "WallAttraction", false) },
-
-        { "wallCoyoteTime", new TweakSubSetting(typeof(float), "WallCoyoteFrames", 0f, 0.08f) },
-        { "countWallCoyoteTimeInFrames", new TweakSubSetting(typeof(bool), "WallCoyoteFrames", false) }
-    };
-    public static T GetSetting<T>(string name)
-    {
-        string tweakName = TweakSettings[name].tweakName;
-        if (Tweaks[tweakName].playerValue == true)
+        if (LeniencyHelperModule.Settings.PlayerTweaks[tweakName] == true)
         {
-            return (T)(TweakSettings[name].playerValue != null ? TweakSettings[name].playerValue : TweakSettings[name].defaultValue);
+            return (T)(GetPlayerSetting(name) != null ? GetPlayerSetting(name) : GetDefaultSetting(name));
         }
-        if (Tweaks[tweakName].playerValue == false)
+        if (LeniencyHelperModule.Settings.PlayerTweaks[tweakName] == false)
         {
-            return (T)TweakSettings[name].vanillaValue;
+            return (T)GetDefaultSetting(name);
         }
-        return (T)(Tweaks[tweakName].useController ?
-            (TweakSettings[name].controllerValue != null ? TweakSettings[name].controllerValue : TweakSettings[name].vanillaValue)
-            : (TweakSettings[name].triggerValue != null ? TweakSettings[name].triggerValue : TweakSettings[name].vanillaValue));
+        return (T)(LeniencyHelperModule.Session.UseController[tweakName] ?
+            (GetControllerSetting(name) != null ? GetControllerSetting(name) : GetDefaultSetting(name))
+            : (GetTriggerSetting(name) != null ? GetTriggerSetting(name) : GetDefaultSetting(name)));
     }
-    public static T GetDefaultSetting<T>(string name) => (T)TweakSettings[name].defaultValue;
-    public static object GetDefaultSetting(string name) => TweakSettings[name].defaultValue;
+    public static T GetDefaultSetting<T>(string name) => (T)LeniencyHelperModule.DefaultSettings.Get(name);
+    public static object GetDefaultSetting(string name) => LeniencyHelperModule.DefaultSettings.Get(name);
 
-    public static void SetPlayerSetting(string name, object value)
-    {
-        TweakSettings[name] = TweakSettings[name] with { playerValue = value };
-        LeniencyHelperModule.Settings.SavedTweakSettings[name] = value;
-    }
-    public static void SetTriggerSetting(string name, object value) => 
-        TweakSettings[name] = TweakSettings[name] with { triggerValue = value };
-    public static void SetControllerSetting(string name, object value) => 
-        TweakSettings[name] = TweakSettings[name] with { controllerValue = value };
-    
+    public static object GetPlayerSetting(string name) => LeniencyHelperModule.Settings.PlayerSettings.Get(name);
+    public static object GetTriggerSetting(string name) => LeniencyHelperModule.Session.TriggerSettings.Get(name);
+    public static object GetControllerSetting(string name) => LeniencyHelperModule.Session.ControllerSettings.Get(name);
+
+    public static void SetPlayerSetting(string name, object value) => LeniencyHelperModule.Settings.PlayerSettings.Set(name, value);
+    public static void SetTriggerSetting(string name, object value) => LeniencyHelperModule.Session.TriggerSettings.Set(name, value);
+    public static void SetControllerSetting(string name, object value) => LeniencyHelperModule.Session.ControllerSettings.Set(name, value);
+
     #endregion
 
     public static Dictionary<string, object> GetSettingsFromData(EntityData data, string tweakName)
     {
         Dictionary<string, object> result = null;
 
-        foreach (KeyValuePair<string, TweakSubSetting> setting in TweakSettings.Where(pair => pair.Value.tweakName == tweakName))
+        foreach (string setting in AssociatedTweaks[tweakName])
         {
-            string settingName = setting.Key;
-
             string fromDialog;
-            if (settingName.ToLower().Contains("inframe"))
-                fromDialog = Dialog.Clean($"MODOPTIONS_LENIENCYHELPER_SETTINGS_COUNTINFRAMES", Dialog.Languages["english"]);
-            else fromDialog = Dialog.Clean($"MODOPTIONS_LENIENCYHELPER_SETTINGS_{settingName.ToUpper()}", Dialog.Languages["english"]);
+            if (setting.ToLower().Contains("inframe"))
+                fromDialog = Dialog.Clean("MODOPTIONS_LENIENCYHELPER_SETTINGS_COUNTINFRAMES", Dialog.Languages["english"]);
+            else fromDialog = Dialog.Clean($"MODOPTIONS_LENIENCYHELPER_SETTINGS_{setting.ToUpper()}", Dialog.Languages["english"]);
 
             string settingInData = "";
             for (int c = 0; c < fromDialog.Length; c++) //converting to CamelCase
@@ -231,18 +144,51 @@ public static class SettingMaster
 
             object value = null;
 
-            Type settingType = setting.Value.type;
-            if (settingType == typeof(bool)) value = data.Bool(settingInData, GetDefaultSetting<bool>(settingName));
-            else if (settingType == typeof(int)) value = data.Int(settingInData, GetDefaultSetting<int>(settingName));
-            else if (settingType == typeof(float)) value = data.Float(settingInData, GetDefaultSetting<float>(settingName));
-            else if (settingType == typeof(string)) value = data.String(settingInData, GetDefaultSetting<string>(settingName));
+            Type settingType = LeniencyHelperModule.DefaultSettings.Get(setting).GetType();
+            if (settingType == typeof(bool)) value = data.Bool(settingInData, GetDefaultSetting<bool>(setting));
+            else if (settingType == typeof(int)) value = data.Int(settingInData, GetDefaultSetting<int>(setting));
+            else if (settingType == typeof(float)) value = data.Float(settingInData, GetDefaultSetting<float>(setting));
+            else if (settingType == typeof(string)) value = data.String(settingInData, GetDefaultSetting<string>(setting));
             else if (settingType == typeof(LeniencyHelperModule.Dirs))
-                value = data.Enum(settingInData, GetDefaultSetting<Dirs>(settingName));
+                value = data.Enum(settingInData, GetDefaultSetting<LeniencyHelperModule.Dirs>(setting));
 
             if (result == null) result = new Dictionary<string, object>();
-            result.Add(settingName, value);
+            result.Add(setting, value);
         }
 
         return result;
     }
+
+    public static Dictionary<string, List<string>> AssociatedTweaks = new Dictionary<string, List<string>>
+    {
+        { "AutoSlowfall", null },
+        { "BackwardsRetention", null },
+        { "BufferableClimbtrigger", new List<string>{ "onNormalUpdate", "onDash" } },
+        { "BufferableExtends", new List<string>{ "forceWaitForRefill" } },
+        { "ConsistentDashOnDBlockExit", null },
+        { "CornerWaveLeniency", null },
+        { "CustomBufferTime", new List<string>{ "countBufferTimeInFrames", "JumpBufferTime", "DashBufferTime", "DemoBufferTime" } },
+        { "CustomDashbounceTiming", new List<string>{ "dashbounceTiming", "countDashbounceTimingInFrames" } },
+        { "DashCDIgnoreFFrames", null },
+        { "DirectionalReleaseProtection", new List<string>{ "DirectionalBufferTime", "CountProtectionTimeInFrames", "dashDir", "jumpDir" } },
+        { "DisableBackboost", null },
+        { "DisableForceMove", null },
+        { "DynamicCornerCorrection", new List<string>{ "FloorCorrectionTiming", "WallCorrectionTiming", "ccorectionTimingInFrames" } },
+        { "DynamicWallLeniency", new List<string>{ "wallLeniencyTiming", "countWallTimingInFrames" } },
+        { "ExtendBufferOnFreezeAndPickup", new List<string>{ "ExtendBufferOnPickup", "ExtendBufferOnFreeze" } },
+        { "ForceCrouchDemodash", null },
+        { "IceWallIncreaseWallLeniency", new List<string>{ "iceWJLeniency" } },
+        { "InstantAcceleratedJumps", null },
+        { "InstantClimbHop", null },
+        { "NoFailedTech", null },
+        { "RefillDashInCoyote", new List<string>{ "RefillCoyoteTime", "CountRefillCoyoteTimeInFrames" } },
+        { "RemoveDBlockCCorection", null },
+        { "RetainSpeedCornerboost", new List<string>{ "RetainCbSpeedTime", "countRetainTimeInFrames" } },
+        { "SolidBlockboostProtection", new List<string>{ "bboostSaveTime", "countSolidBoostSaveTimeInFrames" } },
+        { "SuperOverWalljump", null },
+        { "WallAttraction", new List<string>{ "wallApproachTime", "countAttractionTimeInFrames" } },
+        { "WallCoyoteFrames", new List<string>{ "wallCoyoteTime", "countWallCoyoteTimeInFrames" } },
+    };
+
+    public static Dictionary<string, FieldInfo> SettingListFields = new Dictionary<string, FieldInfo>();
 }

@@ -1,5 +1,6 @@
 ﻿using Monocle;
 using Microsoft.Xna.Framework;
+using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper;
 
@@ -21,9 +22,11 @@ public class StampRenderer : Entity
 
         if (LeniencyHelperModule.Settings is null || LeniencyHelperModule.Session is null) return;
         
-        foreach (string tweak in LeniencyHelperModule.tweakList)
+        foreach (string tweak in LeniencyHelperModule.TweakList)
         {
-            if (LeniencyHelperModule.Session.Tweaks[tweak].playerValue == true && LeniencyHelperModule.Session.Tweaks[tweak].MapEnabled == false)
+            if (LeniencyHelperModule.Settings.PlayerTweaks[tweak] == true 
+                && (LeniencyHelperModule.Session.UseController[tweak]?
+                LeniencyHelperModule.Session.ControllerTweaks[tweak] : LeniencyHelperModule.Session.TriggerTweaks[tweak]) == false)
             {
                 Stamp.DrawCentered(stampPos, Color.White * 0.15f, 0.35f);
                 break;
