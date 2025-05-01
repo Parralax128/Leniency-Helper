@@ -10,7 +10,7 @@ public class CustomDashbounceTiming : AbstractTweak
     public static void LoadHooks()
     {
         On.Celeste.Player.SuperWallJump += SetCustomTiming;
-        On.Celeste.Player.NormalBegin += DashbounceIfCan;
+        On.Celeste.Player.DashEnd += ConsumeDashbounce;
         On.Celeste.Player.Update += UpdateTimer;
         On.Celeste.Player.DashBegin += TimerCheck;
     }
@@ -18,6 +18,9 @@ public class CustomDashbounceTiming : AbstractTweak
     public static void UnloadHooks() 
     {
         On.Celeste.Player.SuperWallJump -= SetCustomTiming;
+        On.Celeste.Player.DashEnd -= ConsumeDashbounce;
+        On.Celeste.Player.Update -= UpdateTimer;
+        On.Celeste.Player.DashBegin -= TimerCheck;
     }
 
     private static void SetCustomTiming(On.Celeste.Player.orig_SuperWallJump orig, Player self, int dir)
@@ -50,17 +53,17 @@ public class CustomDashbounceTiming : AbstractTweak
             LeniencyHelperModule.Session.canDashbounce = false;
         }
     }
-    private static void DashbounceIfCan(On.Celeste.Player.orig_NormalBegin orig, Player self)
+    private static void ConsumeDashbounce(On.Celeste.Player.orig_DashEnd orig, Player self)
     {
-        if (LeniencyHelperModule.Session.canDashbounce)
+        if (LeniencyHelperModule.Session.canDashbounce == true)
         {
             self.varJumpTimer = Math.Max(self.varJumpTimer, 0.05f);
-            LeniencyHelperModule.Session.canDashbounce = false;
         }
-        else
+        else if(LeniencyHelperModule.Session.canDashbounce == false)
         {
             self.varJumpTimer = 0f;
         }
+        LeniencyHelperModule.Session.canDashbounce = null;
 
         orig(self);
     }
