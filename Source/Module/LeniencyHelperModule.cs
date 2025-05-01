@@ -25,13 +25,15 @@ public class LeniencyHelperModule : EverestModule
     public static LeniencyHelperModuleSaveData SaveData => (LeniencyHelperModuleSaveData)Instance._SaveData;
     #endregion
 
-    public static Dictionary<(string, Version), bool> ModsLoaded = new Dictionary<(string, Version), bool>
+    private static Dictionary<string, (Version, bool)> ModsLoaded = new Dictionary<string, (Version, bool)>
     {
-        { ("MaxHelpingHand", new Version(1,30,0)), false },
-        { ("ShroomHelper", new Version(1,0,0)), false },
-        { ("VivHelper", new Version(1,12,3)), false },
-        { ("ExtendedVariantMode", new Version(0,35,0)), false }
+        { "MaxHelpingHand", (new Version(1,30,0), false) },
+        { "ShroomHelper", (new Version(1,0,0), false) },
+        { "VivHelper", (new Version(1,12,3), false) },
+        { "ExtendedVariantMode", (new Version(0,35,0), false) }
     };
+    public static bool ModLoaded(string mod) => ModsLoaded[mod].Item2;
+
     public enum Inputs
     {
         Jump,
@@ -118,15 +120,18 @@ public class LeniencyHelperModule : EverestModule
     public override void Initialize()
     {
         base.Initialize();
-        foreach ((string, Version) mod in ModsLoaded.Keys)
+        foreach (string mod in ModsLoaded.Keys)
         {
-            ModsLoaded[mod] = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = mod.Item1, Version = mod.Item2 });
+            ModsLoaded[mod] = ModsLoaded[mod] with 
+            { 
+                Item2 = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = mod, Version = ModsLoaded[mod].Item1 }) 
+            };
         }
-        if (ModsLoaded[("MaxHelpingHand", new Version(1, 30, 0))])
+        if (ModLoaded("MaxHelpingHand"))
         {
             SolidBlockboostProtection.LoadSidewaysHook();
         }
-        if (ModsLoaded[("VivHelper", new Version(1, 12, 3))])
+        if (ModLoaded("VivHelper"))
         {
             BufferableClimbtrigger.LoadVivHelperHooks();
         }
@@ -144,10 +149,12 @@ public class LeniencyHelperModule : EverestModule
 
         Everest.Events.Level.OnCreatePauseMenuButtons += AddTweaksMenuButton;
         Everest.Events.LevelLoader.OnLoadingThread += AddStamp;
+        Everest.Events.Level.OnEnter += ClearSessionOnEnter;
 
         typeof(GravityHelperImports).ModInterop();
         typeof(ExtendedVariantImports).ModInterop();
     }
+
     public override void Unload()
     {
         var loadHooksMethods = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypesSafe()).Where(x => x.IsClass)
@@ -160,9 +167,16 @@ public class LeniencyHelperModule : EverestModule
 
         Everest.Events.Level.OnCreatePauseMenuButtons -= AddTweaksMenuButton;
         Everest.Events.LevelLoader.OnLoadingThread -= AddStamp;
+        Everest.Events.Level.OnEnter -= ClearSessionOnEnter;
     }
 
-
+    private static void ClearSessionOnEnter(Session session, bool justEntered)
+    {
+        if (!justEntered)
+        {
+            SessionSerialization.ClearSession(global::Celeste.SaveData.LoadedModSaveDataIndex);
+        }
+    }
     public override byte[] SerializeSession(int index)
     {
         return null;
