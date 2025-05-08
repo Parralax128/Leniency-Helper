@@ -68,8 +68,7 @@ public static class SettingMaster
             SetTriggerTweak(tweak, false);
         }
 
-        if (s.BindList is not null)
-            s.BindList = Array.Empty<InputRequiresBlockboostTrigger.BindInfo>();
+        if (s.BindList != null) s.BindList.Clear();
 
         s.airMovementDisabled = false;
         s.clearBlockBoostActivated = false;
@@ -164,7 +163,7 @@ public static class SettingMaster
         { "AutoSlowfall", null },
         { "BackwardsRetention", null },
         { "BufferableClimbtrigger", new List<string>{ "onNormalUpdate", "onDash" } },
-        { "BufferableExtends", new List<string>{ "forceWaitForRefill" } },
+        { "BufferableExtends", new List<string>{ "forceWaitForRefill", "extendsTiming" } },
         { "ConsistentDashOnDBlockExit", null },
         { "CornerWaveLeniency", null },
         { "CustomBufferTime", new List<string>{ "countBufferTimeInFrames", "JumpBufferTime", "DashBufferTime", "DemoBufferTime" } },
@@ -172,7 +171,7 @@ public static class SettingMaster
         { "DashCDIgnoreFFrames", null },
         { "DirectionalReleaseProtection", new List<string>{ "DirectionalBufferTime", "CountProtectionTimeInFrames", "dashDir", "jumpDir" } },
         { "DisableBackboost", null },
-        { "DisableForceMove", null },
+        { "DisableForcemovedTech", null },
         { "DynamicCornerCorrection", new List<string>{ "FloorCorrectionTiming", "WallCorrectionTiming", "ccorectionTimingInFrames" } },
         { "DynamicWallLeniency", new List<string>{ "wallLeniencyTiming", "countWallTimingInFrames" } },
         { "ExtendBufferOnFreezeAndPickup", new List<string>{ "ExtendBufferOnPickup", "ExtendBufferOnFreeze" } },
@@ -190,5 +189,5 @@ public static class SettingMaster
         { "WallCoyoteFrames", new List<string>{ "wallCoyoteTime", "countWallCoyoteTimeInFrames" } },
     };
 
-    public static Dictionary<string, FieldInfo> SettingListFields = new Dictionary<string, FieldInfo>();
+    public static Dictionary<string, FieldInfo> SettingListFields { get; set; } = new Dictionary<string, FieldInfo>();
 }

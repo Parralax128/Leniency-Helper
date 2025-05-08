@@ -1,16 +1,15 @@
 using Monocle;
 using System;
-using static Celeste.Mod.LeniencyHelper.SettingMaster;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class DynamicWallLeniency
+public class DynamicWallLeniency : AbstractTweak
 {
     //  to avoid unnecesarry IL hooks, the leniency is applyed in IceWallIncreaseWallLeniency tweak
 
     public static int GetDynamicLeniency(Player player, int defaultValue)
     {
-        if (!LeniencyHelperModule.Session.Tweaks["DynamicWallLeniency"].Enabled) return defaultValue;
+        if (!Enabled("DynamicWallLeniency")) return defaultValue;
 
         float biggestSpeed = Math.Abs(player.Speed.X);
         if (player.DashAttacking) biggestSpeed = Math.Max(Math.Abs(player.Speed.X), Math.Abs(player.beforeDashSpeed.X));

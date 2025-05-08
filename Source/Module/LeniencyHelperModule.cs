@@ -11,18 +11,18 @@ using System.Reflection;
 namespace Celeste.Mod.LeniencyHelper.Module;
 public class LeniencyHelperModule : EverestModule
 {
-    #region very important generated stuff
+    #region very important generic stuff
 
     public static LeniencyHelperModule Instance { get; private set; }
 
-    public override Type SettingsType => typeof(LeniencyHelperModuleSettings);
-    public static LeniencyHelperModuleSettings Settings => (LeniencyHelperModuleSettings)Instance._Settings;
+    public override Type SettingsType => typeof(LeniencyHelperSettings);
+    public static LeniencyHelperSettings Settings => (LeniencyHelperSettings)Instance._Settings;
 
-    public override Type SessionType => typeof(LeniencyHelperModuleSession);
-    public static LeniencyHelperModuleSession Session => (LeniencyHelperModuleSession)Instance._Session;
+    public override Type SessionType => typeof(LeniencyHelperSession);
+    public static LeniencyHelperSession Session => (LeniencyHelperSession)Instance._Session;
 
-    public override Type SaveDataType => typeof(LeniencyHelperModuleSaveData);
-    public static LeniencyHelperModuleSaveData SaveData => (LeniencyHelperModuleSaveData)Instance._SaveData;
+    public override Type SaveDataType => typeof(LeniencyHelperSaveData);
+    public static LeniencyHelperSaveData SaveData => (LeniencyHelperSaveData)Instance._SaveData;
     #endregion
 
     private static Dictionary<string, (Version, bool)> ModsLoaded = new Dictionary<string, (Version, bool)>
@@ -60,7 +60,7 @@ public class LeniencyHelperModule : EverestModule
         "DashCDIgnoreFFrames",
         "DirectionalReleaseProtection",
         "DisableBackboost",
-        "DisableForceMove",
+        "DisableForcemovedTech",
         "DynamicCornerCorrection",
         "DynamicWallLeniency",
         "ExtendBufferOnFreezeAndPickup",
@@ -85,8 +85,10 @@ public class LeniencyHelperModule : EverestModule
         Instance = this;
         Logger.SetLogLevel(nameof(LeniencyHelperModule), LogLevel.Verbose);
 
-        foreach (FieldInfo field in typeof(SettingList).GetFields())
-            SettingMaster.SettingListFields[field.Name] = field;
+        foreach (FieldInfo field in typeof(SettingList).GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
+        {
+            SettingMaster.SettingListFields.Add(field.Name, field);
+        }
     }
     public static void Log(object input)
     {
@@ -174,7 +176,7 @@ public class LeniencyHelperModule : EverestModule
     {
         if (!justEntered)
         {
-            SessionSerialization.ClearSession(global::Celeste.SaveData.LoadedModSaveDataIndex);
+            SessionSerializer.ClearSession(global::Celeste.SaveData.LoadedModSaveDataIndex);
         }
     }
     public override byte[] SerializeSession(int index)
@@ -183,7 +185,7 @@ public class LeniencyHelperModule : EverestModule
     }
     public override void WriteSession(int index, byte[] data)
     {
-        SessionSerialization.SaveSession(index, Session);
+        SessionSerializer.SaveSession(index, Session);
     }
     public override byte[] ReadSession(int index)
     {
@@ -191,7 +193,20 @@ public class LeniencyHelperModule : EverestModule
     }
     public override void DeserializeSession(int index, byte[] data)
     {
-        _Session = SessionSerialization.LoadSession(index);
+        _Session = SessionSerializer.LoadSession(index);
+    }
+
+    public override void LoadSettings()
+    {
+        base.LoadSettings();
+
+        foreach(string tweak in TweakList)
+        {
+            if (!Settings.PlayerTweaks.ContainsKey(tweak))
+            {
+                Settings.PlayerTweaks.Add(tweak, null);
+            }
+        }
     }
 
 

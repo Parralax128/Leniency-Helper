@@ -1,3 +1,4 @@
+using Celeste.Mod.LeniencyHelper.Module;
 using IL.Celeste;
 using Monocle;
 using System;
@@ -5,7 +6,7 @@ using static Celeste.Mod.LeniencyHelper.SettingMaster;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class RetainSpeedCornerboost
+public class RetainSpeedCornerboost : AbstractTweak
 {
     [OnLoad]
     public static void LoadHooks()
@@ -25,7 +26,7 @@ public class RetainSpeedCornerboost
     private static void SaveCbSpeed(On.Celeste.Player.orig_OnCollideH orig, Player self,
         CollisionData data)
     {
-        if (!LeniencyHelperModule.Session.Tweaks["RetainSpeedCornerboost"].Enabled)
+        if (!Enabled("RetainSpeedCornerboost"))
         {
             orig(self, data);
             return;
@@ -46,7 +47,7 @@ public class RetainSpeedCornerboost
     private static void DeltaRetainTimerUpdate(On.Celeste.Player.orig_Update orig, Player self)
     {
         orig(self);
-        if (!LeniencyHelperModule.Session.Tweaks["RetainSpeedCornerboost"].Enabled) return;
+        if (!Enabled("RetainSpeedCornerboost")) return;
 
         var s = LeniencyHelperModule.Session;
 
@@ -65,7 +66,7 @@ public class RetainSpeedCornerboost
 
     private static void RetainSpeedOnClimbJump(On.Celeste.Player.orig_ClimbJump orig, Player self)
     {
-        if (LeniencyHelperModule.Session.Tweaks["RetainSpeedCornerboost"].Enabled)
+        if (Enabled("RetainSpeedCornerboost"))
         {
             var s = LeniencyHelperModule.Session;
             if (s.retainCbSpeedTimer > 0f && Math.Abs(s.retainCbSpeed) > Math.Abs(self.Speed.X))

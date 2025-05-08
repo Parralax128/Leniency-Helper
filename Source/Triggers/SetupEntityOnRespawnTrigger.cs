@@ -1,9 +1,8 @@
 ﻿using System;
 using Monocle;
-using Celeste;
 using Microsoft.Xna.Framework;
 using Celeste.Mod.Entities;
-using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
+using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using FMOD;
 using IL.MonoMod;
 using MonoMod.RuntimeDetour;
@@ -31,10 +30,10 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
         {
             checkPos = new Vector2
                 (data.Nodes[0].X + offset.X, data.Nodes[0].Y + offset.Y);
-            
+
             newEntityPosition = new Vector2
                 (data.Nodes[1].X + offset.X, data.Nodes[1].Y + offset.Y);
-            
+
             newEntitySpeed = new Vector2(data.Int("SpeedX", (int)Position.X),
                 data.Int("SpeedY", (int)Position.Y));
 
@@ -77,21 +76,21 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
                     }
 
 
-                    if(varName != "")
+                    if (varName != "")
                     {
                         PropertyInfo varProperty = entity.GetType().GetProperty(varName);
                         if (varProperty is null)
                             varProperty = entity.GetType().GetProperty(varName, BindingFlags.NonPublic);
                         FieldInfo varField = entity.GetType().GetField(varName);
-                        if(varField is null)
+                        if (varField is null)
                             varField = entity.GetType().GetField(varName, BindingFlags.NonPublic);
 
-                        if(varField is not null &&
+                        if (varField is not null &&
                             varField.FieldType.ToString().ToLower() == "system.boolean")
                         {
                             varField.SetValue(entity, varValue);
                         }
-                        if(varProperty is not null &&
+                        if (varProperty is not null &&
                             varProperty.PropertyType.ToString().ToLower() == "system.boolean")
                         {
                             varProperty.SetValue(entity, varValue);

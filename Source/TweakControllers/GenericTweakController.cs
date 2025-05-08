@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using Celeste.Mod.LeniencyHelper.Module;
 using Microsoft.Xna.Framework;
 using Monocle;
 
@@ -13,11 +14,13 @@ public class GenericTweakController : Controllers.GenericController
     public string tweakName;
     private Dictionary<string, object> Data = null;
     private Dictionary<string, object> savedData = new Dictionary<string, object>();
+    private bool savedEnabled;
 
     public GenericTweakController(EntityData data, Vector2 offset, string tweak) : base(data, offset)
     {
         tweakName = tweak;
-        Data = SettingMaster.GetSettingsFromData(data, tweak);
+        if (SettingMaster.AssociatedTweaks[tweak] != null)
+            Data = SettingMaster.GetSettingsFromData(data, tweak);
     }
 
     public override void Added(Scene scene)
@@ -36,11 +39,13 @@ public class GenericTweakController : Controllers.GenericController
     }
     public override void GetOldSettings()
     {
+        savedEnabled = LeniencyHelperModule.Session.ControllerTweaks[tweakName];
+
         if (Data == null) return;
 
         foreach (string key in Data.Keys)
         {
-            savedData.Add(key, SettingMaster.TweakSettings[key].controllerValue);
+            savedData.Add(key, SettingMaster.GetControllerSetting(key));
         }
     }
     public override void ApplySettings()
@@ -57,13 +62,14 @@ public class GenericTweakController : Controllers.GenericController
 
     public override void UndoSettings()
     {
-        if (savedData.Count() == 0) return;
-        
-        foreach (string currentSetting in savedData.Keys)
-            SettingMaster.SetControllerSetting(currentSetting, savedData[currentSetting]);
+        if (savedData.Count() > 0)
+        {
+            foreach (string currentSetting in savedData.Keys)
+                SettingMaster.SetControllerSetting(currentSetting, savedData[currentSetting]);
+        }        
     }
     public override void UndoTweak()
     {
-        SettingMaster.SetControllerTweak(tweakName, false);
+        SettingMaster.SetControllerTweak(tweakName, savedEnabled);
     }
 }

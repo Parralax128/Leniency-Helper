@@ -1,2 +1,2 @@
-# Leniency-Helper
-Celeste mod that makes gameplay less punishing
+# LeniencyHelper
+Replace with your mod's readme!

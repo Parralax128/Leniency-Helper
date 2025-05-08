@@ -5,13 +5,13 @@ using System.Reflection;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
-using static Celeste.Mod.LeniencyHelper.SettingMaster;
-using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
+using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using Celeste.Mod.Helpers;
+using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class DirectionalReleaseProtection
+public class DirectionalReleaseProtection : AbstractTweak
 {
     private static Vector2 bufferAimTimer;
     private static Vector2 savedAimValue;
@@ -32,8 +32,10 @@ public class DirectionalReleaseProtection
 
         DashCoroutineHook = new ILHook(typeof(Player).GetMethod("DashCoroutine",
             BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(), DashDirBuffer);
+
         BoosterCoroutineHook = new ILHook(typeof(Player).GetMethod("BoostCoroutine",
             BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(), DashDirBuffer);
+
         RedBoosterCoroutineHook = new ILHook(typeof(Player).GetMethod("RedDashCoroutine",
             BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(), DashDirBuffer);
 
@@ -72,8 +74,7 @@ public class DirectionalReleaseProtection
 
     private static void UpdateDirectionalBuffers()
     {
-        var s = LeniencyHelperModule.Session;
-        if (s == null || !LeniencyHelperModule.Session.Tweaks["DirectionalReleaseProtection"].Enabled) return;
+        if (LeniencyHelperModule.Session == null || !Enabled("DirectionalReleaseProtection")) return;
 
         if (bufferAimTimer.X > 0f) bufferAimTimer.X -= Engine.RawDeltaTime;
         if (bufferAimTimer.Y > 0f) bufferAimTimer.Y -= Engine.RawDeltaTime;
@@ -122,9 +123,13 @@ public class DirectionalReleaseProtection
         }
     }
 
+    private static void ConsumeMoveX()
+    {
+
+    }
     private static void JumpDirBuffer(On.Celeste.Player.orig_Jump orig, Player self, bool particles, bool playSfx)
     {
-        if(!LeniencyHelperModule.Session.Tweaks["DirectionalReleaseProtection"].Enabled)
+        if(!Enabled("DirectionalReleaseProtection"))
         {
             orig(self, particles, playSfx);
             return;
@@ -143,7 +148,7 @@ public class DirectionalReleaseProtection
 
     private static void SuperJumpDirBuffer(On.Celeste.Player.orig_SuperJump orig, Player self)
     {
-        if(!LeniencyHelperModule.Session.Tweaks["DirectionalReleaseProtection"].Enabled)
+        if(!Enabled("DirectionalReleaseProtection"))
         {
             orig(self);
             return;
@@ -161,7 +166,7 @@ public class DirectionalReleaseProtection
     }
     private static void WallJumpDirBuffer(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
     {
-        if (!LeniencyHelperModule.Session.Tweaks["DirectionalReleaseProtection"].Enabled)
+        if (!Enabled("DirectionalReleaseProtection"))
         {
             orig(self, dir);
             return;
@@ -179,7 +184,7 @@ public class DirectionalReleaseProtection
     }
     private static void ClimbJumpDirBuffer(On.Celeste.Player.orig_ClimbJump orig, Player self)
     {
-        if (!LeniencyHelperModule.Session.Tweaks["DirectionalReleaseProtection"].Enabled)
+        if (!Enabled("DirectionalReleaseProtection"))
         {
             orig(self);
             return;
@@ -198,7 +203,7 @@ public class DirectionalReleaseProtection
 
     private static Vector2 ChangeLastAim(Vector2 orig)
     {
-        if (!LeniencyHelperModule.Session.Tweaks["DirectionalReleaseProtection"].Enabled)
+        if (!Enabled("DirectionalReleaseProtection"))
         {
             return orig;
         }

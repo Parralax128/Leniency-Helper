@@ -45,8 +45,8 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
                         component.collidingWith.Add(this, false);
 
                     bool entered = false;
-                    if (!component.collidingWith[this]) entered = true;                   
-                    
+                    if (!component.collidingWith[this]) entered = true;
+
                     if (GetFlagActive())
                     {
                         if (entered && revertOnLeave) component.SaveSettings();
@@ -66,7 +66,7 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
                 }
 
 
-                if(component is not null)
+                if (component is not null)
                     component.collidingWith[this] = hold.Entity.CollideCheck(this);
             }
 

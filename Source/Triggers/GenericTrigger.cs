@@ -1,11 +1,4 @@
-﻿using System;
-using Monocle;
-using Microsoft.Xna.Framework;
-using Celeste.Mod.Entities;
-using Celeste.Mod.LeniencyHelper.Tweaks;
-using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
-using FMOD;
-using IL.MonoMod;
+﻿using Microsoft.Xna.Framework;
 
 namespace Celeste.Mod.LeniencyHelper.Triggers
 {
@@ -15,7 +8,6 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
         private string flag;
         public bool oneUse;
         public bool revertOnLeave;
-        public bool savedEnabled;
 
         public GenericTrigger(EntityData data, Vector2 offset) : base(data, offset)
         {

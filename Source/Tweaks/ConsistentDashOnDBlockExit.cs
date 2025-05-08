@@ -2,10 +2,11 @@ using Monocle;
 using Microsoft.Xna.Framework;
 using System;
 using MonoMod.Cil;
+using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class ConsistentDashOnDBlockExit
+public class ConsistentDashOnDBlockExit : AbstractTweak
 {
     [OnLoad]
     public static void LoadHooks()
@@ -27,13 +28,13 @@ public class ConsistentDashOnDBlockExit
         orig(self);
 
         var s = LeniencyHelperModule.Session;
-        if(s.Tweaks["ConsistentDashOnDBlockExit"].Enabled) s.dreamDashEnded = true;
+        if(Enabled("ConsistentDashOnDBlockExit")) s.dreamDashEnded = true;
     }
     private static void MoveToDBlock(On.Celeste.Player.orig_Update orig, Player self)
     {
         orig(self);
 
-        if (LeniencyHelperModule.Session.Tweaks["ConsistentDashOnDBlockExit"].Enabled && LeniencyHelperModule.Session.dreamDashEnded)
+        if (Enabled("ConsistentDashOnDBlockExit") && LeniencyHelperModule.Session.dreamDashEnded)
         {
             int negSign = -Math.Sign(self.Speed.X);
             for (int c = 0; c < Math.Abs(self.Speed.X * Engine.DeltaTime * 2f); c++)
@@ -50,13 +51,13 @@ public class ConsistentDashOnDBlockExit
     }
     private static float ZeroIfEnabled(float orig)
     {
-        if (!LeniencyHelperModule.Session.Tweaks["ConsistentDashOnDBlockExit"].Enabled) return orig;
+        if (!Enabled("ConsistentDashOnDBlockExit")) return orig;
         else return 0f;
     }
 
     private static void ResetDashCDifEnabled(Player player)
     {
-        if(LeniencyHelperModule.Session.Tweaks["ConsistentDashOnDBlockExit"].Enabled && SettingMaster.GetSetting<bool>("resetDashCDonLeave"))
+        if(Enabled("ConsistentDashOnDBlockExit") && GetSetting<bool>("resetDashCDonLeave"))
         {
             player.dashCooldownTimer = 0f;
         }

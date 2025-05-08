@@ -1,14 +1,13 @@
-using Monocle;
-using Microsoft.Xna.Framework;
-using System;
+using Celeste.Mod.LeniencyHelper.Module;
+using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
+
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class AutoSlowfall
+public class AutoSlowfall : AbstractTweak
 {
     [OnLoad]
     public static void LoadHooks()
     {
-        Console.WriteLine("autoslowfall Loaded hooks");
         On.Celeste.Player.NormalUpdate += AutoSlowfallOnUpdate;
     }
     [OnUnload]
@@ -16,11 +15,10 @@ public class AutoSlowfall
     {
         On.Celeste.Player.NormalUpdate -= AutoSlowfallOnUpdate;
     }
+
     private static int AutoSlowfallOnUpdate(On.Celeste.Player.orig_NormalUpdate orig, Player self)
     {
-        if (LeniencyHelperModule.Session.Tweaks["AutoSlowfall"].Enabled)
-            self.AutoJump = true;
-
+        if (Enabled("AutoSlowfall")) self.AutoJump = true;
         return orig(self);
     }
-}
+}   

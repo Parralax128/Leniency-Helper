@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework;
 using static Celeste.Mod.LeniencyHelper.SettingMaster;
 using Monocle;
 using Celeste;
-using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
+using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
 

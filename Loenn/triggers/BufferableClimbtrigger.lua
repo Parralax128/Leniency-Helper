@@ -7,7 +7,8 @@ BufferableClimbtrigger.placements = {
     {
         name = "Bufferable Climbtrigger Trigger",
         data = {
-            DisableInstantUpwardClimbActivation = false,
+            InstantUpwardClimbActivation = true,
+            ClimbTriggerOnDash = true,
             Enabled = true,
             RevertOnLeave = true,
             Flag = "",

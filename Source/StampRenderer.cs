@@ -24,8 +24,7 @@ public class StampRenderer : Entity
         
         foreach (string tweak in LeniencyHelperModule.TweakList)
         {
-            if (LeniencyHelperModule.Settings.PlayerTweaks[tweak] == true 
-                && (LeniencyHelperModule.Session.UseController[tweak]?
+            if (LeniencyHelperModule.Settings.PlayerTweaks[tweak] == true && (LeniencyHelperModule.Session.UseController[tweak]?
                 LeniencyHelperModule.Session.ControllerTweaks[tweak] : LeniencyHelperModule.Session.TriggerTweaks[tweak]) == false)
             {
                 Stamp.DrawCentered(stampPos, Color.White * 0.15f, 0.35f);

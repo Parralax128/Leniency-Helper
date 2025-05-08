@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Monocle;
 using Microsoft.Xna.Framework;
-using System.Linq;
-using System.Xml.Linq;
+using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.TweakTriggers;
 
@@ -15,11 +13,13 @@ public class GenericTweakTrigger : Triggers.GenericTrigger
     public string tweakName;
 
     private bool savedUsedController;
+    private bool savedEnabled;
 
     public GenericTweakTrigger(EntityData data, Vector2 offset, string tweak) : base(data, offset)
     {
         tweakName = tweak;
-        Data = SettingMaster.GetSettingsFromData(data, tweak);
+        if (SettingMaster.AssociatedTweaks[tweak] != null)
+            Data = SettingMaster.GetSettingsFromData(data, tweak);
     }
     public override void ApplySettings()
     {
@@ -30,7 +30,7 @@ public class GenericTweakTrigger : Triggers.GenericTrigger
 
         foreach (string checkKey in Data.Keys)
         {
-            if (!SettingMaster.TweakSettings[checkKey].triggerValue.Equals(Data[checkKey]))
+            if (!SettingMaster.GetTriggerSetting(checkKey).Equals(Data[checkKey]))
             {
                 foreach (string key in Data.Keys)
                     SettingMaster.SetTriggerSetting(key, Data[key]);   
@@ -41,19 +41,20 @@ public class GenericTweakTrigger : Triggers.GenericTrigger
     }
     public override void GetOldSettings()
     {
-        savedValues.Clear();
-        savedEnabled = LeniencyHelperModule.Session.Tweaks[tweakName].triggerValue;
-        savedUsedController = SettingMaster.Tweaks[tweakName].useController;
+        savedEnabled = LeniencyHelperModule.Session.TriggerTweaks[tweakName];
 
-        if (Data != null)
+        savedValues.Clear();
+        savedUsedController = LeniencyHelperModule.Session.UseController[tweakName];
+
+        if (Data == null) return;
+        
+        foreach (string key in Data.Keys)
         {
-            foreach (string key in Data.Keys)
-            {
-                savedValues.Add(key, SettingMaster.Tweaks[SettingMaster.TweakSettings[key].tweakName].useController ?
-                    SettingMaster.TweakSettings[key].controllerValue : SettingMaster.TweakSettings[key].triggerValue);
-            }
+            savedValues.Add(key, LeniencyHelperModule.Session.UseController[tweakName] ?
+                SettingMaster.GetControllerSetting(key) : SettingMaster.GetTriggerSetting(key));
         }
     }
+
     public override void UndoSettings()
     {
         SettingMaster.SetTriggerTweak(tweakName, savedEnabled);

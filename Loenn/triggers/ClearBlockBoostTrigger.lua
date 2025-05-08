@@ -8,7 +8,6 @@ ClearBlockBoostTrigger.placements = {
         name = "Clear Blockboost Trigger Trigger",
         data = {
             Flag = "",
-            OneUse = false
          }
     }
 }

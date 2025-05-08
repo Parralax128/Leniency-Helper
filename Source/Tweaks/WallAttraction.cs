@@ -4,10 +4,11 @@ using System.Linq;
 using Monocle;
 using static Celeste.Mod.LeniencyHelper.SettingMaster;
 using Celeste.Mod.MaxHelpingHand.Entities;
+using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class WallAttraction
+public class WallAttraction : AbstractTweak
 {
     [OnLoad]
     public static void LoadHooks()
@@ -24,7 +25,7 @@ public class WallAttraction
 
     private static void AttractUpdate(On.Celeste.Player.orig_Update orig, Player self)
     {
-        if (!LeniencyHelperModule.Session.Tweaks["WallAttraction"].Enabled)
+        if (!Enabled("WallAttraction"))
         {
             orig(self);
             return;
@@ -48,7 +49,7 @@ public class WallAttraction
                     break;
                 }
                 else if (self.ClimbBoundsCheck((int)self.Facing) && self.CollideCheck<Solid>(solidCheckPos) 
-                    || (LeniencyHelperModule.ModsLoaded[("MaxHelpingHand", new Version(1,30,0))] && CollidingWithSideways(self, solidCheckPos)))
+                    || (LeniencyHelperModule.ModLoaded("MaxHelpingHand") && CollidingWithSideways(self, solidCheckPos)))
                 {
                     break;
                 }

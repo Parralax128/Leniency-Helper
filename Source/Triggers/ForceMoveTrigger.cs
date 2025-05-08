@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using Celeste;
 using Monocle;
 using Microsoft.Xna.Framework.Content;
 using System.Runtime.CompilerServices;
@@ -29,7 +28,7 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
         private bool oneUse;
         private bool onlyOnEnter;
 
-        private bool flagActive => (flag == "" || (Scene as Level).Session.GetFlag(flag));
+        private bool flagActive => flag == "" || (Scene as Level).Session.GetFlag(flag);
         public ForceMoveTrigger(EntityData data, Vector2 offset) : base(data, offset)
         {
             forceMoveDir = data.Enum("Direction", DirsX.Right);
@@ -54,18 +53,18 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
             if (!flagActive) return;
 
             player.forceMoveX = DirToInt(forceMoveDir);
-            player.forceMoveXTimer = countInFrames ? ForceMoveTime/Engine.FPS : ForceMoveTime;
+            player.forceMoveXTimer = countInFrames ? ForceMoveTime / Engine.FPS : ForceMoveTime;
 
-            if(oneUse) RemoveSelf();
+            if (oneUse) RemoveSelf();
         }
         public override void OnStay(Player player)
         {
             base.OnStay(player);
 
-            if(!onlyOnEnter && flagActive)
+            if (!onlyOnEnter && flagActive)
             {
                 player.forceMoveX = DirToInt(forceMoveDir);
-                player.forceMoveXTimer = countInFrames ? ForceMoveTime*Engine.DeltaTime : ForceMoveTime;
+                player.forceMoveXTimer = countInFrames ? ForceMoveTime * Engine.DeltaTime : ForceMoveTime;
             }
         }
     }

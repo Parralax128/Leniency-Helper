@@ -7,10 +7,7 @@ DisableAirMovementTrigger.placements = {
     {
         name = "Disable Air-movement Trigger",
         data = {
-            Enabled = true,
-            RevertOnLeave = true,
             Flag = "",
-            OneUse = false
         }
     }
 }

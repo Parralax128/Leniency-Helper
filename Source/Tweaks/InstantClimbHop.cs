@@ -1,8 +1,9 @@
+using Celeste.Mod.LeniencyHelper.Module;
 using Microsoft.Xna.Framework;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class InstantClimbHop
+public class InstantClimbHop : AbstractTweak
 {
     [OnLoad]
     public static void LoadHooks()
@@ -19,19 +20,18 @@ public class InstantClimbHop
     public static void RedoMoveDown(On.Celeste.Player.orig_ClimbHop orig, Player self)
     {
         orig(self);
-        var s = LeniencyHelperModule.Session;
 
-        if (s.Tweaks["InstantClimbHop"].Enabled)
+        if (Enabled("InstantClimbHop"))
         {
-            s.savedClimbHopSolid = self.climbHopSolid;
-            s.movedDown = false;
+            LeniencyHelperModule.Session.savedClimbHopSolid = self.climbHopSolid;
+            LeniencyHelperModule.Session.movedDown = false;
         }
     }
     public static void InstantClimbhopUpdate(On.Celeste.Player.orig_Update orig, Player self)
     {
         orig(self);
 
-        if(!LeniencyHelperModule.Session.Tweaks["InstantClimbHop"].Enabled) return;
+        if(!Enabled("InstantClimbHop")) return;
 
         var s = LeniencyHelperModule.Session;
 

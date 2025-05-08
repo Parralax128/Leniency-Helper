@@ -1,21 +1,23 @@
-﻿using Monocle;
+﻿using Celeste.Mod.LeniencyHelper.Tweaks;
+using Monocle;
 using static Celeste.Mod.LeniencyHelper.SettingMaster;
 
 namespace Celeste.Mod.LeniencyHelper.Components;
 
-public class RefillCoyoteComponent : Component
+public class RefillCoyoteComponent : PlayerComponent
 {
-    public static float RefillCoyoteTime => GetSetting<bool>("CountRefillCoyoteTimeInFrames") ?
-        GetSetting<float>("RefillCoyoteTime") / Engine.FPS : GetSetting<float>("RefillCoyoteTime");
+    public static float RefillCoyoteTime => GetSetting<bool>("CountRefillCoyoteTimeInFrames", "RefillDashInCoyote") ?
+        GetSetting<float>("RefillCoyoteTime", "RefillDashInCoyote") / Engine.FPS : GetSetting<float>("RefillCoyoteTime", "RefillDashInCoyote");
 
     public float refillCoyoteTimer;
-    public RefillCoyoteComponent() : base(true, true) 
+    public RefillCoyoteComponent() : base("RefillDashInCoyote") 
     {
         refillCoyoteTimer = 0f;
     }
     public override void Update()
     {
         base.Update();
+        if (!Tweaks.AbstractTweak.Enabled("RefillDashInCoyote")) return;
 
         Player player = Entity as Player;
         if (refillCoyoteTimer > 0f)

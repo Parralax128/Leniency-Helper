@@ -8,6 +8,7 @@ controller.placements = {
         name = "Bufferable extends Controller",
         data = {
             ForceWaitForRefill = false,
+            BufferTiming = 0.08,
             StopFlag = "",
             Persistent = true
         }

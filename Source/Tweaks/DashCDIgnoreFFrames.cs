@@ -1,11 +1,11 @@
-using Celeste;
 using Monocle;
 using Microsoft.Xna.Framework;
 using System;
+using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class DashCDIgnoreFFrames
+public class DashCDIgnoreFFrames : AbstractTweak
 {
     [OnLoad]
     public static void LoadHooks()
@@ -42,7 +42,7 @@ public class DashCDIgnoreFFrames
     {
         var s = LeniencyHelperModule.Session;
         orig(time);
-        if(!LeniencyHelperModule.Session.Tweaks["DashCDIgnoreFFrames"].Enabled || s.useOrigFreeze) return;
+        if(!Enabled("DashCDIgnoreFFrames") || s.useOrigFreeze) return;
         {
             if (s.modifiedPlayer is not null)
                 s.modifiedPlayer.dashCooldownTimer -= time;
@@ -51,7 +51,7 @@ public class DashCDIgnoreFFrames
 
     public static int InstantDashBegin(On.Celeste.Player.orig_DashUpdate orig, Player self)
     {
-        if (!LeniencyHelperModule.Session.Tweaks["DashCDIgnoreFFrames"].Enabled) return orig(self);
+        if (!Enabled("DashCDIgnoreFFrames")) return orig(self);
 
         if (self.CanDash)
         {

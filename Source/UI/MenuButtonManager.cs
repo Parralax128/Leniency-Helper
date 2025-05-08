@@ -1,4 +1,5 @@
-﻿using Monocle;
+﻿using Celeste.Mod.LeniencyHelper.Module;
+using Monocle;
 using System;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
@@ -51,7 +52,7 @@ public static class MenuButtonManager
 
         menu.Add(new SubOptionsOffset(32));
 
-        foreach (string tweak in LeniencyHelperModule.tweakList)
+        foreach (string tweak in LeniencyHelperModule.TweakList)
         {
             SpecialSlider newTweak = new SpecialSlider(Dialog.Clean($"LENIENCYTWEAKS_{tweak.ToUpper()}"),
                 tweak, SpecialSlider.GetIndexFromTweakName(tweak));

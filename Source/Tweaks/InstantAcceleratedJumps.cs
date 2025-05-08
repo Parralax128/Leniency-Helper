@@ -1,33 +1,36 @@
+using MonoMod.Cil;
 using System;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class InstantAcceleratedJumps
+public class InstantAcceleratedJumps : AbstractTweak
 {
     [OnLoad]
     public static void LoadHooks()
     {
-        On.Celeste.Player.Jump += GetFullWalkSpeed;
-        //sdafdasdsklljk
+        IL.Celeste.Player.Jump += RecieveSpeedOnStart;
+        IL.Celeste.Player.Bounce += RecieveSpeedOnStart;
     }
     [OnUnload]
     public static void UnloadHooks()
     {
-        On.Celeste.Player.Jump -= GetFullWalkSpeed;
+        IL.Celeste.Player.Jump -= RecieveSpeedOnStart;
+        IL.Celeste.Player.Bounce -= RecieveSpeedOnStart;
+        //asljdfadsjfalsfjdslkasdfasfdassdfss
     }
-    private static void GetFullWalkSpeed(On.Celeste.Player.orig_Jump orig, Player self,
-        bool particles, bool playSfx)
-    {
-        if(!self.onGround || !LeniencyHelperModule.Session.Tweaks["InstantAcceleratedJumps"].Enabled)
-        {
-            orig(self, particles, playSfx);
-            return; 
-        }
 
-        if(Math.Abs(self.Speed.X) < 90f && self.moveX != 0)
+    private static void RecieveSpeedOnStart(ILContext il)
+    {
+        ILCursor cursor = new ILCursor(il);
+
+        cursor.EmitLdarg0();
+        cursor.EmitDelegate(RecieveWalkSpeed);
+    }
+    private static void RecieveWalkSpeed(Player player)
+    {
+        if (Enabled("InstantAcceleratedJumps") && Math.Abs(player.Speed.X) < 90f && player.moveX != 0)
         {
-            self.Speed.X = self.moveX * 90f;
+            player.Speed.X = player.moveX * 90f;
         }
-        orig(self, particles, playSfx);
     }
 }

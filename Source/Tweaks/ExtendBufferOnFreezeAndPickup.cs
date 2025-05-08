@@ -3,9 +3,10 @@ using MonoMod.RuntimeDetour;
 using MonoMod.Cil;
 using MonoMod.Utils;
 using System.Reflection;
+using Celeste.Mod.LeniencyHelper.Module;
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class ExtendBufferOnFreezeAndPickup
+public class ExtendBufferOnFreezeAndPickup : AbstractTweak
 {
     private static ILHook customPickupDelayHook;
 
@@ -27,8 +28,7 @@ public class ExtendBufferOnFreezeAndPickup
     private static void ExtendBufferOnPickup(On.Celeste.Player.orig_Update orig, Player self)
     {
         var s = LeniencyHelperModule.Session;
-        if (!(LeniencyHelperModule.Session.Tweaks["ExtendBufferOnFreezeAndPickup"].Enabled && 
-            SettingMaster.GetSetting<bool>("ExtendBufferOnPickup")))
+        if (!(Enabled("ExtendBufferOnFreezeAndPickup") && GetSetting<bool>("ExtendBufferOnPickup")))
         {
             orig(self);
             return;
@@ -86,12 +86,10 @@ public class ExtendBufferOnFreezeAndPickup
     {
         orig(time);
         
-        if (!(LeniencyHelperModule.Session.Tweaks["ExtendBufferOnFreezeAndPickup"].Enabled
-            && SettingMaster.GetSetting<bool>("ExtendBufferOnFreeze"))) return;
+        if (!(Enabled("ExtendBufferOnFreezeAndPickup") && GetSetting<bool>("ExtendBufferOnFreeze"))) return;
 
         if(Input.Dash.bufferCounter > 0f) Input.Dash.bufferCounter += time;
         if(Input.CrouchDash.bufferCounter > 0f) Input.CrouchDash.bufferCounter += time;
         if(Input.Jump.bufferCounter > 0f)  Input.Jump.bufferCounter += time;
     }
 }
-

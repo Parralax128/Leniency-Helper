@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework;
 using System;
 using MonoMod.Cil;
-using Mono.Cecil.Cil;
 using Celeste.Mod.Helpers;
 using static Celeste.Mod.Helpers.ILCursorExtensions;
 using System.Reflection;
@@ -10,9 +9,8 @@ using Celeste.Mod.LeniencyHelper.CrossModSupport;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class RemoveDBlockCCorection
+public class RemoveDBlockCCorection : AbstractTweak
 {
-    public static bool isEnabled => LeniencyHelperModule.Session.Tweaks["RemoveDBlockCCorection"].Enabled;
     [OnLoad]
     public static void LoadHooks()
     {
@@ -58,11 +56,12 @@ public class RemoveDBlockCCorection
     private static bool CollidingDBlockX(Player player)
     {
         return player.CollideCheck<DreamBlock>(player.Position + Vector2.UnitX
-            * Math.Sign(player.Speed.X)) && isEnabled;
+            * Math.Sign(player.Speed.X)) && Enabled("RemoveDBlockCCorection");
     }
     private static bool CollidingDBlockY(Vector2 at, Player player, int shift)
     {
-        return player.CollideCheck<DreamBlock>(at + Vector2.UnitY * shift * GravityHelperImports.currentGravity) && isEnabled;
+        return player.CollideCheck<DreamBlock>(at + Vector2.UnitY * shift * GravityHelperImports.currentGravity) 
+            && Enabled("RemoveDBlockCCorection");
     }
     public static void CustomOnCollideV(ILContext il)
     {

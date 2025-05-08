@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Celeste.Mod.LeniencyHelper.Module;
 using Celeste.Mod.LeniencyHelper.Tweaks;
 using Microsoft.Xna.Framework;
-using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
+using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using static Celeste.TextMenu;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
@@ -35,8 +37,8 @@ public class SpecialSlider : TextMenu.Option<int>
     }
     public static int GetIndexFromTweakName(string tweakName)
     {
-        if (LeniencyHelperModule.Settings.SavedPlayerTweaks[tweakName] is not null)
-            return (LeniencyHelperModule.Settings.SavedPlayerTweaks[tweakName] == true ? 1 : 2);
+        if (LeniencyHelperModule.Settings.PlayerTweaks[tweakName] is not null)
+            return (LeniencyHelperModule.Settings.PlayerTweaks[tweakName] == true ? 1 : 2);
         else return 0;
     }
     public SpecialSlider(string label, string tweakName, int defaultIndex) : base(label)
@@ -49,7 +51,8 @@ public class SpecialSlider : TextMenu.Option<int>
 
         Index = PreviousIndex = defaultIndex;
 
-        AddSubOptions();
+        if (SettingMaster.AssociatedTweaks[tweakName] != null)
+            AddSubOptions();
 
         if (subOptions.Count > 0)
         {
@@ -60,9 +63,9 @@ public class SpecialSlider : TextMenu.Option<int>
 
     private void AddSubOptions()
     {
-        foreach (KeyValuePair<string, TweakSubSetting> subsetting in SettingMaster.TweakSettings.Where(pair => pair.Value.tweakName == tweakName))
+        foreach (string setting in SettingMaster.AssociatedTweaks[tweakName])
         {
-            SetupSubOption(subsetting.Key, subsetting.Value.type);
+            SetupSubOption(setting, LeniencyHelperModule.DefaultSettings.Get(setting).GetType());
         }
 
         CustomOnOff toggler = subOptions.Find(i => i.GetType() == typeof(CustomOnOff) && (i as CustomOnOff).framesModeToggler == true) as CustomOnOff;
@@ -92,31 +95,29 @@ public class SpecialSlider : TextMenu.Option<int>
 
         if (type == typeof(bool))
         {
-            newOption = new CustomOnOff(label, SettingMaster.GetSetting<bool>(nameInSettings),
+            newOption = new CustomOnOff(label, SettingMaster.GetSetting<bool>(nameInSettings, tweakName),
                 nameInSettings.ToLower().Contains("inframes"), nameInSettings);
 
-            this.OnValueChange += (value) => (newOption as CustomOnOff).value = SettingMaster.GetSetting<bool>(nameInSettings);
+            this.OnValueChange += (value) => (newOption as CustomOnOff).value = SettingMaster.GetSetting<bool>(nameInSettings, tweakName);
         }
         else if (type == typeof(float))
         {
             newOption = new FloatSlider(label, 0f, GetMaxFromName(nameInSettings),
-                SettingMaster.GetSetting<float>(nameInSettings), 2, nameInSettings);
+                SettingMaster.GetSetting<float>(nameInSettings, tweakName), 2, nameInSettings);
 
             (newOption as FloatSlider).isTimer = IsTimer(nameInSettings);
 
-            this.OnValueChange += (value) => (newOption as FloatSlider).value = SettingMaster.GetSetting<float>(nameInSettings);
+            this.OnValueChange += (value) => (newOption as FloatSlider).value = SettingMaster.GetSetting<float>(nameInSettings, tweakName);
 
 
             if (tweakName == "CustomBufferTime")
             {
                 this.OnValueChange += (value) =>
                 {
-                    Log($"slider changed to {value}");
                     CustomBufferTime.UpdateCustomBuffers();
                 };
                 (newOption as FloatSlider).OnValueChange += (value) =>
                 {
-                    Log($"floatslider changed to {value}");
                     CustomBufferTime.UpdateCustomBuffers();
                 };
             }
@@ -124,20 +125,20 @@ public class SpecialSlider : TextMenu.Option<int>
         else if (type == typeof(int))
         {
             newOption = new IntSlider(label, 0, (int)GetMaxFromName(nameInSettings),
-                SettingMaster.GetSetting<int>(nameInSettings), nameInSettings);
+                SettingMaster.GetSetting<int>(nameInSettings, tweakName), nameInSettings);
 
             this.OnValueChange += (value) =>
             {
-                (newOption as IntSlider).value = SettingMaster.GetSetting<int>(nameInSettings);
+                (newOption as IntSlider).value = SettingMaster.GetSetting<int>(nameInSettings, tweakName);
             };
         }
         else if(type == typeof(Dirs))
         {
-            newOption = new DirSlider(label, SettingMaster.GetSetting<Dirs>(nameInSettings), nameInSettings);
+            newOption = new DirSlider(label, SettingMaster.GetSetting<Dirs>(nameInSettings, tweakName), nameInSettings);
 
             this.OnValueChange += (value) =>
             {
-                (newOption as DirSlider).value = SettingMaster.GetSetting<Dirs>(nameInSettings);
+                (newOption as DirSlider).value = SettingMaster.GetSetting<Dirs>(nameInSettings, tweakName);
             };
         }
         else return;
@@ -172,25 +173,25 @@ public class SpecialSlider : TextMenu.Option<int>
     {
         foreach (CustomOnOff option in subOptions.FindAll(item => item is CustomOnOff))
         {
-            option.value = SettingMaster.GetSetting<bool>(option.settingName);
+            option.value = SettingMaster.GetSetting<bool>(option.settingName, tweakName);
         }
         foreach (FloatSlider option in subOptions.FindAll(item => item is FloatSlider))
         {
-            option.value = SettingMaster.GetSetting<float>(option.settingName);
+            option.value = SettingMaster.GetSetting<float>(option.settingName, tweakName);
         }
         foreach (IntSlider option in subOptions.FindAll(item => item is IntSlider))
         {
-            option.value = SettingMaster.GetSetting<int>(option.settingName);
+            option.value = SettingMaster.GetSetting<int>(option.settingName, tweakName);
         }
         foreach (DirSlider option in subOptions.FindAll(item => item is DirSlider))
         {
-            option.value = SettingMaster.GetSetting<Dirs>(option.settingName);
+            option.value = SettingMaster.GetSetting<Dirs>(option.settingName, tweakName);
         }
     }
 
     public override void ConfirmPressed()
     {
-        if (!LeniencyHelperModule.Session.Tweaks[tweakName].Enabled) CloseSuboptions();
+        if (!SettingMaster.GetTweakEnabled(tweakName)) CloseSuboptions();
         else OpenSuboptions();
     }
 
@@ -254,7 +255,6 @@ public class SpecialSlider : TextMenu.Option<int>
             Index += dir;
             lastDir = dir;
 
-            LeniencyHelperModule.Settings.SavedPlayerTweaks[tweakName] = GetValueFromIndex(Index);
             SettingMaster.SetPlayerTweak(tweakName, GetValueFromIndex(Index));
             if (OnValueChange != null) OnValueChange(Index);
         }
@@ -266,7 +266,7 @@ public class SpecialSlider : TextMenu.Option<int>
             OpenSuboptions();
         }       
 
-        if (!SettingMaster.Tweaks[tweakName].Enabled) CloseSuboptions();
+        if (!SettingMaster.GetTweakEnabled(tweakName)) CloseSuboptions();
     }
 
     private static bool? GetValueFromIndex(int index)
@@ -300,8 +300,8 @@ public class SpecialSlider : TextMenu.Option<int>
 
     private Color GetColor()
     {
-        if (LeniencyHelperModule.Settings.SavedPlayerTweaks[tweakName].HasValue) return PlayerValueColor;
-        return LeniencyHelperModule.Session.Tweaks[tweakName].MapEnabled ? MapValueColor : BothInactiveColor;
+        if (LeniencyHelperModule.Settings.PlayerTweaks[tweakName].HasValue) return PlayerValueColor;
+        return SettingMaster.GetTweakEnabled(tweakName) ? MapValueColor : BothInactiveColor;
     }
     public override void Render(Vector2 position, bool highlighted)
     {

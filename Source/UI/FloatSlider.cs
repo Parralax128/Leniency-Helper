@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using static Celeste.Mod.LeniencyHelper.LeniencyHelperModule;
+using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using static Celeste.Mod.LeniencyHelper.SettingMaster;
 using static Celeste.TextMenu;
 using Monocle;

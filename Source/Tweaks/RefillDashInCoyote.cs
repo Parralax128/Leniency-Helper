@@ -3,10 +3,11 @@ using MonoMod.RuntimeDetour;
 using Monocle;
 using Celeste.Mod.Helpers;
 using Celeste.Mod.LeniencyHelper.Components;
+using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class RefillDashInCoyote
+public class RefillDashInCoyote : AbstractTweak
 {
     private static ILHook origUpdateHook;
 
@@ -53,7 +54,7 @@ public class RefillDashInCoyote
             cursor.EmitDelegate(OnRefillCheck);
             cursor.EmitBrtrue(goOutPreventRefill);
             cursor.EmitLdarg0();
-
+            
             if (cursor.TryGotoPrev(MoveType.Before, instr => instr.MatchLdarg0(), instr => instr.MatchLdfld<Player>("onGround")))
             {
                 cursor.MarkLabel(gotoRefillCheck); // represents label of the start of refill check
@@ -80,22 +81,21 @@ public class RefillDashInCoyote
     }
     private static bool StartChecking()
     {
-        var s = LeniencyHelperModule.Session;
-        if (s.Tweaks["RefillDashInCoyote"].Enabled)
+        if (Enabled("RefillDashInCoyote"))
         {
-            s.artificialChecking = true;
+            LeniencyHelperModule.Session.artificialChecking = true;
             return true;
         }
         else return false;
     }
     private static void CancelArtificialCheck()
     {
-        if (LeniencyHelperModule.Session.Tweaks["RefillDashInCoyote"].Enabled)
+        if (Enabled("RefillDashInCoyote"))
             LeniencyHelperModule.Session.artificialChecking = false;
     }
     private static bool OnRefillCheck(Player player)
     {
-        if (LeniencyHelperModule.Session.artificialChecking && LeniencyHelperModule.Session.Tweaks["RefillDashInCoyote"].Enabled)
+        if (LeniencyHelperModule.Session.artificialChecking && Enabled("RefillDashInCoyote"))
         {
             RefillCoyoteComponent component = player.Get<RefillCoyoteComponent>();
             int saveDashes = player.Dashes;
@@ -115,9 +115,9 @@ public class RefillDashInCoyote
     {
         ILCursor c = new ILCursor(il);
         c.EmitLdarg0();
-        c.EmitDelegate(CallComponentCancle);
+        c.EmitDelegate(CallComponentCancel);
     }
-    private static void CallComponentCancle(Player player)
+    private static void CallComponentCancel(Player player)
     {
         player.Get<RefillCoyoteComponent>()?.Cancel();
     }

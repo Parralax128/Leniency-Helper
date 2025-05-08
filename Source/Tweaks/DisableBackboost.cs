@@ -1,6 +1,6 @@
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class DisableBackboost
+public class DisableBackboost : AbstractTweak
 {
     [OnLoad]
     public static void LoadHooks()
@@ -15,7 +15,7 @@ public class DisableBackboost
 
     private static void ReturnSpeed(On.Celeste.Player.orig_Throw orig, Player self)
     {
-        if (!LeniencyHelperModule.Session.Tweaks["DisableBackboost"].Enabled)
+        if (!Enabled("DisableBackboost"))
         {
             orig(self);
             return;
