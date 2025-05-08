@@ -5,7 +5,7 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class DynamicWallLeniency : AbstractTweak
 {
-    //  to avoid unnecesarry IL hooks, the leniency is applyed in IceWallIncreaseWallLeniency tweak
+    // a to avoid unnecesarry IL hooks, the leniency is applyed in IceWallIncreaseWallLeniency tweak
 
     public static int GetDynamicLeniency(Player player, int defaultValue)
     {
