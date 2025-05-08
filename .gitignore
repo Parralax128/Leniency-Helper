@@ -10,6 +10,7 @@ LeniencyHelper.zip
 *.rsuser
 *.suo
 *.user
+LeniencyHelper.csproj.user
 *.userosscache
 *.sln.docstates
 
