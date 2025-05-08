@@ -8,6 +8,7 @@ public class InstantAcceleratedJumps
     public static void LoadHooks()
     {
         On.Celeste.Player.Jump += GetFullWalkSpeed;
+        //sdafdasdsklljk
     }
     [OnUnload]
     public static void UnloadHooks()
