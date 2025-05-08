@@ -4,7 +4,7 @@ using Monocle;
 namespace Celeste.Mod.LeniencyHelper.Controllers;
 public abstract class GenericController : Entity
 {
-    //aahahahahs
+    //
     public string stopFlag;
     public bool persistent;
     private TransitionListener transitionListener;
