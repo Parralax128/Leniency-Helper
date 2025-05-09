@@ -164,7 +164,7 @@ public static class SettingMaster
         { "BackwardsRetention", null },
         { "BufferableClimbtrigger", new List<string>{ "onNormalUpdate", "onDash" } },
         { "BufferableExtends", new List<string>{ "forceWaitForRefill", "extendsTiming" } },
-        { "ConsistentDashOnDBlockExit", null },
+        { "ConsistentDashOnDBlockExit", new List<string>{ "resetDashCDonLeave" } },
         { "CornerWaveLeniency", null },
         { "CustomBufferTime", new List<string>{ "countBufferTimeInFrames", "JumpBufferTime", "DashBufferTime", "DemoBufferTime" } },
         { "CustomDashbounceTiming", new List<string>{ "dashbounceTiming", "countDashbounceTimingInFrames" } },
