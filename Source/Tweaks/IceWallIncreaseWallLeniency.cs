@@ -15,7 +15,7 @@ public class IceWallIncreaseWallLeniency : AbstractTweak
     public static void LoadHooks()
     {
         IL.Celeste.Player.WallJumpCheck += CustomWJCheck;
-        On.Celeste.Player.Render += Debug;
+        //On.Celeste.Player.Render += Debug;
     }
     [OnUnload]
     public static void UnloadHooks()
@@ -25,7 +25,11 @@ public class IceWallIncreaseWallLeniency : AbstractTweak
 
     private static int GetNewLeniency(int defaultValue, Player player, int dir, bool returnOrig)
     {
-        if (returnOrig) return defaultValue;
+        if (returnOrig)
+        {
+            if (BothDisabled()) SetWjDist(defaultValue, dir);
+            return defaultValue;
+        }
 
         int newValue = defaultValue;
 
@@ -71,6 +75,8 @@ public class IceWallIncreaseWallLeniency : AbstractTweak
     }
     private static void SetWjDist(int value, int dir)
     {
+        LeniencyHelperModule.Log($"set {(dir == 1 ? "right" : "left")} wj dist: {value}");
+
         if (dir == 1) LeniencyHelperModule.Session.wjDistR = value;
         else LeniencyHelperModule.Session.wjDistL = value;
     }
@@ -93,7 +99,7 @@ public class IceWallIncreaseWallLeniency : AbstractTweak
         il.Body.Variables.Add(trueFlag);
         il.Body.Variables.Add(savePos);
 
-        cursor.EmitDelegate(TrueIfBothDisabled);
+        cursor.EmitDelegate(BothDisabled);
         cursor.EmitStloc(orig);
         cursor.MarkLabel(origStart);        
 
@@ -101,6 +107,7 @@ public class IceWallIncreaseWallLeniency : AbstractTweak
         {
             cursor.EmitDup();
             cursor.EmitStloc(origDist);
+
             cursor.EmitLdarg0();
             cursor.EmitLdarg1();
             cursor.EmitLdloc(orig);
@@ -117,10 +124,12 @@ public class IceWallIncreaseWallLeniency : AbstractTweak
         {
             cursor.EmitDup();
             cursor.EmitStloc(origDist);
+
             cursor.EmitLdarg0();
             cursor.EmitLdarg1();
             cursor.EmitLdloc(orig);
             cursor.EmitDelegate(GetNewLeniency);
+
 
             cursor.GotoPrev(MoveType.After, i => i.MatchLdcI4(5));
             cursor.MarkLabel(getWbLeni);
@@ -160,7 +169,7 @@ public class IceWallIncreaseWallLeniency : AbstractTweak
             cursor.Index++;
         }
     }
-    private static bool TrueIfBothDisabled()
+    private static bool BothDisabled()
     {
         return (!Enabled("IceWallIncreaseWallLeniency") && !Enabled("DynamicWallLeniency"));
     }
