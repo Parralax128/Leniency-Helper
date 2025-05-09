@@ -23,15 +23,18 @@ public static class MenuButtonManager
 
     private static void RestrictMove(On.Celeste.TextMenu.orig_MoveSelection orig, TextMenu self, int dir, bool wiggle)
     {
-        if (self.Components.Get<LHmenuTracker>() != null && InSingleItemSuboptionsMenu && InSubOptionMode)
-            return;
+        if (self.Components.Get<LHmenuTracker>() != null )
+        {
+            if (InSingleSubsettingMenu && InSubsettingsMode) return;
+            if (self.Items[self.Selection] is SpecialSlider slider && slider.addedSubsettings) return;
+        }
 
         orig(self, dir, wiggle);
     }
 
-    public static bool InSingleItemSuboptionsMenu = false;
+    public static bool InSingleSubsettingMenu = false;
 
-    public static bool InSubOptionMode = false;
+    public static bool InSubsettingsMode = false;
 
     private static TextMenu BuildMenu()
     {
@@ -80,9 +83,11 @@ public static class MenuButtonManager
     {
         TextMenu.Item selectedItem = menu.Items[menu.Selection];
 
-        if(Input.MenuJournal.Pressed)
+        //https://github.com/Parralax128/Leniency-Helper/wiki/Refill-dash-in%E2%80%90coyote
+        //https://github.com/Parralax128/Leniency-Helper/wiki/Refill-dash-in-coyote
+        if (Input.Grab.Pressed)
         {
-            Input.MenuJournal.ConsumeBuffer();
+            Input.Grab.ConsumeBuffer();
 
             if (selectedItem is SpecialSlider tweakSlider)
             {
@@ -116,11 +121,11 @@ public static class MenuButtonManager
             Audio.Play(SFX.ui_main_button_back);
             LeniencyHelperModule.Instance.SaveSettings();
 
-            if (InSubOptionMode)
+            if (InSubsettingsMode)
             {
                 foreach(TextMenu.Item item in thisMenu.Items)
                 {
-                    if (item is SpecialSlider slider && slider.addedSuboptions)
+                    if (item is SpecialSlider slider && slider.addedSubsettings)
                     {
                         slider.CloseSuboptions();
                         break;

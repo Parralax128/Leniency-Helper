@@ -14,7 +14,7 @@ public class SpecialSlider : TextMenu.Option<int>
     public TextMenu menu;
 
     public List<Item> subOptions = new List<Item>();
-    public bool addedSuboptions = false;
+    public bool addedSubsettings = false;
 
     private SubOptionsOffset beforeSubOptions;
     private SubOptionsOffset afterSubOptions;
@@ -56,6 +56,14 @@ public class SpecialSlider : TextMenu.Option<int>
             beforeSubOptions = new SubOptionsOffset(8);
             afterSubOptions = new SubOptionsOffset(16);
         }
+
+        OnLeave += () =>
+        {
+            if(addedSubsettings)
+            {
+                CloseSuboptions();
+            }
+        };
     }
 
     #region SubOptions
@@ -186,15 +194,17 @@ public class SpecialSlider : TextMenu.Option<int>
 
     public override void ConfirmPressed()
     {
-        if (!SettingMaster.GetTweakEnabled(tweakName)) CloseSuboptions();
-        else OpenSuboptions();
+        if (!MenuButtonManager.InSubsettingsMode)
+        {
+            OpenSuboptions();
+        }
     }
     public void OpenSuboptions()
     {
-        if (addedSuboptions || subOptions.Count <= 0) return;
+        if (addedSubsettings || subOptions.Count <= 0) return;
 
         //not allowed to change options if "Map" is selected
-        if (Index == 0) foreach (Item item in subOptions) item.Disabled = true;
+        if (Index != 1) foreach (Item item in subOptions) item.Disabled = true;
         else foreach (Item item in subOptions) item.Disabled = false;
 
         int optionsIndex = menu.Items.FindIndex(item => item.GetType() == typeof(SpecialSlider) && ((SpecialSlider)item).Label == Label);
@@ -207,27 +217,27 @@ public class SpecialSlider : TextMenu.Option<int>
             menu.Insert(optionsIndex + 1, option);
             menu.Selection = optionsIndex + 1;
 
-            if (subOptions.Count == 1) MenuButtonManager.InSingleItemSuboptionsMenu = true;
+            if (subOptions.Count == 1) MenuButtonManager.InSingleSubsettingMenu = true;
 
             else
             {
-                MenuButtonManager.InSingleItemSuboptionsMenu = false;
+                MenuButtonManager.InSingleSubsettingMenu = false;
                 option.OnLeave += () =>
                 {
                     LoopMenuOnLeave(optionsIndex + 1, optionsIndex + subOptions.Count);
                 };
             }
         }
-        if (Index == 0) menu.Selection = optionsIndex;
+        if (Index != 1) menu.Selection = optionsIndex;
 
         menu.Insert(optionsIndex + 1 + subOptions.Count, afterSubOptions);
 
-        MenuButtonManager.InSubOptionMode = true;
-        addedSuboptions = true;
+        MenuButtonManager.InSubsettingsMode = true;
+        addedSubsettings = true;
     }
     public void CloseSuboptions()
     {
-        if (!addedSuboptions || subOptions.Count <= 0) return;
+        if (!addedSubsettings || subOptions.Count <= 0) return;
 
         foreach (Item item in subOptions)
         {
@@ -236,9 +246,9 @@ public class SpecialSlider : TextMenu.Option<int>
         menu.Remove(beforeSubOptions);
         menu.Remove(afterSubOptions);
 
-        MenuButtonManager.InSubOptionMode = false;
-        MenuButtonManager.InSingleItemSuboptionsMenu = false;
-        addedSuboptions = false;
+        MenuButtonManager.InSubsettingsMode = false;
+        MenuButtonManager.InSingleSubsettingMenu = false;
+        addedSubsettings = false;
 
         menu.Selection = menu.Items.FindIndex(item => item.Equals(this));
     }
@@ -273,7 +283,7 @@ public class SpecialSlider : TextMenu.Option<int>
         }
         ValueWiggler.Start();
 
-        if (dir == 1 && Index == 1 && addedSuboptions) //if switched from "Map" to "ON" - updating suboptions via reopening
+        if (addedSubsettings) //if switched from "Map" to "ON" - updating suboptions via reopening
         {
             CloseSuboptions();
             OpenSuboptions();
@@ -297,6 +307,7 @@ public class SpecialSlider : TextMenu.Option<int>
         for (int c = 0; c < tweakNameUpper.Length; c++)
         {
             if (tweakNameUpper[c] == ' ') result += '-';
+            else if (tweakNameUpper[c] == '-') result += "%E2%80%90";
             else if (c >= 1 && tweakNameUpper[c - 1] != ' ') result += tweakNameUpper[c].ToString().ToLower();
             else result += tweakNameUpper[c];
         }
