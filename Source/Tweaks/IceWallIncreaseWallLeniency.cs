@@ -27,7 +27,6 @@ public class IceWallIncreaseWallLeniency : AbstractTweak
     {
         if (returnOrig) return defaultValue;
 
-        var s = LeniencyHelperModule.Session;
         int newValue = defaultValue;
 
         if (Enabled("DynamicWallLeniency") && (Math.Sign(player.Speed.X) != dir || (player.DashAttacking && player.SuperWallJumpAngleCheck)))

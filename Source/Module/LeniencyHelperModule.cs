@@ -99,7 +99,9 @@ public class LeniencyHelperModule : EverestModule
     {
         Vector2 savePos = entity.Position;
         if (at.HasValue) entity.Position = at.Value;
+
         Rectangle checkRect = entity.Collider.Bounds;
+
         if (at.HasValue) entity.Position = savePos;
 
         checkRect.Width += dir == 1 ? Session.wjDistR : Session.wjDistL;

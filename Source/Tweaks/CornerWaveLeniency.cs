@@ -15,14 +15,14 @@ public class CornerWaveLeniency : AbstractTweak
     [OnLoad]
     public static void LoadHooks()
     {
-        On.Celeste.Player.WallJump += LaunchGroundCheck;
+        On.Celeste.Player.WallJump += StartGroundCheck;
         IL.Celeste.Player.OnCollideV += RemoveDiagCCorection;
         origUpdateHook = new ILHook(typeof(Player).GetMethod(nameof(Player.orig_Update)), HookedUpdate);
     }
     [OnUnload]
     public static void UnloadHooks()
     {
-        On.Celeste.Player.WallJump -= LaunchGroundCheck;
+        On.Celeste.Player.WallJump -= StartGroundCheck;
         IL.Celeste.Player.OnCollideV -= RemoveDiagCCorection;
         origUpdateHook.Dispose();
     }
@@ -88,7 +88,7 @@ public class CornerWaveLeniency : AbstractTweak
     private static void OnGroundDetected(Player player)
     {
         if (!groundChecking) return;
-
+        LeniencyHelperModule.Log("ground detected!");
         groundDetected = true;
 
         if (player.DashDir.X != 0f && player.DashDir.Y > 0f && player.Speed.Y > 0f) //performing ultraboost
@@ -146,7 +146,7 @@ public class CornerWaveLeniency : AbstractTweak
             cursor.EmitOr();
         }
     }
-    private static void LaunchGroundCheck(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
+    private static void StartGroundCheck(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
     {
         if (Enabled("CornerWaveLeniency") && !groundChecking && Math.Sign(self.Speed.X) == dir && CheckCorner(self, -dir))
         {
@@ -162,10 +162,13 @@ public class CornerWaveLeniency : AbstractTweak
     private static bool CheckCorner(Player player, int dir)
     {
         Vector2 checkPos = new Vector2(player.Position.X, currentGravity == 1 ? player.Bottom : player.Top);
-        int vertPosCheck = (int)Math.Abs(player.Speed.Y * 1.1f * Engine.DeltaTime);
+        int vertPosCheck = (int)(Math.Abs(player.Speed.Y) * 1.1f * Engine.DeltaTime);
 
+        LeniencyHelperModule.Log($"ver pos check: {vertPosCheck}");
         for (int c=0; c<=vertPosCheck; c++)
         {
+            Console.WriteLine($"checking at: {checkPos - player.Position}");
+
             if (LeniencyHelperModule.CollideOnWJdist<Solid>(player, dir, checkPos) 
                 && !LeniencyHelperModule.CollideOnWJdist<Solid>(player, dir, checkPos - Vector2.UnitY * currentGravity))
             {
@@ -176,6 +179,7 @@ public class CornerWaveLeniency : AbstractTweak
                     {
                         origPos = player.Position;
                         player.Position = checkPos + Vector2.UnitX * dir * x;
+                        LeniencyHelperModule.Log("corner detected");
                         return true;
                     }
                 }
@@ -183,7 +187,7 @@ public class CornerWaveLeniency : AbstractTweak
 
             checkPos.Y -= currentGravity;
         }
-        
+        LeniencyHelperModule.Log("corner NOT detected");
         return false;
     }
 }
