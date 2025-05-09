@@ -75,8 +75,6 @@ public class IceWallIncreaseWallLeniency : AbstractTweak
     }
     private static void SetWjDist(int value, int dir)
     {
-        LeniencyHelperModule.Log($"set {(dir == 1 ? "right" : "left")} wj dist: {value}");
-
         if (dir == 1) LeniencyHelperModule.Session.wjDistR = value;
         else LeniencyHelperModule.Session.wjDistL = value;
     }

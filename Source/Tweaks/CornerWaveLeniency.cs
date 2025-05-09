@@ -88,7 +88,7 @@ public class CornerWaveLeniency : AbstractTweak
     private static void OnGroundDetected(Player player)
     {
         if (!groundChecking) return;
-        LeniencyHelperModule.Log("ground detected!");
+
         groundDetected = true;
 
         if (player.DashDir.X != 0f && player.DashDir.Y > 0f && player.Speed.Y > 0f) //performing ultraboost
@@ -164,11 +164,8 @@ public class CornerWaveLeniency : AbstractTweak
         Vector2 checkPos = new Vector2(player.Position.X, currentGravity == 1 ? player.Bottom : player.Top);
         int vertPosCheck = (int)(Math.Abs(player.Speed.Y) * 1.1f * Engine.DeltaTime);
 
-        LeniencyHelperModule.Log($"ver pos check: {vertPosCheck}");
         for (int c=0; c<=vertPosCheck; c++)
         {
-            Console.WriteLine($"checking at: {checkPos - player.Position}");
-
             if (LeniencyHelperModule.CollideOnWJdist<Solid>(player, dir, checkPos) 
                 && !LeniencyHelperModule.CollideOnWJdist<Solid>(player, dir, checkPos - Vector2.UnitY * currentGravity))
             {
@@ -179,7 +176,6 @@ public class CornerWaveLeniency : AbstractTweak
                     {
                         origPos = player.Position;
                         player.Position = checkPos + Vector2.UnitX * dir * x;
-                        LeniencyHelperModule.Log("corner detected");
                         return true;
                     }
                 }
@@ -187,7 +183,6 @@ public class CornerWaveLeniency : AbstractTweak
 
             checkPos.Y -= currentGravity;
         }
-        LeniencyHelperModule.Log("corner NOT detected");
         return false;
     }
 }

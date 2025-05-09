@@ -3,6 +3,9 @@ using Microsoft.Xna.Framework;
 using System;
 using MonoMod.Cil;
 using Celeste.Mod.LeniencyHelper.Module;
+using System.Windows;
+using System.Threading;
+using System.Diagnostics;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
@@ -22,7 +25,7 @@ public class ConsistentDashOnDBlockExit : AbstractTweak
         On.Celeste.Player.DreamDashEnd -= DetectDreamDashEnd;
         On.Celeste.Player.Update -= MoveToDBlock;
     }
-    
+
     private static void DetectDreamDashEnd(On.Celeste.Player.orig_DreamDashEnd orig, Player self)
     {
         orig(self);

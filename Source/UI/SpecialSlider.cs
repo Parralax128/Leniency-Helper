@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Celeste.Mod.LeniencyHelper.Module;
 using Celeste.Mod.LeniencyHelper.Tweaks;
 using Microsoft.Xna.Framework;
@@ -31,10 +30,8 @@ public class SpecialSlider : TextMenu.Option<int>
         On,
         Off
     }
-    private static string GetDialogEnumValue(SliderValues enumValue)
-    {
-        return Dialog.Clean($"MODOPTIONS_LENIENCYHELPER_ENUMVALUES_{enumValue.ToString().ToUpper()}");
-    }
+    private static string GetDialogEnumValue(SliderValues enumValue) =>
+        Dialog.Clean($"MODOPTIONS_LENIENCYHELPER_ENUMVALUES_{enumValue.ToString().ToUpper()}");
     public static int GetIndexFromTweakName(string tweakName)
     {
         if (LeniencyHelperModule.Settings.PlayerTweaks[tweakName] is not null)
@@ -61,6 +58,7 @@ public class SpecialSlider : TextMenu.Option<int>
         }
     }
 
+    #region SubOptions
     private void AddSubOptions()
     {
         foreach (string setting in SettingMaster.AssociatedTweaks[tweakName])
@@ -86,6 +84,7 @@ public class SpecialSlider : TextMenu.Option<int>
             slider.transitionIntoFrames = toggler.value;
         }
     }
+
     private void SetupSubOption(string nameInSettings, Type type)
     {
         string label = FromDialog(nameInSettings.ToLower().Contains("inframes")? "CountInFrames" : nameInSettings);
@@ -161,7 +160,7 @@ public class SpecialSlider : TextMenu.Option<int>
         return 0.5f;
     }
 
-    public string FromDialog(string str)
+    public static string FromDialog(string str)
     {
         return ("     " + Dialog.Clean("MODOPTIONS_LENIENCYHELPER_SETTINGS_" + str.ToUpper()));
     }
@@ -172,29 +171,24 @@ public class SpecialSlider : TextMenu.Option<int>
     public void UpdateSubsettings()
     {
         foreach (CustomOnOff option in subOptions.FindAll(item => item is CustomOnOff))
-        {
             option.value = SettingMaster.GetSetting<bool>(option.settingName, tweakName);
-        }
+        
         foreach (FloatSlider option in subOptions.FindAll(item => item is FloatSlider))
-        {
             option.value = SettingMaster.GetSetting<float>(option.settingName, tweakName);
-        }
+        
         foreach (IntSlider option in subOptions.FindAll(item => item is IntSlider))
-        {
             option.value = SettingMaster.GetSetting<int>(option.settingName, tweakName);
-        }
+        
         foreach (DirSlider option in subOptions.FindAll(item => item is DirSlider))
-        {
             option.value = SettingMaster.GetSetting<Dirs>(option.settingName, tweakName);
-        }
     }
+
 
     public override void ConfirmPressed()
     {
         if (!SettingMaster.GetTweakEnabled(tweakName)) CloseSuboptions();
         else OpenSuboptions();
     }
-
     public void OpenSuboptions()
     {
         if (addedSuboptions || subOptions.Count <= 0) return;
@@ -231,11 +225,30 @@ public class SpecialSlider : TextMenu.Option<int>
         MenuButtonManager.InSubOptionMode = true;
         addedSuboptions = true;
     }
+    public void CloseSuboptions()
+    {
+        if (!addedSuboptions || subOptions.Count <= 0) return;
+
+        foreach (Item item in subOptions)
+        {
+            menu.Remove(item);
+        }
+        menu.Remove(beforeSubOptions);
+        menu.Remove(afterSubOptions);
+
+        MenuButtonManager.InSubOptionMode = false;
+        MenuButtonManager.InSingleItemSuboptionsMenu = false;
+        addedSuboptions = false;
+
+        menu.Selection = menu.Items.FindIndex(item => item.Equals(this));
+    }
+
     private void LoopMenuOnLeave(int minIndex, int maxIndex)
     {
         if (menu.Selection > maxIndex) menu.Selection = minIndex;
         else if(menu.Selection <  minIndex) menu.Selection = maxIndex;
     }
+    #endregion
 
     public override void LeftPressed()
     {
@@ -255,7 +268,7 @@ public class SpecialSlider : TextMenu.Option<int>
             Index += dir;
             lastDir = dir;
 
-            SettingMaster.SetPlayerTweak(tweakName, GetValueFromIndex(Index));
+            SettingMaster.SetPlayerTweak(tweakName, Index == 0 ? null : (Index == 1 ? true : false));
             if (OnValueChange != null) OnValueChange(Index);
         }
         ValueWiggler.Start();
@@ -268,34 +281,27 @@ public class SpecialSlider : TextMenu.Option<int>
 
         if (!SettingMaster.GetTweakEnabled(tweakName)) CloseSuboptions();
     }
+    
 
-    private static bool? GetValueFromIndex(int index)
+    public void CopyWikiLinkToCliboard()
     {
-        switch (index)
-        {
-            case 0: return null;
-            case 1: return true;
-            case 2: return false;
-            default: return null;
-        }
+        TextInput.SetClipboardText("https://github.com/Parralax128/Leniency-Helper/wiki/" +
+            ToWikiPageName(Dialog.Clean("LENIENCYTWEAKS_" + tweakName.ToUpper())));
+
+        SelectWiggler.Start();
     }
-
-    public void CloseSuboptions()
+    private static string ToWikiPageName(string tweakNameUpper)
     {
-        if (!addedSuboptions || subOptions.Count <= 0) return;
+        string result = "";
 
-        foreach (Item item in subOptions)
+        for (int c = 0; c < tweakNameUpper.Length; c++)
         {
-            menu.Remove(item);
+            if (tweakNameUpper[c] == ' ') result += '-';
+            else if (c >= 1 && tweakNameUpper[c - 1] != ' ') result += tweakNameUpper[c].ToString().ToLower();
+            else result += tweakNameUpper[c];
         }
-        menu.Remove(beforeSubOptions);
-        menu.Remove(afterSubOptions);
 
-        MenuButtonManager.InSubOptionMode = false;
-        MenuButtonManager.InSingleItemSuboptionsMenu = false;
-        addedSuboptions = false;
-
-        menu.Selection = menu.Items.FindIndex(item => item.Equals(this));
+        return result;
     }
 
     private Color GetColor()

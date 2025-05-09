@@ -1,8 +1,4 @@
-﻿using Celeste.Mod.LeniencyHelper.Module;
-using System;
-using System.Collections.Generic;
-
-namespace Celeste.Mod.LeniencyHelper.Tweaks;
+﻿namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 static  class BackboostProtection
 {
@@ -22,6 +18,5 @@ static  class BackboostProtection
     private static void OnThrow(On.Celeste.Player.orig_Throw orig, Player self)
     {
         orig(self);
-        LeniencyHelperModule.Log("throw!");
     }
 }

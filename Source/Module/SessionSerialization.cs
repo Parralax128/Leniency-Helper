@@ -11,7 +11,7 @@ public static class SessionSerialization
     public static void SaveSession(int saveFileIndex, LeniencyHelperModuleSession session)
     {
         string path = UserIO.GetSaveFilePath(SaveData.GetFilename(saveFileIndex) + "-modsession-LeniencyHelper");
-        Log($"path: {path}");
+
         if (File.Exists(path))
         {
             File.Delete(path);
@@ -131,7 +131,6 @@ public static class SessionSerialization
             index--;
         }
 
-        Log(typeName);
         Type type = Type.GetType(typeName);
 
         if (type.IsEnum)

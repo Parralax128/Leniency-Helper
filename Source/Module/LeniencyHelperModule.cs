@@ -67,7 +67,6 @@ public class LeniencyHelperModule : EverestModule
         "ForceCrouchDemodash",
         "IceWallIncreaseWallLeniency",
         "InstantAcceleratedJumps",
-        "InstantClimbHop",
         "NoFailedTech",
         "RefillDashInCoyote",
         "RemoveDBlockCCorection",

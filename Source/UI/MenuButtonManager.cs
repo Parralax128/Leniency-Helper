@@ -1,6 +1,10 @@
 ﻿using Celeste.Mod.LeniencyHelper.Module;
 using Monocle;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
 
@@ -28,16 +32,19 @@ public static class MenuButtonManager
     public static bool InSingleItemSuboptionsMenu = false;
 
     public static bool InSubOptionMode = false;
+
     private static TextMenu BuildMenu()
     {
         TextMenu menu = new TextMenu();
 
+        menu.OnUpdate += () => OnUpdate(menu);
         menu.Add(new TextMenu.Header(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENU")));
         AddItemsToMenu(menu);
         menu.Add(new LHmenuTracker());
 
         return menu;
     }
+
     private static void AddItemsToMenu(TextMenu menu)
     {
         TextMenu.Button resetTweaksButton = new TextMenu.Button(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENU_RESETTWEAKS"));
@@ -51,6 +58,8 @@ public static class MenuButtonManager
         };
 
         menu.Add(new SubOptionsOffset(32));
+
+        menu.Add(new OptionsHint());
 
         foreach (string tweak in LeniencyHelperModule.TweakList)
         {
@@ -67,6 +76,32 @@ public static class MenuButtonManager
         menu.Insert(2, resetSettingsButton);
         menu.Selection = 1;
     }
+    private static void OnUpdate(TextMenu menu)
+    {
+        TextMenu.Item selectedItem = menu.Items[menu.Selection];
+
+        if(Input.MenuJournal.Pressed)
+        {
+            Input.MenuJournal.ConsumeBuffer();
+
+            if (selectedItem is SpecialSlider tweakSlider)
+            {
+                tweakSlider.CopyWikiLinkToCliboard();
+            }
+            else
+            {
+                foreach(SpecialSlider slider in menu.Items.FindAll(i => i is SpecialSlider))
+                {
+                    if(slider.subOptions.Contains(selectedItem))
+                    {
+                        slider.CopyWikiLinkToCliboard();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
     private static void OnButtonPress(TextMenu parentMenu)
     {
         Level level = Engine.Scene as Level;
@@ -128,5 +163,4 @@ public static class MenuButtonManager
         thisButton.OnPressed = () => OnButtonPress(parentMenu);
         return thisButton;
     }
-
 }
