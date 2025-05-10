@@ -2,10 +2,8 @@
 using Microsoft.Xna.Framework;
 using Celeste.Mod.Entities;
 using System;
-using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
-using Monocle;
 using Celeste.Mod.ShroomHelper.Entities;
 using System.Linq;
 using Celeste.Mod.LeniencyHelper.Module;
@@ -14,11 +12,11 @@ using System.Runtime.CompilerServices;
 using MonoMod;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
+using System.Reflection;
 
 namespace Celeste.Mod.LeniencyHelper.Entities;
 
-//[Tracked(true)]
-//[TrackedAs(typeof(Glider))]
+[TrackedAs(typeof(Glider))]
 [CustomEntity("LeniencyHelper/Entities/UnCeilingBumpableJellyfish")]
 public class UnCeilingBumpableJellyfish : Glider
 {
@@ -32,7 +30,7 @@ public class UnCeilingBumpableJellyfish : Glider
         IL.Celeste.Glider.OnRelease += FormatAllAudio;
         IL.Celeste.Glider.Update += FormatAllAudio;
         destroyRoutineHook = new ILHook(typeof(Glider).GetMethod("DestroyAnimationRoutine",
-            System.Reflection.BindingFlags.NonPublic).GetStateMachineTarget(), FormatAllAudio);
+            BindingFlags.Instance | BindingFlags.NonPublic).GetStateMachineTarget(), FormatAllAudio);
 
         IL.Celeste.Glider.Update += DisableGroundFriction;
     }
@@ -42,7 +40,6 @@ public class UnCeilingBumpableJellyfish : Glider
     {
 
     }
-
 
     private static void FormatAllAudio(ILContext il)
     {
@@ -60,29 +57,52 @@ public class UnCeilingBumpableJellyfish : Glider
             cursor.GotoNext(MoveType.After, instr => CallAudioPlay(instr));
         }
     }
-    private static string FormatAudioEvent(string eventName, Glider instatnce)
+    private static string FormatAudioEvent(string origEvent, Glider instatnce)
     {
         if(instatnce is UnCeilingBumpableJellyfish customJelly)
         {
             string result = "";
-            for (int index = eventName.Length - 1; eventName[index] != '/'; index--)
+            for (int index = origEvent.Length - 1; origEvent[index] != '/'; index--)
             {
-                result = eventName[index] + result;
+                result = origEvent[index] + result;
             }
 
             return customJelly.audioDirectory + result;
         }
 
-        return eventName;
+        return origEvent;
     }
 
     private static void DisableGroundFriction(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
-        Log(il);
+        ILLabel skipFriction = il.DefineLabel();
+
+        if (cursor.TryGotoNext(MoveType.After,
+            instr => instr.MatchLdfld<Glider>("highFrictionTimer"), 
+            instr => instr.MatchCall(typeof(Engine).GetMethod("get_DeltaTime")),
+            instr => instr.MatchSub()))
+        {
+            cursor.GotoNext(MoveType.After,
+                instr => instr.MatchCall<Actor>("OnGround"),
+                instr => instr.MatchBrfalse(out ILLabel label));
+
+            cursor.EmitLdarg0();
+            cursor.EmitDelegate(RequireSkipFriction);
+            cursor.EmitBrtrue(skipFriction);
+
+            cursor.GotoNext(MoveType.After,
+                instr => instr.MatchCall(typeof(Calc).GetMethod("Approach", new Type[] { typeof(float), typeof(float), typeof(float) })),
+                instr => instr.MatchStfld<Vector2>("X"));
+            cursor.MarkLabel(skipFriction);
+        }
     }
 
+    private static bool RequireSkipFriction(Glider jelly) => 
+        jelly is UnCeilingBumpableJellyfish ucbjf && ucbjf.disableGroundFriction;
+
     private static void Log(object o) => Module.LeniencyHelperModule.Log(o);
+
 
     private bool prevCollided = false;
 
@@ -93,6 +113,20 @@ public class UnCeilingBumpableJellyfish : Glider
     {
         audioDirectory = data.String("AudioDirectory", "event:/new_content/game/10_farewell");
         disableGroundFriction = data.Bool("DisableGroundFriction", true);
+       
+        sprite.atlas = GFX.Game;
+        sprite.Path = data.Attr("SpritePath", "objects/glider") + "/";
+        sprite.Stop();
+        sprite.ClearAnimations();
+
+        sprite.AddLoop("idle", "idle", 0.1f);
+        sprite.AddLoop("held", "held", 0.1f);
+        sprite.Add("fall", "fall", 0.06f, "fallLoop");
+        sprite.AddLoop("fallLoop", "fallLoop", 0.06f);
+        sprite.Add("death", "death", 0.06f);
+        sprite.Add("respawn", "respawn", 0.03f, "idle");
+
+        Log($"SpritePath: {sprite.Path}");
 
         this.onCollideV = ModifiedOnCollideV;
     }

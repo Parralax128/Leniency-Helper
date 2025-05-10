@@ -184,6 +184,7 @@ public static class SettingMaster
         { "RemoveDBlockCCorection", null },
         { "RetainSpeedCornerboost", new List<string>{ "RetainCbSpeedTime", "countRetainTimeInFrames" } },
         { "SolidBlockboostProtection", new List<string>{ "bboostSaveTime", "countSolidBoostSaveTimeInFrames" } },
+        { "SuperdashSteeringProtection", null },
         { "SuperOverWalljump", null },
         { "WallAttraction", new List<string>{ "wallApproachTime", "countAttractionTimeInFrames" } },
         { "WallCoyoteFrames", new List<string>{ "wallCoyoteTime", "countWallCoyoteTimeInFrames" } },

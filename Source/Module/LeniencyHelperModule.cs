@@ -72,6 +72,7 @@ public class LeniencyHelperModule : EverestModule
         "RemoveDBlockCCorection",
         "RetainSpeedCornerboost",
         "SolidBlockboostProtection",
+        "SuperdashSteeringProtection",
         "SuperOverWalljump",
         "WallAttraction",
         "WallCoyoteFrames"
