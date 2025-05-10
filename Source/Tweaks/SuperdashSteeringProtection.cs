@@ -32,7 +32,6 @@ public class SuperdashSteeringProtection : AbstractTweak
 
         if(cursor.TryGotoNext(MoveType.After, instr => instr.MatchCall<Vector2>("Dot")))
         {
-            //cursor.GotoNext(MoveType.Before, instr => instr.MatchBlt(out ILLabel label));
             cursor.EmitDelegate(ReturnFakeAngle);
         }
 
