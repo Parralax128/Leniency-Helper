@@ -7,7 +7,6 @@ controller.placements = {
     {
         name = "Corner-wave leniency Controller",
         data = {
-            AllowSpikedFloor = false,
             StopFlag = "",
             Persistent = true
         }

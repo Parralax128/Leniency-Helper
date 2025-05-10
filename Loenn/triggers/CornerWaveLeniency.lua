@@ -7,7 +7,6 @@ CornerWaveLeniency.placements = {
     {
         name = "Corner Wave Leniency Trigger",
         data = { 
-            AllowSpikedFloor = false,
             Enabled = true,
             RevertOnLeave = true,
             Flag = "",

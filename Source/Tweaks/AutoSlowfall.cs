@@ -1,5 +1,3 @@
-using Celeste.Mod.LeniencyHelper.Module;
-using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 

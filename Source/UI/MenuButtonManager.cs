@@ -1,10 +1,5 @@
 ﻿using Celeste.Mod.LeniencyHelper.Module;
 using Monocle;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
 
@@ -83,8 +78,6 @@ public static class MenuButtonManager
     {
         TextMenu.Item selectedItem = menu.Items[menu.Selection];
 
-        //https://github.com/Parralax128/Leniency-Helper/wiki/Refill-dash-in%E2%80%90coyote
-        //https://github.com/Parralax128/Leniency-Helper/wiki/Refill-dash-in-coyote
         if (Input.Grab.Pressed)
         {
             Input.Grab.ConsumeBuffer();
