@@ -16,7 +16,7 @@ public class GenericTweakController : Controllers.GenericController
     private Dictionary<string, object> savedData = new Dictionary<string, object>();
     private bool savedEnabled;
 
-    public GenericTweakController(EntityData data, Vector2 offset, string tweak) : base(data, offset)
+    public GenericTweakController(EntityData data, Vector2 offset, string tweak) : base(data, offset, true)
     {
         tweakName = tweak;
         if (SettingMaster.AssociatedTweaks[tweak] != null)
@@ -28,14 +28,6 @@ public class GenericTweakController : Controllers.GenericController
         base.Added(scene);
 
         SettingMaster.SetUseController(tweakName, true);
-
-        foreach (GenericTweakController gtc in SceneAs<Level>().Tracker.GetEntities<GenericTweakController>())
-        {
-            if (!gtc.Equals(this) && gtc.GetType() == this.GetType())
-            {
-                gtc.RemoveSelf();
-            }
-        }
     }
     public override void GetOldSettings()
     {
@@ -48,19 +40,31 @@ public class GenericTweakController : Controllers.GenericController
             savedData.Add(key, SettingMaster.GetControllerSetting(key));
         }
     }
-    public override void ApplySettings()
+
+    public override void Apply(bool fromFlag)
+    {
+        ApplyTweak();
+        if(!fromFlag) ApplySettings();
+    }
+    public override void Undo(bool fromFlag)
+    {
+        UndoTweak();
+        if (!fromFlag) UndoSettings();
+    }
+
+    public void ApplySettings()
     {
         if (Data == null) return;
         
         foreach (string key in Data.Keys)
             SettingMaster.SetControllerSetting(key, Data[key]);
     }
-    public override void ApplyTweak()
+    public void ApplyTweak()
     {
         SettingMaster.SetControllerTweak(tweakName, true);
     }
 
-    public override void UndoSettings()
+    public void UndoSettings()
     {
         if (savedData.Count() > 0)
         {
@@ -68,7 +72,7 @@ public class GenericTweakController : Controllers.GenericController
                 SettingMaster.SetControllerSetting(currentSetting, savedData[currentSetting]);
         }        
     }
-    public override void UndoTweak()
+    public void UndoTweak()
     {
         SettingMaster.SetControllerTweak(tweakName, savedEnabled);
     }

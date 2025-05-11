@@ -15,7 +15,7 @@ public class IceWallIncreaseWallLeniency : AbstractTweak
     public static void LoadHooks()
     {
         IL.Celeste.Player.WallJumpCheck += CustomWJCheck;
-        //On.Celeste.Player.Render += Debug;
+        On.Celeste.Player.Render += Debug;
     }
     [OnUnload]
     public static void UnloadHooks()
@@ -143,20 +143,20 @@ public class IceWallIncreaseWallLeniency : AbstractTweak
 
         cursor.EmitLdloc(orig);
         cursor.EmitBrtrue(skipRestart);
+        {
+            cursor.EmitLdloc(trueFlag);
+            cursor.EmitBrtrue(getWbLeni);
 
-        cursor.EmitLdloc(trueFlag);
-        cursor.EmitBrtrue(getWbLeni);
+            cursor.EmitLdloc0();
+            cursor.EmitLdloc(origDist);
+            cursor.EmitLdarg1();
+            cursor.EmitDelegate(MovePlayer);
+            cursor.EmitStloc(savePos);
 
-        cursor.EmitLdloc0();
-        cursor.EmitLdloc(origDist);
-        cursor.EmitLdarg1();
-        cursor.EmitDelegate(MovePlayer);
-        cursor.EmitStloc(savePos);
-
-        cursor.EmitLdcI4(1);
-        cursor.EmitStloc(orig);
-        cursor.EmitBr(origStart);
-
+            cursor.EmitLdcI4(1);
+            cursor.EmitStloc(orig);
+            cursor.EmitBr(origStart);
+        }
         cursor.MarkLabel(skipRestart);
 
         while (cursor.TryGotoNext(MoveType.Before, i => i.MatchRet()))
