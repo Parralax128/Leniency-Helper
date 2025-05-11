@@ -34,13 +34,11 @@ public class UnceilingBumpComponent : Component
 
         if (speedField == null || speedField.FieldType != typeof(Vector2))
         {
-            LeniencyHelperModule.Log($"{entity.GetType().Name} does not contain \"Speed\" field");
             RemoveSelf();
         }
 
         if (entity is not Actor)
         {
-            LeniencyHelperModule.Log($"component attached to not Actor!");
             RemoveSelf();
         }
     }
@@ -51,7 +49,7 @@ public class UnceilingBumpComponent : Component
         savedSpeed = GetEntitySpeed();
         prevCollidedCeiling = Entity.CollideCheck<Solid>(Entity.Position - Vector2.UnitY); // gravity helper support required
     }
-    private static void Log(object o) => LeniencyHelperModule.Log(o);
+
     public void AfterUpdate()
     {
         bool shouldChange = false;

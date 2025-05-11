@@ -67,6 +67,7 @@ public class LeniencyHelperModule : EverestModule
         "ForceCrouchDemodash",
         "IceWallIncreaseWallLeniency",
         "InstantAcceleratedJumps",
+        "ManualDreamhyperLeniency",
         "NoFailedTech",
         "RefillDashInCoyote",
         "RemoveDBlockCCorection",
@@ -178,7 +179,6 @@ public class LeniencyHelperModule : EverestModule
     {
         if (!justEntered)
         {
-            Log($"\n\n\n\n\t\t\t\t\tCleared session!!!\n\n\n\n");
             SessionSerializer.ClearSession(global::Celeste.SaveData.LoadedModSaveDataIndex);
         }
     }

@@ -24,8 +24,6 @@ public class SuperdashSteeringProtection : AbstractTweak
     {
         IL.Celeste.Player.DashUpdate -= DisableAngleRestriction;
     }
-
-    private static void Log(object v) => Module.LeniencyHelperModule.Log(v);
     private static void DisableAngleRestriction(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
@@ -34,8 +32,6 @@ public class SuperdashSteeringProtection : AbstractTweak
         {
             cursor.EmitDelegate(ReturnFakeAngle);
         }
-
-        Log(il);
     }
 
     private static float ReturnFakeAngle(float orig)

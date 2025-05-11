@@ -180,6 +180,7 @@ public static class SettingMaster
         { "InstantAcceleratedJumps", null },
         { "InstantClimbHop", null },
         { "NoFailedTech", null },
+        { "ManualDreamhyperLeniency", null },
         { "RefillDashInCoyote", new List<string>{ "RefillCoyoteTime", "CountRefillCoyoteTimeInFrames" } },
         { "RemoveDBlockCCorection", null },
         { "RetainSpeedCornerboost", new List<string>{ "RetainCbSpeedTime", "countRetainTimeInFrames" } },
