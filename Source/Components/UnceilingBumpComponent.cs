@@ -34,52 +34,65 @@ public class UnceilingBumpComponent : Component
 
         if (speedField == null || speedField.FieldType != typeof(Vector2))
         {
-            LeniencyHelperModule.Log($"type \"{entity.GetType().Name}\" does not contain \"Speed\" field");
+            LeniencyHelperModule.Log($"{entity.GetType().Name} does not contain \"Speed\" field");
             RemoveSelf();
         }
 
         if (entity is not Actor)
         {
-            LeniencyHelperModule.Log($"component attached not to Actor!");
+            LeniencyHelperModule.Log($"component attached to not Actor!");
             RemoveSelf();
         }
     }
 
     public void BeforeUpdate()
     {
+        wasOnGround = (Entity as Actor).OnGround();
         savedSpeed = GetEntitySpeed();
         prevCollidedCeiling = Entity.CollideCheck<Solid>(Entity.Position - Vector2.UnitY); // gravity helper support required
     }
     private static void Log(object o) => LeniencyHelperModule.Log(o);
     public void AfterUpdate()
     {
+        bool shouldChange = false;
         Vector2 currentEntitySpeed = GetEntitySpeed();
         Vector2 resultSpeed = currentEntitySpeed;
 
-        if (wasOnGround && disableGroundFriction)
+        if (disableGroundFriction)
         {
-            if (Math.Sign(savedSpeed.X) == Math.Sign(currentEntitySpeed.X) 
-                && Math.Abs(savedSpeed.X) > Math.Abs(currentEntitySpeed.X))
+            if ((Entity as Actor).OnGround() && Math.Sign(savedSpeed.Y) == -Math.Sign(currentEntitySpeed.Y))
             {
-                resultSpeed.X = savedSpeed.X;
+                resultSpeed.Y = 0f; //removing bounces from heavy throwables
+                shouldChange = true;
+            }
+
+            if(wasOnGround)
+            {
+                if (Math.Sign(savedSpeed.X) == Math.Sign(currentEntitySpeed.X)
+                && Math.Abs(savedSpeed.X) > Math.Abs(currentEntitySpeed.X))
+                {
+                    resultSpeed.X = savedSpeed.X; //disabling ground friction
+                    shouldChange = true;
+                }
             }
         }
-        if(prevCollidedCeiling && disableCeilingBump)
+        if(Entity.CollideCheck<Solid>(Entity.Position - Vector2.UnitY) && disableCeilingBump)
         {
-            if(Math.Sign(currentEntitySpeed.Y) == -Math.Sign(savedSpeed.Y))
+            if(Math.Sign(currentEntitySpeed.Y) * Math.Sign(savedSpeed.Y) == -1)
             {
-                if (speedDecceleration > 0f) resultSpeed.Y = 0f; //prevent stucking in the ceiling trying to fly upwards
-                else resultSpeed.Y = savedSpeed.Y - speedDecceleration;
+                resultSpeed.Y = savedSpeed.Y + speedDecceleration; //deccelerating instead of ceiling-bumping
+                shouldChange = true;
             }
         }
         else if(!prevCollidedCeiling)
         {
-            speedDecceleration = savedSpeed.Y - currentEntitySpeed.Y;
+            speedDecceleration = Math.Max(speedDecceleration, currentEntitySpeed.Y - savedSpeed.Y);
         }
 
-        SetEntitySpeed(resultSpeed);
-
-        wasOnGround = (Entity as Actor).OnGround();
+        if(shouldChange)
+        {
+            SetEntitySpeed(resultSpeed);
+        }
     }
 
     public void SetGroundFriction(bool value) =>

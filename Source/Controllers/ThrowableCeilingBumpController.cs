@@ -67,8 +67,6 @@ public class ThrowableCeilingBumpController : GenericController
     {
         foreach(Holdable holdComponent in Scene.Tracker.GetComponents<Holdable>())
         {
-            Log("is null:");
-            Log(affectedThrowables == null);
             if (this.affectedThrowables != "*" && !this.affectedThrowables.Contains(holdComponent.Entity.GetType().Name)) continue;
             
             UnceilingBumpComponent? bumpComponent = holdComponent.Entity.Get<UnceilingBumpComponent>();
@@ -80,6 +78,7 @@ public class ThrowableCeilingBumpController : GenericController
             else
             {
                 bumpComponent.SetGroundFriction(this.disableGroundFriction);
+                bumpComponent.disableCeilingBump = true;
             }
         }
     }
