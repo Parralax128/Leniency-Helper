@@ -168,6 +168,7 @@ public static class SettingMaster
         { "CornerWaveLeniency", null },
         { "CustomBufferTime", new List<string>{ "countBufferTimeInFrames", "JumpBufferTime", "DashBufferTime", "DemoBufferTime" } },
         { "CustomDashbounceTiming", new List<string>{ "dashbounceTiming", "countDashbounceTimingInFrames" } },
+        { "CustomSnapDownDistance", new List<string>{ "staticSnapdownDistance", "snapdownTiming", "dynamicSnapdownDistance", "countSnapdownTimingInFrames" } },
         { "DashCDIgnoreFFrames", null },
         { "DirectionalReleaseProtection", new List<string>{ "DirectionalBufferTime", "CountProtectionTimeInFrames", "dashDir", "jumpDir" } },
         { "DisableBackboost", null },

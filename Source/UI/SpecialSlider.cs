@@ -157,7 +157,7 @@ public class SpecialSlider : TextMenu.Option<int>
         switch (name)
         {
             case "DirectionalBufferTime": return 0.5f;
-            case "reversedFreezeTime": return 0.25f;
+            case "staticSnapdownDistance": return 32f;
             case "iceWJLeniency": return 16f;
             case "RefillCoyoteTime": return 0.085f;
             case "wallApproachTime": return 0.25f;

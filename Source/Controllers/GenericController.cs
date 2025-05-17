@@ -31,7 +31,7 @@ public abstract class GenericController : Entity
         if (!removeOthers) return;
 
         return;
-
+        
         foreach (GenericController controller in SceneAs<Level>().Tracker.GetEntities<GenericController>())
         {
             if (!controller.Equals(this) && controller.GetType() == this.GetType())

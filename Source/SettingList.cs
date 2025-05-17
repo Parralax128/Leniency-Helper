@@ -25,6 +25,12 @@ public class SettingList
     private float dashbounceTiming = 0.05f;
     private bool countDashbounceTimingInFrames = false;
 
+    // CustomSnapDownDistance
+    private int staticSnapdownDistance = 3;
+    private float snapdownTiming = 0.05f;
+    private bool dynamicSnapdownDistance = true;
+    private bool countSnapdownTimingInFrames = false;
+
     // DirectionalReleaseProtection
     private Dirs dashDir = Dirs.Down;
     private Dirs jumpDir = Dirs.None;

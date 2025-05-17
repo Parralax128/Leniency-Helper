@@ -57,6 +57,7 @@ public class LeniencyHelperModule : EverestModule
         "CornerWaveLeniency",
         "CustomBufferTime",
         "CustomDashbounceTiming",
+        "CustomSnapDownDistance",
         "DashCDIgnoreFFrames",
         "DirectionalReleaseProtection",
         "DisableBackboost",
