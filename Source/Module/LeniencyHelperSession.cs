@@ -88,9 +88,4 @@ public class LeniencyHelperSession : EverestModuleSession
     public List<BindInfo> BindList { get; set; } = new List<BindInfo>();
     public Vector2 playerLiftboost { get; set; } = Vector2.Zero;
     #endregion
-
-
-    #region controller
-    public bool cornerCoreboostDir { get; set; } = false;
-    #endregion
 }

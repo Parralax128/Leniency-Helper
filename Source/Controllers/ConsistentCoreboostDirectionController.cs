@@ -12,7 +12,7 @@ namespace Celeste.Mod.LeniencyHelper.Controllers;
 
 [Tracked(true)]
 [CustomEntity("LeniencyHelper/Controllers/ConsistentCoreboostDirectionController")]
-public class ConsistentCoreboostDirectionController : GenericController
+public class ConsistentCoreboostDirectionController : Entity
 {
     #region Hooks
 
@@ -53,12 +53,13 @@ public class ConsistentCoreboostDirectionController : GenericController
     }
     private static Vector2 GetBounceDir(Vector2 origDir, Solid block)
     {
-        if (!ControllerInRoom(block)) return origDir;
-
+        bool controllerExists, aimCorner;
+        CheckControllers(block, out controllerExists, out aimCorner);
+        if (!controllerExists) return origDir;
 
         Player playerClimbing = block.GetPlayerClimbing();
 
-        if(LeniencyHelperModule.Session.cornerCoreboostDir)
+        if (aimCorner)
         {
             if (playerClimbing != null)
             {
@@ -66,48 +67,44 @@ public class ConsistentCoreboostDirectionController : GenericController
                     CrossModSupport.GravityHelperImports.currentGravity == 1 ? block.Top : block.Bottom) - block.Center).SafeNormalize();
             }
 
-            else
-            {
-                Player player = block.Scene.Tracker.GetEntity<Player>();
-                if (player == null) return origDir;
+            Player player = block.Scene.Tracker.GetEntity<Player>();
+            if (player == null) return origDir;
 
-                return (new Vector2((block.Right - player.Center.X > player.Center.X - block.Left) ? block.Left : block.Right,
-                   CrossModSupport.GravityHelperImports.currentGravity == 1 ? block.Top : block.Bottom) - block.Center).SafeNormalize();
-            }
+            return (new Vector2((block.Right - player.Center.X > player.Center.X - block.Left) ? block.Left : block.Right,
+                CrossModSupport.GravityHelperImports.currentGravity == 1 ? block.Top : block.Bottom) - block.Center).SafeNormalize();
         }
-        else
-        {
-            if (playerClimbing != null)
-            {
-                return Vector2.UnitX * -(int)playerClimbing.Facing;
-            }
 
-            else return Vector2.UnitY * -CrossModSupport.GravityHelperImports.currentGravity;
-        }
+        if (playerClimbing != null) return Vector2.UnitX * -(int)playerClimbing.Facing;
+
+        return Vector2.UnitY * -CrossModSupport.GravityHelperImports.currentGravity;
     }
-    private static bool ControllerInRoom(Entity e)
+    private static void CheckControllers(Entity e, out bool controllerExists, out bool cornerAim)
     {
-        return e.Scene.Tracker.GetEntity<ConsistentCoreboostDirectionController>() != null;
+        cornerAim = controllerExists = false;
+        foreach (ConsistentCoreboostDirectionController controller in e.Scene.Tracker.GetEntities<ConsistentCoreboostDirectionController>())
+        {
+            if (controller.GetFlagActive) continue;
+            if (controller.aimCorner) cornerAim = true;
+            controllerExists = true;
+        }
     }
 
     #endregion
 
     private static void Log(object o) => Module.LeniencyHelperModule.Log(o);
 
-    private bool thisAimCorner;
-    public ConsistentCoreboostDirectionController(EntityData data, Vector2 offset) : base(data, offset, false)
-    {
-        thisAimCorner = data.Bool("AimCorner", false);
-    }
+    private bool aimCorner;
+    private string stopFlag;
 
-    public override void GetOldSettings() { }
-
-    public override void Apply(bool fromFlag)
-    {
-        LeniencyHelperModule.Session.cornerCoreboostDir = thisAimCorner;
+    private bool GetFlagActive {
+        get
+        {
+            return stopFlag != "" && SceneAs<Level>().Session.GetFlag(stopFlag);
+        }
     }
-    public override void Undo(bool fromFlag)
+    public ConsistentCoreboostDirectionController(EntityData data, Vector2 offset) : base(data.Position + offset)
     {
-        
+        aimCorner = data.Bool("AimCorner", false);  
+        stopFlag = data.String("StopFlag", "");
     }
 }

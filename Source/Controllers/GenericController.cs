@@ -12,7 +12,7 @@ public abstract class GenericController : Entity
     private TransitionListener transitionListener;
 
     private bool? prevFlagActive = null;
-    private bool GetFlagActive => stopFlag != "" && SceneAs<Level>().Session.GetFlag(stopFlag);
+    public bool GetFlagActive => stopFlag != "" && SceneAs<Level>().Session.GetFlag(stopFlag);
     private bool removeOthers;
 
     public GenericController(EntityData data, Vector2 offset, bool removeOthers) : base(data.Position + offset)

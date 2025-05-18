@@ -8,8 +8,7 @@ controller.placements = {
         name = "Consistent Coreboost direction Controller",
         data = { 
             AimCorner = false,
-            StopFlag = "",
-            Persistent = true
+            StopFlag = ""
         }
     }
 }
