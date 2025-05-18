@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Celeste.Mod.LeniencyHelper.UI;
 using System.Linq;
 using System.Reflection;
+using Celeste.Mod.LeniencyHelper.Controllers;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
 public class LeniencyHelperModule : EverestModule
@@ -77,8 +78,7 @@ public class LeniencyHelperModule : EverestModule
         "SuperdashSteeringProtection",
         "SuperOverWalljump",
         "WallAttraction",
-        "WallCoyoteFrames"
-    };
+        "WallCoyoteFrames",    };
 
     public static SettingList DefaultSettings = new SettingList();
 
@@ -111,21 +111,23 @@ public class LeniencyHelperModule : EverestModule
 
         return entity.Scene.CollideCheck<T>(checkRect);
     }
-    public static bool CollideOnWJdist(Monocle.Entity entity, Monocle.Entity with, int dir, Vector2? at)
+    public static bool CollideOnWJdist(Monocle.Entity entity, Monocle.Entity with, int dir, Vector2? at = null)
     {
         Vector2 savePos = entity.Position;
+
         if (at.HasValue) entity.Position = at.Value;
         Rectangle checkRect = entity.Collider.Bounds;
         if (at.HasValue) entity.Position = savePos;
 
         checkRect.Width += dir == 1 ? Session.wjDistR : Session.wjDistL;
-        checkRect.X += (dir == 1 ? Session.wjDistR : Session.wjDistL) * dir;
+        if (dir == -1) checkRect.X -= Session.wjDistL;
 
         return entity.Scene.CollideCheck(checkRect, with);
     }
     public override void Initialize()
     {
         base.Initialize();
+
         foreach (string mod in ModsLoaded.Keys)
         {
             ModsLoaded[mod] = ModsLoaded[mod] with 
@@ -133,6 +135,7 @@ public class LeniencyHelperModule : EverestModule
                 Item2 = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = mod, Version = ModsLoaded[mod].Item1 }) 
             };
         }
+        
         if (ModLoaded("MaxHelpingHand"))
         {
             SolidBlockboostProtection.LoadSidewaysHook();
@@ -140,6 +143,7 @@ public class LeniencyHelperModule : EverestModule
         if (ModLoaded("VivHelper"))
         {
             BufferableClimbtrigger.LoadVivHelperHooks();
+            ConsistentCoreboostDirectionController.LoadVivHelperHooks();
         }
     }
 
@@ -212,7 +216,6 @@ public class LeniencyHelperModule : EverestModule
             }
         }
     }
-
 
     private void AddTweaksMenuButton(Level level, TextMenu menu, bool minimal)
     {

@@ -123,29 +123,29 @@ public class BufferableClimbtrigger : AbstractTweak
 
     private static bool ForceRideSolid(On.Celeste.Player.orig_IsRiding_Solid orig, Player self, Solid solid)
     {
-        return (!useOrigCheck && ClimbTriggering(solid)) || orig(self, solid);
+        return (!useOrigCheck && GetClimbTriggeringPlayer(solid, self) != null) || orig(self, solid);
     }
     private static Player ForceClimbSolid(On.Celeste.Solid.orig_GetPlayerClimbing orig, Solid self)
     {
-        return ClimbTriggering(self) ? self.Scene.Tracker.GetNearestEntity<Player>(self.Center) : orig(self);
+        return orig(self) == null ? GetClimbTriggeringPlayer(self) : orig(self);
     }
     private static Player ForceCoreBlockTrigger(On.Celeste.BounceBlock.orig_WindUpPlayerCheck orig, BounceBlock self)
     {
-        return ClimbTriggering(self) ? self.Scene.Tracker.GetNearestEntity<Player>(self.Center) : orig(self);
+        return orig(self) == null ? GetClimbTriggeringPlayer(self) : orig(self);
     }
     private static Player ForceCustomCoreblockTrigger(Func<ReskinnableBounceBlock, Player> orig, ReskinnableBounceBlock self)
     {
-        return ClimbTriggering(self) ? self.Scene.Tracker.GetNearestEntity<Player>(self.Center) : orig(self);
+        return orig(self) == null ? GetClimbTriggeringPlayer(self) : orig(self);
     }
 
-    private static bool ClimbTriggering(Solid solid)
+    private static Player GetClimbTriggeringPlayer(Solid solid, Player player = null)
     {
-        if (!Enabled("BufferableClimbtrigger")) return false;
+        if (!Enabled("BufferableClimbtrigger")) return null;
 
-        Player player = solid.Scene.Tracker.GetNearestEntity<Player>(solid.Center);
-        if (player == null || safeClimbtriggerDir == 0) return false;
+        if (player == null) player = solid.Scene.Tracker.GetNearestEntity<Player>(solid.Center);
+        if (player == null || safeClimbtriggerDir == 0) return null;
 
-        return LeniencyHelperModule.CollideOnWJdist(player, solid, safeClimbtriggerDir, null);
+        return LeniencyHelperModule.CollideOnWJdist(player, solid, safeClimbtriggerDir)? player : null;
     }
 
 

@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.LeniencyHelper.Module;
+using Celeste.Mod.ShroomHelper.Entities;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System;
@@ -28,7 +29,6 @@ public class CustomSnapDownDistance : AbstractTweak
     private static float GetCustomDistance(float defaultValue, Player player)
     {
         if (!Enabled("CustomSnapDownDistance")) return defaultValue;
-
 
         if (GetSetting<bool>("dynamicSnapdownDistance"))
         {

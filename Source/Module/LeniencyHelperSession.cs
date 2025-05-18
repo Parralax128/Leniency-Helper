@@ -3,12 +3,12 @@ using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using static Celeste.Mod.LeniencyHelper.Triggers.InputRequiresBlockboostTrigger;
 using System.Collections.Generic;
 using System.Linq;
+using VivHelper.Entities;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
 
 public class LeniencyHelperSession : EverestModuleSession
 {
-
     public LeniencyHelperSession()
     {
         TriggerTweaks = TweakList.ToDictionary(tweak => tweak, tweak => false);
@@ -87,5 +87,10 @@ public class LeniencyHelperSession : EverestModuleSession
     //InputRequiresBlockboostTrigger
     public List<BindInfo> BindList { get; set; } = new List<BindInfo>();
     public Vector2 playerLiftboost { get; set; } = Vector2.Zero;
+    #endregion
+
+
+    #region controller
+    public bool cornerCoreboostDir { get; set; } = false;
     #endregion
 }

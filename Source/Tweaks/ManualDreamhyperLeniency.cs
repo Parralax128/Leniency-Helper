@@ -49,8 +49,6 @@ public class ManualDreamhyperLeniency : AbstractTweak
 
             cursor.EmitLdarg0();
         }
-
-        LeniencyHelperModule.Log(il);
     }
 
     private static bool DreamHyperCheck(Player player, bool alreadyChecked)

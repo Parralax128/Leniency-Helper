@@ -6,6 +6,7 @@ using Monocle;
 using Celeste.Mod.ShroomHelper.Entities;
 using System.Linq;
 using Celeste.Mod.LeniencyHelper.Module;
+using System.Collections.Generic;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
@@ -267,20 +268,16 @@ public class IceWallIncreaseWallLeniency : AbstractTweak
         }
         return savePos;
     }
-    private static (Rectangle, Color)[] debugRects = Array.Empty<(Rectangle, Color)>();
-    public static void AddRect(Rectangle rect, Color color)
-    {
-        debugRects = debugRects.Append((rect, color)).ToArray();
-    }
+
+    public static List<(Rectangle, Color)> debugRects = new List<(Rectangle, Color)>();
     private static void Debug(On.Celeste.Player.orig_Render orig, Player self)
     {
         orig(self);
 
-        if (debugRects.Length > 0)
+        if (debugRects.Count > 0)
             foreach ((Rectangle r, Color c) in debugRects)
                 Draw.HollowRect(r, c);
 
-        if(Input.Grab.Pressed)
-            debugRects = Array.Empty<(Rectangle, Color)>();
+        debugRects.Clear();
     }
 }
