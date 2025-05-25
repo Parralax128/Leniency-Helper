@@ -2,7 +2,6 @@
 using Monocle;
 using Microsoft.Xna.Framework;
 using Celeste.Mod.Entities;
-using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using Celeste.Mod.LeniencyHelper.Module;
 using System.Collections.Generic;
 using MonoMod.RuntimeDetour;
@@ -17,16 +16,13 @@ public class InputRequiresBlockboostTrigger : Trigger
     [OnLoad]
     public static void LoadHooks()
     {
-        //On.Monocle.VirtualButton.Update += BindInputsOnUpdate;
-        On.Celeste.Player.Update += GetLiftboost;
-
+        LeniencyHelperModule.BeforePlayerUpdate += GetLiftboost;
         pressedHook = new Hook(typeof(VirtualButton).GetProperty("Pressed").GetGetMethod(), HookedPressed);
     }
     [OnUnload]
     public static void UnloadHooks()
     {
-        //On.Monocle.VirtualButton.Update -= BindInputsOnUpdate;
-        On.Celeste.Player.Update -= GetLiftboost;
+        LeniencyHelperModule.BeforePlayerUpdate -= GetLiftboost;
 
         pressedHook.Dispose();
     }
@@ -45,12 +41,13 @@ public class InputRequiresBlockboostTrigger : Trigger
 
     public struct BindInfo
     {
-        public Inputs bindInput;
+        public LeniencyHelperModule.Inputs bindInput;
         public float targetLiftspeed;
         public bool vertical;
         public InputModes mode;
         public InputRequiresBlockboostTrigger trigger;
-        public BindInfo(Inputs input, float boost, bool vert, InputModes mode, InputRequiresBlockboostTrigger trigger)
+        public BindInfo(LeniencyHelperModule.Inputs input, float boost,
+            bool vert, InputModes mode, InputRequiresBlockboostTrigger trigger)
         {
             bindInput = input;
             targetLiftspeed = boost;
@@ -68,7 +65,7 @@ public class InputRequiresBlockboostTrigger : Trigger
         oneUse = data.Bool("OneUse", false);
 
         localBindInfo = new BindInfo(
-            data.Enum("Input", Inputs.Jump),
+            data.Enum("Input", LeniencyHelperModule.Inputs.Jump),
             data.Float("BlockboostValue", 250f),
             data.Bool("Vertical", false),
             data.Enum("Mode", InputModes.MoreThanOrEqual),
@@ -101,10 +98,9 @@ public class InputRequiresBlockboostTrigger : Trigger
             s.BindList.Remove(localBindInfo);
     }
 
-    private static void GetLiftboost(On.Celeste.Player.orig_Update orig, Player self)
+    private static void GetLiftboost(Player player)
     {
-        LeniencyHelperModule.Session.playerLiftboost = self.LiftBoost.Abs();
-        orig(self);
+        LeniencyHelperModule.Session.playerLiftboost = player.LiftBoost.Abs();
     }
 
     private static bool CheckLiftboost(BindInfo bind, bool origPressed)
@@ -151,13 +147,13 @@ public class InputRequiresBlockboostTrigger : Trigger
 
         return origResult && !lockInput;
     }
-    public static VirtualButton EnumInputToGameInput(Inputs inputName)
+    public static VirtualButton EnumInputToGameInput(LeniencyHelperModule.Inputs inputName)
     {
         switch (inputName)
         {
-            case Inputs.Jump: return Input.Jump;
-            case Inputs.Dash: return Input.Dash;
-            case Inputs.Demo: return Input.CrouchDash;
+            case LeniencyHelperModule.Inputs.Jump: return Input.Jump;
+            case LeniencyHelperModule.Inputs.Dash: return Input.Dash;
+            case LeniencyHelperModule.Inputs.Demo: return Input.CrouchDash;
         }
         return null;
     }

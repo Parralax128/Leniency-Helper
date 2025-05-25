@@ -1,13 +1,9 @@
-﻿using Celeste.Mod.Helpers;
-using Celeste.Mod.LeniencyHelper.Module;
-using Celeste.Mod.MaxHelpingHand.Triggers;
-using Mono.Cecil.Cil;
+﻿using Celeste.Mod.LeniencyHelper.Module;
 using Monocle;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using System;
-using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
@@ -20,7 +16,7 @@ public class CustomDashbounceTiming : AbstractTweak
     {
         On.Celeste.Player.SuperWallJump += SetCustomTiming;
         On.Celeste.Player.DashEnd += ConsumeDashbounce;
-        On.Celeste.Player.Update += UpdateTimer;
+        LeniencyHelperModule.OnUpdate += UpdateTimer;
         On.Celeste.Player.DashBegin += TimerCheck;
         
         dashCoroutineHook = new ILHook(typeof(Player).GetMethod("DashCoroutine", System.Reflection.BindingFlags.NonPublic
@@ -31,7 +27,7 @@ public class CustomDashbounceTiming : AbstractTweak
     {
         On.Celeste.Player.SuperWallJump -= SetCustomTiming;
         On.Celeste.Player.DashEnd -= ConsumeDashbounce;
-        On.Celeste.Player.Update -= UpdateTimer;
+        LeniencyHelperModule.OnUpdate -= UpdateTimer;
         On.Celeste.Player.DashBegin -= TimerCheck;
 
         dashCoroutineHook.Dispose();
@@ -48,15 +44,13 @@ public class CustomDashbounceTiming : AbstractTweak
                 (GetSetting<bool>("countDashbounceTimingInFrames") ? Engine.DeltaTime : 1f);
         }
     }
-    private static void UpdateTimer(On.Celeste.Player.orig_Update orig, Player self)
+    private static void UpdateTimer()
     {
         if (LeniencyHelperModule.Session.dashbounceTimer.HasValue
             && LeniencyHelperModule.Session.dashbounceTimer > 0f)
         {
             LeniencyHelperModule.Session.dashbounceTimer -= Engine.DeltaTime;
         }
-
-        orig(self);
     }
     private static void TimerCheck(On.Celeste.Player.orig_DashBegin orig, Player self)
     {

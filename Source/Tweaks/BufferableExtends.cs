@@ -2,7 +2,7 @@ using Monocle;
 using System;
 using System.Linq;
 using MonoMod.Cil;
-using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
+using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
@@ -12,13 +12,13 @@ public class BufferableExtends : AbstractTweak
     public static void LoadHooks()
     {
         IL.Celeste.Player.DashUpdate += AddSuperjumpCheckOnUpdate;
-        On.Celeste.Player.Update += CheckForDashStart;
+        LeniencyHelperModule.OnPlayerUpdate += CheckForDashStart;
     }
     [OnUnload]
     public static void UnloadHooks()
     {
         IL.Celeste.Player.DashUpdate -= AddSuperjumpCheckOnUpdate;
-        On.Celeste.Player.Update -= CheckForDashStart;
+        LeniencyHelperModule.OnPlayerUpdate -= CheckForDashStart;
     }
 
     public static bool CanSuperjump(Player player)
@@ -57,19 +57,18 @@ public class BufferableExtends : AbstractTweak
         return true;
     }
 
-    private static void CheckForDashStart(On.Celeste.Player.orig_Update orig, Player self)
+    private static void CheckForDashStart(Player player)
     {
-        orig(self);
         if (!Enabled("BufferableExtends")) return;
 
         var s = Module.LeniencyHelperModule.Session;
         if (s.dashTimer > 0f) s.dashTimer -= Engine.DeltaTime;
 
-        if (self.StateMachine.State != s.prevFrameState && (new int[] { 2, 4, 5 }).Contains(self.StateMachine.State))
+        if (player.StateMachine.State != s.prevFrameState && (new int[] { 2, 4, 5 }).Contains(player.StateMachine.State))
         {
             s.dashTimer = 2 * Engine.DeltaTime;
         }
-        s.prevFrameState = self.StateMachine.State;
+        s.prevFrameState = player.StateMachine.State;
     }
     private static void AddSuperjumpCheckOnUpdate(ILContext il)
     {

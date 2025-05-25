@@ -32,6 +32,12 @@ public class LeniencyHelperSession : EverestModuleSession
     public int wjDistL { get; set; } = 3;
 
 
+    //BackboostProtection
+    public Facings lastFacing { get; set; } = Facings.Right;
+    public float rightTimer { get; set; } = 0f;
+    public float leftTimer { get; set; } = 0f;
+    public float speedXbeforePickup { get; set; } = 0f;
+
     //BufferableExtends
     public float dashTimer { get; set; } = 0f;
     public bool dreamDashEnded { get; set; } = false;
@@ -51,8 +57,6 @@ public class LeniencyHelperSession : EverestModuleSession
 
     //ExtendBufferOnFreezeAndPickup
     public float pickupDelay { get; set; } = 0.016f;
-
-    //FFramesExtendBuffer
     public float pickupTimeLeft { get; set; } = 0f;
     public int prevFrameState { get; set; } = 0;
     public bool jumpExtended { get; set; } = false;

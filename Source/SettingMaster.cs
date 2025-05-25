@@ -162,6 +162,7 @@ public static class SettingMaster
     public static Dictionary<string, List<string>> AssociatedTweaks = new Dictionary<string, List<string>>
     {
         { "AutoSlowfall", null },
+        { "BackboostProtection", new List<string>{ "earlyBackboostTiming", "lateBackboostTiming", "countBackboostTimingInFrames" } },
         { "BackwardsRetention", null },
         { "BufferableClimbtrigger", new List<string>{ "onNormalUpdate", "onDash" } },
         { "BufferableExtends", new List<string>{ "forceWaitForRefill", "extendsTiming" } },
@@ -183,7 +184,7 @@ public static class SettingMaster
         { "IceWallIncreaseWallLeniency", new List<string>{ "iceWJLeniency" } },
         { "InstantAcceleratedJumps", null },
         { "InstantClimbHop", null },
-        { "NoFailedTech", null },        
+        { "NoFailedTech", new List<string>{ "protectedTechTime" } },        
         { "ManualDreamhyperLeniency", null },
         { "RefillDashInCoyote", new List<string>{ "RefillCoyoteTime", "CountRefillCoyoteTimeInFrames" } },
         { "RemoveDBlockCCorection", null },

@@ -16,14 +16,14 @@ public class ConsistentDashOnDBlockExit : AbstractTweak
     {
         IL.Celeste.Player.DreamDashUpdate += InstantDBlockExit;
         On.Celeste.Player.DreamDashEnd += DetectDreamDashEnd;
-        On.Celeste.Player.Update += MoveToDBlock;
+        LeniencyHelperModule.OnPlayerUpdate += MoveToDBlock;
     }
     [OnUnload]
     public static void UnloadHooks()
     {
         IL.Celeste.Player.DreamDashUpdate -= InstantDBlockExit;
         On.Celeste.Player.DreamDashEnd -= DetectDreamDashEnd;
-        On.Celeste.Player.Update -= MoveToDBlock;
+        LeniencyHelperModule.OnPlayerUpdate -= MoveToDBlock;
     }
 
     private static void DetectDreamDashEnd(On.Celeste.Player.orig_DreamDashEnd orig, Player self)
@@ -33,18 +33,16 @@ public class ConsistentDashOnDBlockExit : AbstractTweak
         var s = LeniencyHelperModule.Session;
         if(Enabled("ConsistentDashOnDBlockExit")) s.dreamDashEnded = true;
     }
-    private static void MoveToDBlock(On.Celeste.Player.orig_Update orig, Player self)
+    private static void MoveToDBlock(Player player)
     {
-        orig(self);
-
         if (Enabled("ConsistentDashOnDBlockExit") && LeniencyHelperModule.Session.dreamDashEnded)
         {
-            int negSign = -Math.Sign(self.Speed.X);
-            for (int c = 0; c < Math.Abs(self.Speed.X * Engine.DeltaTime * 2f); c++)
+            int negSign = -Math.Sign(player.Speed.X);
+            for (int c = 0; c < Math.Abs(player.Speed.X * Engine.DeltaTime * 2f); c++)
             {
-                if (self.CollideCheck<DreamBlock>(self.Position + Vector2.UnitX * (c * negSign)))
+                if (player.CollideCheck<DreamBlock>(player.Position + Vector2.UnitX * (c * negSign)))
                 {
-                    self.MoveHExact(Math.Max(c - 4, 0 )* negSign);
+                    player.MoveHExact(Math.Max(c - 4, 0 )* negSign);
                     break;
                 }
             }

@@ -4,6 +4,11 @@ namespace Celeste.Mod.LeniencyHelper;
 
 public class SettingList
 {
+    // BackboostProtection
+    public float earlyBackboostTiming = 0.35f;
+    public float lateBackboostTiming = 0.1f;
+    public bool countBackboostTimingInFrames = false;
+
     // BufferableClimbtrigger
     public bool onNormalUpdate = true;
     public bool onDash = true;
@@ -59,6 +64,9 @@ public class SettingList
     // IceWallIncreaseWallLeniency
     public int iceWJLeniency = 3;
 
+    // No failed tech
+    public float protectedTechTime = 0.1f; 
+    
     // RefillDashInCoyote
     public float RefillCoyoteTime = 0.05f;
     public bool CountRefillCoyoteTimeInFrames = false;

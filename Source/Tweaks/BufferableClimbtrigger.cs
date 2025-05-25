@@ -19,7 +19,7 @@ public class BufferableClimbtrigger : AbstractTweak
         IL.Celeste.Player.NormalUpdate += ClimbTriggerOnFlyingUp;
 
         On.Celeste.Player.ClimbTrigger += GetDefaultDir;
-        On.Celeste.Player.Update += ClearSafeClimbTrigger;
+        LeniencyHelperModule.OnUpdate += ClearSafeClimbTrigger;
 
         On.Celeste.Player.IsRiding_Solid += ForceRideSolid;
         On.Celeste.Solid.GetPlayerClimbing += ForceClimbSolid;
@@ -41,7 +41,7 @@ public class BufferableClimbtrigger : AbstractTweak
         On.Celeste.Player.DashUpdate -= ClimbTriggerDuringDash;
         IL.Celeste.Player.NormalUpdate -= ClimbTriggerOnFlyingUp;
 
-        On.Celeste.Player.Update -= ClearSafeClimbTrigger;
+        LeniencyHelperModule.OnUpdate -= ClearSafeClimbTrigger;
 
         On.Celeste.Player.IsRiding_Solid -= ForceRideSolid;
         On.Celeste.Solid.GetPlayerClimbing -= ForceClimbSolid;
@@ -110,10 +110,9 @@ public class BufferableClimbtrigger : AbstractTweak
     }
 
 
-    private static void ClearSafeClimbTrigger(On.Celeste.Player.orig_Update orig, Player self)
+    private static void ClearSafeClimbTrigger()
     {
         safeClimbtriggerDir = 0;
-        orig(self);
     }
     private static void GetDefaultDir(On.Celeste.Player.orig_ClimbTrigger orig, Player self, int dir)
     {

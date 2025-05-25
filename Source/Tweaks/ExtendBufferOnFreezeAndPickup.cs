@@ -14,7 +14,8 @@ public class ExtendBufferOnFreezeAndPickup : AbstractTweak
     public static void LoadHooks()
     {
         On.Celeste.Celeste.Freeze += ExtendBufferTimer;
-        On.Celeste.Player.Update += ExtendBufferOnPickup;
+        LeniencyHelperModule.BeforePlayerUpdate += ExtendBufferOnPickup;
+
         customPickupDelayHook = new ILHook(typeof(Player).GetMethod("PickupCoroutine",
             BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(), GetCustomPickupDelayHook);
     }
@@ -22,24 +23,19 @@ public class ExtendBufferOnFreezeAndPickup : AbstractTweak
     public static void UnloadHooks()
     {
         On.Celeste.Celeste.Freeze -= ExtendBufferTimer;
-        On.Celeste.Player.Update -= ExtendBufferOnPickup;
+        LeniencyHelperModule.BeforePlayerUpdate -= ExtendBufferOnPickup;
         customPickupDelayHook.Dispose();
     }
-    private static void ExtendBufferOnPickup(On.Celeste.Player.orig_Update orig, Player self)
+    private static void ExtendBufferOnPickup(Player player)
     {
         var s = LeniencyHelperModule.Session;
-        if (!(Enabled("ExtendBufferOnFreezeAndPickup") && GetSetting<bool>("ExtendBufferOnPickup")))
-        {
-            orig(self);
-            return;
-        }
         if (s.pickupTimeLeft > 0f) s.pickupTimeLeft -= Engine.DeltaTime;
         
-        if (self.StateMachine.State == 8)
+        if (player.StateMachine.State == 8)
         {
             if (s.prevFrameState != 8) s.pickupTimeLeft = s.pickupDelay;
 
-            if(s.pickupTimeLeft > 0f)
+            if(s.pickupTimeLeft > 0f && Enabled("ExtendBufferOnFreezeAndPickup") && GetSetting<bool>("ExtendBufferOnPickup"))
             {
                 if (Input.Dash.Pressed && !s.dashExtended)
                 {
@@ -62,8 +58,7 @@ public class ExtendBufferOnFreezeAndPickup : AbstractTweak
         {
             s.dashExtended = s.demoExtended = s.jumpExtended = false;
         }
-        s.prevFrameState = self.StateMachine.State;
-        orig(self);
+        s.prevFrameState = player.StateMachine.State;
     }
     private static void GetCustomPickupDelayHook(ILContext il)
     {
@@ -78,6 +73,7 @@ public class ExtendBufferOnFreezeAndPickup : AbstractTweak
             }
         }
     }
+    
     private static void GetNewCustomPickupDelay(float delay)
     {
         LeniencyHelperModule.Session.pickupDelay = delay;

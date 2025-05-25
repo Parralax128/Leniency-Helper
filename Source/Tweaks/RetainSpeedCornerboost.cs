@@ -12,14 +12,14 @@ public class RetainSpeedCornerboost : AbstractTweak
     public static void LoadHooks()
     {
         On.Celeste.Player.ClimbJump += RetainSpeedOnClimbJump;
-        On.Celeste.Player.Update += DeltaRetainTimerUpdate;
+        LeniencyHelperModule.OnPlayerUpdate += RetainTimerUpdate;
         On.Celeste.Player.OnCollideH += SaveCbSpeed;
     }
     [OnUnload]
     public static void UnloadHooks()
     {
         On.Celeste.Player.ClimbJump -= RetainSpeedOnClimbJump;
-        On.Celeste.Player.Update -= DeltaRetainTimerUpdate;
+        LeniencyHelperModule.OnPlayerUpdate -= RetainTimerUpdate;
         On.Celeste.Player.OnCollideH -= SaveCbSpeed;
     }
 
@@ -44,16 +44,15 @@ public class RetainSpeedCornerboost : AbstractTweak
         }
     }
     
-    private static void DeltaRetainTimerUpdate(On.Celeste.Player.orig_Update orig, Player self)
+    private static void RetainTimerUpdate(Player player)
     {
-        orig(self);
         if (!Enabled("RetainSpeedCornerboost")) return;
 
         var s = LeniencyHelperModule.Session;
 
         if (s.retainCbSpeedTimer > 0f)
         {
-            if (Math.Sign(self.Speed.X) == -Math.Sign(s.retainCbSpeed))
+            if (Math.Sign(player.Speed.X) == -Math.Sign(s.retainCbSpeed))
             {
                 s.retainCbSpeedTimer = 0f;
             }

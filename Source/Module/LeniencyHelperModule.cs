@@ -8,6 +8,7 @@ using Celeste.Mod.LeniencyHelper.UI;
 using System.Linq;
 using System.Reflection;
 using Celeste.Mod.LeniencyHelper.Controllers;
+using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
 public class LeniencyHelperModule : EverestModule
@@ -51,6 +52,7 @@ public class LeniencyHelperModule : EverestModule
     public static string[] TweakList =
     {
         "AutoSlowfall",
+        "BackboostProtection",
         "BackwardsRetention",
         "BufferableClimbtrigger",
         "BufferableExtends",
@@ -126,6 +128,11 @@ public class LeniencyHelperModule : EverestModule
 
         return entity.Scene.CollideCheck(checkRect, with);
     }
+
+    public static event Action<Player> BeforePlayerUpdate;
+    public static event Action<Player> OnPlayerUpdate;
+    public static event Action OnUpdate;
+
     public override void Initialize()
     {
         base.Initialize();
@@ -163,8 +170,22 @@ public class LeniencyHelperModule : EverestModule
         Everest.Events.LevelLoader.OnLoadingThread += AddStamp;
         Everest.Events.Level.OnEnter += ClearSessionOnEnter;
 
+        On.Celeste.Player.Update += OnPlayerUpdateEventHook;
+        On.Celeste.Level.Update += OnUpdateEventHook;
+
         typeof(GravityHelperImports).ModInterop();
         typeof(ExtendedVariantImports).ModInterop();
+    }
+    private static void OnPlayerUpdateEventHook(On.Celeste.Player.orig_Update orig, Player self)
+    {
+        BeforePlayerUpdate(self);
+        orig(self);
+        OnPlayerUpdate(self);
+    }
+    private static void OnUpdateEventHook(On.Celeste.Level.orig_Update orig, Level self)
+    {
+        orig(self);
+        OnUpdate();
     }
 
     public override void Unload()

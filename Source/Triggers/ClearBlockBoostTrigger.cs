@@ -12,13 +12,13 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
         [OnLoad]
         public static void LoadHooks()
         {
-            On.Celeste.Player.Update += ClearBlockBoostUpdate;
+            LeniencyHelperModule.BeforePlayerUpdate += ClearBlockBoostUpdate;
             On.Monocle.StateMachine.Update += BanStatesBlockboosting;
         }
         [OnUnload]
         public static void UnloadHooks()
         {
-            On.Celeste.Player.Update -= ClearBlockBoostUpdate;
+            LeniencyHelperModule.BeforePlayerUpdate -= ClearBlockBoostUpdate;
             On.Monocle.StateMachine.Update -= BanStatesBlockboosting;
         }
 
@@ -38,26 +38,25 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
         private static void BanStatesBlockboosting(On.Monocle.StateMachine.orig_Update orig, StateMachine self)
         {
             if (LeniencyHelperModule.Session.clearBlockBoostActivated)
-                SetLiftSpeedToZero(self.Entity as Player);
+                ResetPlatformLiftspeed(self.Entity as Player);
 
             orig(self);
         }
-        private static void ClearBlockBoostUpdate(On.Celeste.Player.orig_Update orig, Player self)
+        private static void ClearBlockBoostUpdate(Player player)
         {
             if (LeniencyHelperModule.Session.clearBlockBoostActivated)
             {
-                SetLiftSpeedToZero(self);
-                self.ResetLiftSpeed();
+                ResetPlatformLiftspeed(player);
+                player.ResetLiftSpeed();
             }
-            orig(self);
         }
-        private static void SetLiftSpeedToZero(Player player)
+        private static void ResetPlatformLiftspeed(Player player)
         {
             foreach (Platform blockBooster in player.Scene.Tracker.GetEntities<Platform>())
             {
                 Vector2? protectedLiftSpeed;
                 DynamicData.For(blockBooster).TryGet("safeLiftSpeed", out protectedLiftSpeed);
-                if (protectedLiftSpeed is not null)
+                if (protectedLiftSpeed != null)
                 {
                     DynamicData.For(blockBooster).Set("safeLiftSpeed", Vector2.Zero);
                 }

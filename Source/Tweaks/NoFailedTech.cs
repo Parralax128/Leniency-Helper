@@ -1,40 +1,29 @@
 ﻿using Celeste.Mod.LeniencyHelper.Module;
 using Monocle;
-using MonoMod.Cil;
-using MonoMod.RuntimeDetour;
-using MonoMod.Utils;
-using System.Numerics;
-using System.Reflection;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class NoFailedTech : AbstractTweak
 {
-    private static ILHook dashCoroutineHook;
     [OnLoad]
     public static void LoadHooks()
     {
         On.Celeste.Player.Jump += JumpToTech;
-        On.Celeste.Player.OnCollideV += ProtectDashAttack;
-        On.Celeste.Player.Update += ChangeProtectedDashAttack;
-        On.Celeste.Player.DashBegin += CheckDucking;
-        dashCoroutineHook = new ILHook(typeof(Player).GetMethod("DashCoroutine",
-            BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(), OnCoroutine);
+        LeniencyHelperModule.OnUpdate += RunTimer;
+        On.Celeste.Player.DashEnd += StartProtectionTimer;
     }
     [OnUnload]
     public static void UnloadHooks()
     {
         On.Celeste.Player.Jump -= JumpToTech;
-        On.Celeste.Player.OnCollideV -= ProtectDashAttack;
-        On.Celeste.Player.Update -= ChangeProtectedDashAttack;
-        On.Celeste.Player.DashBegin -= CheckDucking;
-        dashCoroutineHook.Dispose();
+        LeniencyHelperModule.OnUpdate -= RunTimer;
+        On.Celeste.Player.DashEnd -= StartProtectionTimer;
     }
 
     private static void JumpToTech(On.Celeste.Player.orig_Jump orig, Player self, bool particles = true, bool playSfx = true)
     {
         if (Enabled("NoFailedTech") && self.CanUnDuck && self.DashDir.X != 0
-            && (self.OnGround() && self.dashAttackTimer == 0f? LeniencyHelperModule.Session.protectedDashAttackTimer : self.dashAttackTimer) > 0f)
+            && self.OnGround() && LeniencyHelperModule.Session.protectedDashAttackTimer > 0f)
         {
             self.Ducking = LeniencyHelperModule.Session.dashCrouched;
             self.SuperJump();
@@ -43,46 +32,17 @@ public class NoFailedTech : AbstractTweak
 
         orig(self, particles, playSfx);
     }
-    private static void ChangeProtectedDashAttack(On.Celeste.Player.orig_Update orig, Player self)
+    private static void StartProtectionTimer(On.Celeste.Player.orig_DashEnd orig, Player self)
     {
         orig(self);
-
+        LeniencyHelperModule.Session.protectedDashAttackTimer = GetSetting<float>("protectedTechTime");
+        LeniencyHelperModule.Session.dashCrouched = self.Ducking;
+    }
+    private static void RunTimer()
+    {
         var s = LeniencyHelperModule.Session;
 
         if (s.protectedDashAttackTimer > 0f)
             s.protectedDashAttackTimer -= Engine.DeltaTime;
-    }
-    private static void ProtectDashAttack(On.Celeste.Player.orig_OnCollideV orig, Player self, CollisionData data)
-    {
-        if (Enabled("NoFailedTech"))
-        {
-            LeniencyHelperModule.Session.protectedDashAttackTimer = self.dashAttackTimer;
-        }
-
-        orig(self, data);            
-    }
-    private static void OnCoroutine(ILContext il)
-    {
-        ILCursor c = new ILCursor(il);
-        if (c.TryGotoNext(MoveType.Before, instr => instr.MatchStfld<Player>("DashDir")))
-        {
-            c.EmitDup();
-            c.EmitDelegate(CheckDownDiag);
-        }
-    }
-    private static void CheckDownDiag(Vector2 dashDir)
-    {
-        if (!Enabled("NoFailedTech")) return;
-        
-        LeniencyHelperModule.Session.dashCrouched = LeniencyHelperModule.Session.dashCrouched 
-            || (dashDir.Y > 0f && dashDir.X != 0f);
-    }
-    private static void CheckDucking(On.Celeste.Player.orig_DashBegin orig, Player self)
-    {
-        orig(self);
-        if (Enabled("NoFailedTech"))
-        {
-            LeniencyHelperModule.Session.dashCrouched = self.Ducking;
-        }
     }
 }
