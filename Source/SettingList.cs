@@ -1,4 +1,5 @@
-﻿using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
+﻿using VivHelper.Entities;
+using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 
 namespace Celeste.Mod.LeniencyHelper;
 
@@ -65,7 +66,8 @@ public class SettingList
     public int iceWJLeniency = 3;
 
     // No failed tech
-    public float protectedTechTime = 0.1f; 
+    public float protectedTechTime = 0.1f;
+    public bool countProtectedTechTimeInFrames = false;
     
     // RefillDashInCoyote
     public float RefillCoyoteTime = 0.05f;

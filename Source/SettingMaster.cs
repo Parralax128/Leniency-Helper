@@ -1,16 +1,15 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System;
-using Celeste.Mod.LeniencyHelper.Triggers;
 using System.Linq;
 using System.Reflection;
 using Celeste.Mod.LeniencyHelper.Module;
-using MonoMod;
 
 namespace Celeste.Mod.LeniencyHelper;
 public static class SettingMaster
 {
-    #region tweaks
+    #region disable tweaks on restart
+
     [OnLoad]
     public static void LoadHooks()
     {
@@ -23,25 +22,6 @@ public static class SettingMaster
         On.Celeste.Player.ctor -= DisableTweaksOnRespawn;
         On.Celeste.LevelLoader.ctor -= DisableTweaksOnLoad;
     }
-
-    public static bool GetTweakEnabled(string tweak)
-    {
-        if (LeniencyHelperModule.Settings.PlayerTweaks[tweak].HasValue)
-            return LeniencyHelperModule.Settings.PlayerTweaks[tweak].Value;
-
-        return LeniencyHelperModule.Session.UseController[tweak] ?
-            LeniencyHelperModule.Session.ControllerTweaks[tweak] : LeniencyHelperModule.Session.TriggerTweaks[tweak];
-    }
-    public static void SetPlayerTweak(string tweak, bool? newValue)
-    {
-        LeniencyHelperModule.Settings.PlayerTweaks[tweak] = newValue;
-    }
-    public static void SetTriggerTweak(string tweak, bool newValue) => LeniencyHelperModule.Session.TriggerTweaks[tweak] = newValue;
-    public static void SetControllerTweak(string tweak, bool newValue)
-    {
-        LeniencyHelperModule.Session.ControllerTweaks[tweak] = newValue;
-    }
-    public static void SetUseController(string tweak, bool useController) => LeniencyHelperModule.Session.UseController[tweak] = useController;
 
     public static void DisableTweaksOnRespawn(On.Celeste.Player.orig_ctor orig,
         Player self, Vector2 pos, PlayerSpriteMode spriteMode)
@@ -74,6 +54,21 @@ public static class SettingMaster
         s.airMovementDisabled = false;
         s.clearBlockBoostActivated = false;
     }
+    #endregion
+
+    #region tweaks
+    public static bool GetTweakEnabled(string tweak)
+    {
+        if (LeniencyHelperModule.Settings.PlayerTweaks[tweak].HasValue)
+            return LeniencyHelperModule.Settings.PlayerTweaks[tweak].Value;
+
+        return LeniencyHelperModule.Session.UseController[tweak] ?
+            LeniencyHelperModule.Session.ControllerTweaks[tweak] : LeniencyHelperModule.Session.TriggerTweaks[tweak];
+    }
+    public static void SetPlayerTweak(string tweak, bool? newValue) => LeniencyHelperModule.Settings.PlayerTweaks[tweak] = newValue;
+    public static void SetTriggerTweak(string tweak, bool newValue) => LeniencyHelperModule.Session.TriggerTweaks[tweak] = newValue;
+    public static void SetControllerTweak(string tweak, bool newValue) => LeniencyHelperModule.Session.ControllerTweaks[tweak] = newValue;
+    public static void SetUseController(string tweak, bool useController) => LeniencyHelperModule.Session.UseController[tweak] = useController;
 
     public static void ResetPlayerSettings()
     {
@@ -88,11 +83,9 @@ public static class SettingMaster
     }
     #endregion
 
-
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=//
 
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=//
-
 
     #region subsettings
     public static T GetSetting<T>(string name, string tweakName)
@@ -136,9 +129,9 @@ public static class SettingMaster
             string settingInData = "";
             for (int c = 0; c < fromDialog.Length; c++) //converting to CamelCase
             {
-                if (fromDialog[c] == ' ') continue;
+                if (fromDialog[c] == ' ' || fromDialog[c] == '-') continue;
 
-                if (c == 0 || fromDialog[c - 1] == ' ') settingInData += fromDialog[c].ToString().ToUpper();
+                if (c == 0 || fromDialog[c - 1] == ' ' || fromDialog[c - 1] == '-') settingInData += fromDialog[c].ToString().ToUpper();
                 else settingInData += fromDialog[c];
             }
 
@@ -184,7 +177,7 @@ public static class SettingMaster
         { "IceWallIncreaseWallLeniency", new List<string>{ "iceWJLeniency" } },
         { "InstantAcceleratedJumps", null },
         { "InstantClimbHop", null },
-        { "NoFailedTech", new List<string>{ "protectedTechTime" } },        
+        { "NoFailedTech", new List<string>{ "protectedTechTime", "countProtectedTechTimeInFrames" } },        
         { "ManualDreamhyperLeniency", null },
         { "RefillDashInCoyote", new List<string>{ "RefillCoyoteTime", "CountRefillCoyoteTimeInFrames" } },
         { "RemoveDBlockCCorection", null },

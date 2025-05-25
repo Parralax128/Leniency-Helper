@@ -35,7 +35,10 @@ public class NoFailedTech : AbstractTweak
     private static void StartProtectionTimer(On.Celeste.Player.orig_DashEnd orig, Player self)
     {
         orig(self);
-        LeniencyHelperModule.Session.protectedDashAttackTimer = GetSetting<float>("protectedTechTime");
+
+        LeniencyHelperModule.Session.protectedDashAttackTimer = GetSetting<float>("protectedTechTime")
+            * (GetSetting<bool>("countProtectedTechTimeInFrames") ? Engine.DeltaTime : 1f);
+
         LeniencyHelperModule.Session.dashCrouched = self.Ducking;
     }
     private static void RunTimer()
