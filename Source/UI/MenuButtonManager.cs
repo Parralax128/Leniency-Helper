@@ -21,7 +21,7 @@ public static class MenuButtonManager
         if (self.Components.Get<LHmenuTracker>() != null )
         {
             if (InSingleSubsettingMenu && InSubsettingsMode) return;
-            if (self.Items[self.Selection] is SpecialSlider slider && slider.addedSubsettings) return;
+            if (self.Items[self.Selection] is TweakSlider slider && slider.addedSubsettings) return;
         }
 
         orig(self, dir, wiggle);
@@ -61,8 +61,8 @@ public static class MenuButtonManager
 
         foreach (string tweak in LeniencyHelperModule.TweakList)
         {
-            SpecialSlider newTweak = new SpecialSlider(Dialog.Clean($"LENIENCYTWEAKS_{tweak.ToUpper()}"),
-                tweak, SpecialSlider.GetIndexFromTweakName(tweak));
+            TweakSlider newTweak = new TweakSlider(Dialog.Clean($"LENIENCYTWEAKS_{tweak.ToUpper()}"),
+                tweak, TweakSlider.GetIndexFromTweakName(tweak));
             newTweak.menu = menu;
 
             resetTweaksButton.OnPressed += () => { while (newTweak.Index > 0) newTweak.ChangeValue(-1); };
@@ -82,13 +82,13 @@ public static class MenuButtonManager
         {
             Input.Grab.ConsumeBuffer();
 
-            if (selectedItem is SpecialSlider tweakSlider)
+            if (selectedItem is TweakSlider tweakSlider)
             {
                 tweakSlider.CopyWikiLinkToCliboard();
             }
             else
             {
-                foreach(SpecialSlider slider in menu.Items.FindAll(i => i is SpecialSlider))
+                foreach(TweakSlider slider in menu.Items.FindAll(i => i is TweakSlider))
                 {
                     if(slider.subOptions.Contains(selectedItem))
                     {
@@ -118,7 +118,7 @@ public static class MenuButtonManager
             {
                 foreach(TextMenu.Item item in thisMenu.Items)
                 {
-                    if (item is SpecialSlider slider && slider.addedSubsettings)
+                    if (item is TweakSlider slider && slider.addedSubsettings)
                     {
                         slider.CloseSuboptions();
                         break;

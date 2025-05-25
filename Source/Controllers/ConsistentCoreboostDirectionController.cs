@@ -45,7 +45,7 @@ public class ConsistentCoreboostDirectionController : Entity
             cursor.EmitDelegate(GetBounceDir);
         }
 
-        Log(il);
+        //Log(il);
     }
     private static bool MatchVivHelperBounceDir(Mono.Cecil.Cil.Instruction instr)
     {

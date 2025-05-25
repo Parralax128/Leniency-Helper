@@ -5,6 +5,7 @@ using Celeste.Mod.LeniencyHelper.Triggers;
 using System.Linq;
 using System.Reflection;
 using Celeste.Mod.LeniencyHelper.Module;
+using MonoMod;
 
 namespace Celeste.Mod.LeniencyHelper;
 public static class SettingMaster
@@ -165,6 +166,8 @@ public static class SettingMaster
         { "BufferableClimbtrigger", new List<string>{ "onNormalUpdate", "onDash" } },
         { "BufferableExtends", new List<string>{ "forceWaitForRefill", "extendsTiming" } },
         { "ConsistentDashOnDBlockExit", new List<string>{ "resetDashCDonLeave" } },
+        { "ConsistentWallboosters", new List<string>{ "instantWallboosterAcceleration", "newWallboosterAcceleration",
+            "consistentWallboosterBlockboost", "bufferableWallboosterMaxjumps" } },
         { "CornerWaveLeniency", null },
         { "CustomBufferTime", new List<string>{ "countBufferTimeInFrames", "JumpBufferTime", "DashBufferTime", "DemoBufferTime" } },
         { "CustomDashbounceTiming", new List<string>{ "dashbounceTiming", "countDashbounceTimingInFrames" } },
@@ -180,7 +183,7 @@ public static class SettingMaster
         { "IceWallIncreaseWallLeniency", new List<string>{ "iceWJLeniency" } },
         { "InstantAcceleratedJumps", null },
         { "InstantClimbHop", null },
-        { "NoFailedTech", null },
+        { "NoFailedTech", null },        
         { "ManualDreamhyperLeniency", null },
         { "RefillDashInCoyote", new List<string>{ "RefillCoyoteTime", "CountRefillCoyoteTimeInFrames" } },
         { "RemoveDBlockCCorection", null },

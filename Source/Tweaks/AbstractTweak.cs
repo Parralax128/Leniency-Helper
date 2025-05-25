@@ -2,7 +2,7 @@
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class AbstractTweak
+public abstract class AbstractTweak
 {
     public static bool Enabled(string tweak)
     {

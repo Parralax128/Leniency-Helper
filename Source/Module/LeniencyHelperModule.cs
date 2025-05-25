@@ -55,6 +55,7 @@ public class LeniencyHelperModule : EverestModule
         "BufferableClimbtrigger",
         "BufferableExtends",
         "ConsistentDashOnDBlockExit",
+        "ConsistentWallboosters",
         "CornerWaveLeniency",
         "CustomBufferTime",
         "CustomDashbounceTiming",
@@ -78,7 +79,8 @@ public class LeniencyHelperModule : EverestModule
         "SuperdashSteeringProtection",
         "SuperOverWalljump",
         "WallAttraction",
-        "WallCoyoteFrames",    };
+        "WallCoyoteFrames",    
+    };
 
     public static SettingList DefaultSettings = new SettingList();
 
@@ -87,7 +89,7 @@ public class LeniencyHelperModule : EverestModule
         Instance = this;
         Logger.SetLogLevel(nameof(LeniencyHelperModule), LogLevel.Verbose);
 
-        foreach (FieldInfo field in typeof(SettingList).GetFields(BindingFlags.NonPublic | BindingFlags.Instance))
+        foreach (FieldInfo field in typeof(SettingList).GetFields())
         {
             SettingMaster.SettingListFields.Add(field.Name, field);
         }

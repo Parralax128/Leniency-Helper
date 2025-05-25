@@ -5,73 +5,80 @@ namespace Celeste.Mod.LeniencyHelper;
 public class SettingList
 {
     // BufferableClimbtrigger
-    private bool onNormalUpdate = true;
-    private bool onDash = true;
+    public bool onNormalUpdate = true;
+    public bool onDash = true;
 
     // BufferableExtends
-    private bool forceWaitForRefill = false;
-    private float extendsTiming = 0.08f;
+    public bool forceWaitForRefill = false;
+    public float extendsTiming = 0.08f;
 
     // ConsistentDashOnDBlockExit
-    private bool resetDashCDonLeave = true;
+    public bool resetDashCDonLeave = true;
+
+    // ConsistentWallboosters
+    public bool consistentWallboosterBlockboost = true;
+    public bool instantWallboosterAcceleration = false;
+    public int newWallboosterAcceleration = 10;
+    public bool bufferableWallboosterMaxjumps = true;
 
     // CustomBufferTime
-    private float JumpBufferTime = 0.08f;
-    private float DashBufferTime = 0.08f;
-    private float DemoBufferTime = 0.08f;
-    private bool countBufferTimeInFrames = false;
+    public float JumpBufferTime = 0.08f;
+    public float DashBufferTime = 0.08f;
+    public float DemoBufferTime = 0.08f;
+    public bool countBufferTimeInFrames = false;
 
     // CustomDashbounceTiming
-    private float dashbounceTiming = 0.05f;
-    private bool countDashbounceTimingInFrames = false;
+    public float dashbounceTiming = 0.05f;
+    public bool countDashbounceTimingInFrames = false;
 
     // CustomSnapDownDistance
-    private int staticSnapdownDistance = 3;
-    private float snapdownTiming = 0.05f;
-    private bool dynamicSnapdownDistance = true;
-    private bool countSnapdownTimingInFrames = false;
+    public int staticSnapdownDistance = 3;
+    public float snapdownTiming = 0.05f;
+    public bool dynamicSnapdownDistance = true;
+    public bool countSnapdownTimingInFrames = false;
 
     // DirectionalReleaseProtection
-    private Dirs dashDir = Dirs.Down;
-    private Dirs jumpDir = Dirs.None;
-    private float DirectionalBufferTime = 0.1f;
-    private bool CountProtectionTimeInFrames = false;
+    public Dirs dashDir = Dirs.Down;
+    public Dirs jumpDir = Dirs.None;
+    public float DirectionalBufferTime = 0.1f;
+    public bool CountProtectionTimeInFrames = false;
 
     // DynamicCornerCorrection
-    private float FloorCorrectionTiming = 0.05f;
-    private float WallCorrectionTiming = 0.05f;
-    private bool ccorectionTimingInFrames = false;
+    public float FloorCorrectionTiming = 0.05f;
+    public float WallCorrectionTiming = 0.05f;
+    public bool ccorectionTimingInFrames = false;
 
     // DynamicWallLeniency
-    private float wallLeniencyTiming = 0.05f;
-    private bool countWallTimingInFrames = false;
+    public float wallLeniencyTiming = 0.05f;
+    public bool countWallTimingInFrames = false;
 
     // ExtendBufferOnFreezeAndPickup
-    private bool ExtendBufferOnFreeze = true;
-    private bool ExtendBufferOnPickup = false;
+    public bool ExtendBufferOnFreeze = true;
+    public bool ExtendBufferOnPickup = false;
 
     // IceWallIncreaseWallLeniency
-    private int iceWJLeniency = 3;
+    public int iceWJLeniency = 3;
 
     // RefillDashInCoyote
-    private float RefillCoyoteTime = 0.05f;
-    private bool CountRefillCoyoteTimeInFrames = false;
+    public float RefillCoyoteTime = 0.05f;
+    public bool CountRefillCoyoteTimeInFrames = false;
 
     // RetainSpeedCornerboost
-    private float RetainCbSpeedTime = 0.1f;
-    private bool countRetainTimeInFrames = false;
+    public float RetainCbSpeedTime = 0.1f;
+    public bool countRetainTimeInFrames = false;
 
     // SolidBlockboostProtection
-    private float bboostSaveTime = 0.1f;
-    private bool countSolidBoostSaveTimeInFrames = false;
+    public float bboostSaveTime = 0.1f;
+    public bool countSolidBoostSaveTimeInFrames = false;
 
     // WallAttraction
-    private float wallApproachTime = 0.08f;
-    private bool countAttractionTimeInFrames = false;
+    public float wallApproachTime = 0.08f;
+    public bool countAttractionTimeInFrames = false;
 
     // WallCoyoteFrames
-    private float wallCoyoteTime = 0.08f;
-    private bool countWallCoyoteTimeInFrames = false;
+    public float wallCoyoteTime = 0.08f;
+    public bool countWallCoyoteTimeInFrames = false;
+    public bool consistentBlockboost = true;
     
     public object Get(string setting)
     {
