@@ -32,10 +32,10 @@ public class CustomSnapDownDistance : AbstractTweak
 
         if (GetSetting<bool>("dynamicSnapdownDistance"))
         {
-            float resultingTime = GetSetting<float>("snapdownTiming") *
+            float timing = GetSetting<float>("snapdownTiming") *
                 (GetSetting<bool>("countSnapdownTimingInFrames") ? Monocle.Engine.DeltaTime : 1f);
 
-            return (int)(Math.Max(Math.Abs(player.beforeDashSpeed.Y), Math.Abs(player.Speed.Y)) * resultingTime);
+            return (int)Math.Max(defaultValue, Math.Max(Math.Abs(player.beforeDashSpeed.Y), Math.Abs(player.Speed.Y)) * timing);
         }
         else
         {

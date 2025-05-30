@@ -7,6 +7,8 @@ controller.placements = {
     {
         name = "No failed tech Controller",
         data = {
+            ProtectedTechTime = 0.1,
+            CountTimeInFrames = false,
             StopFlag = "",
             Persistent = true
         }

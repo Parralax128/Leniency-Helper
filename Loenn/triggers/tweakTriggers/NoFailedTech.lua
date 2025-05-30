@@ -7,6 +7,8 @@ NoFailedTech.placements = {
     {
         name = "No Failed Tech Trigger",
         data = { 
+            ProtectedTechTime = 0.1,
+            CountTimeInFrames = false,
             Enabled = true,
             RevertOnLeave = true,
             Flag = "",

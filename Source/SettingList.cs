@@ -65,7 +65,7 @@ public class SettingList
     // IceWallIncreaseWallLeniency
     public int iceWJLeniency = 3;
 
-    // No failed tech
+    // NoFailedTech
     public float protectedTechTime = 0.1f;
     public bool countProtectedTechTimeInFrames = false;
     

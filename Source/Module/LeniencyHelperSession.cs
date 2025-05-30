@@ -70,6 +70,7 @@ public class LeniencyHelperSession : EverestModuleSession
     //NoFailedTech
     public bool dashCrouched { get; set; } = false;
     public float protectedDashAttackTimer { get; set; } = 0f;
+    public bool downDiag { get; set; } = false;
 
     //RefillDashInCoyote
     public bool artificialChecking { get; set; } = false;

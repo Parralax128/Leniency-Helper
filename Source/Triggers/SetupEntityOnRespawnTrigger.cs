@@ -1,11 +1,8 @@
-﻿using System;
-using Monocle;
+﻿using Monocle;
 using Microsoft.Xna.Framework;
 using Celeste.Mod.Entities;
 using System.Reflection;
-using System.Linq;
 using System.Collections.Generic;
-using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Triggers;
 
