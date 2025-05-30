@@ -21,9 +21,10 @@ namespace Celeste.Mod.LeniencyHelper.UI
 
         private float len = 0f;
         public string settingName;
-        public FloatSlider(string label, float min, float max, float defaultValue, int digits, string sessionName) 
+        public FloatSlider(string label, float min, float max, float defaultValue, int digits, string settingName) 
             : base(label)
         {
+
             value = (float)Math.Round(defaultValue, digits);
 
             this.max = (float)Math.Round(max, digits);
@@ -33,7 +34,7 @@ namespace Celeste.Mod.LeniencyHelper.UI
             framesMax = (int)Math.Floor(max * Engine.FPS);
             framesMin = (int)Math.Floor(min * Engine.FPS);
             this.digits = digits;
-            settingName = sessionName;
+            this.settingName = settingName;
 
             float maxLen = 0;
             for (float c = min; c < max; 
@@ -72,7 +73,7 @@ namespace Celeste.Mod.LeniencyHelper.UI
         {
             Audio.Play("event:/ui/main/button_toggle_on");
             lastDir = 1;
-
+            
             if (transitionIntoFrames) value = (float)Math.Floor(Calc.Approach(value, (float)framesMax, 1));
             else value = (float)Math.Round(Calc.Approach(value, max, (float)Math.Pow(10, -digits)), digits);
 

@@ -1,9 +1,40 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.LeniencyHelper.Module;
+using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace Celeste.Mod.LeniencyHelper.Triggers
 {
     public abstract class GenericTrigger : Trigger
     {
+        public static List<string>StringToList(string str)
+        {
+            List<string> result = new List<string>();
+
+            string currentWord = "";
+            for(int index=0; index < str.Length; index++)
+            {
+                if (str[index] == ',')
+                {
+                    result.Add(currentWord);
+                    LeniencyHelperModule.Log(currentWord);
+                    currentWord = "";
+                }
+                else if(index == str.Length - 1)
+                {
+                    currentWord += str[index];
+                    result.Add(currentWord);
+                    LeniencyHelperModule.Log(currentWord);
+                    currentWord = "";
+                }
+                else if (str[index] != ' ')
+                {
+                    currentWord += str[index];
+                }
+            }
+
+            return result;
+        }
+
         public bool enabled;
         private string flag;
         public bool oneUse;

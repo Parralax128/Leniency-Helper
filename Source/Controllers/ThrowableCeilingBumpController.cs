@@ -40,14 +40,12 @@ public class ThrowableCeilingBumpController : GenericController
     }
 
     private bool disableGroundFriction;
-    private string affectedThrowables;
+    private string whiteList;
 
     public ThrowableCeilingBumpController(EntityData data, Vector2 offset) : base(data, offset, false) 
     {
         disableGroundFriction = data.Bool("DisableGroundFriction", false);
-        affectedThrowables = data.String("EntityList", "Glider, TheoCrystal");
-
-        data.String("EntityList", "Glider, TheoCrystal");
+        whiteList = data.String("WhiteList", "Glider, TheoCrystal");
     }
 
     public override void GetOldSettings() { }
@@ -55,7 +53,7 @@ public class ThrowableCeilingBumpController : GenericController
     {
         foreach(Holdable holdComponent in Scene.Tracker.GetComponents<Holdable>())
         {
-            if (this.affectedThrowables != "*" && !this.affectedThrowables.Contains(holdComponent.Entity.GetType().Name)) continue;
+            if (this.whiteList != "*" && !this.whiteList.Contains(holdComponent.Entity.GetType().Name)) continue;
             
             UnceilingBumpComponent bumpComponent = holdComponent.Entity.Get<UnceilingBumpComponent>();
 

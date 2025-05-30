@@ -8,7 +8,6 @@ using Celeste.Mod.LeniencyHelper.UI;
 using System.Linq;
 using System.Reflection;
 using Celeste.Mod.LeniencyHelper.Controllers;
-using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
 public class LeniencyHelperModule : EverestModule
@@ -154,6 +153,8 @@ public class LeniencyHelperModule : EverestModule
             BufferableClimbtrigger.LoadVivHelperHooks();
             ConsistentCoreboostDirectionController.LoadVivHelperHooks();
         }
+
+        Watermark = GFX.Gui["LeniencyHelper/Parralax/Watermark"];
     }
 
     public override void Load()
@@ -167,11 +168,12 @@ public class LeniencyHelperModule : EverestModule
         }
 
         Everest.Events.Level.OnCreatePauseMenuButtons += AddTweaksMenuButton;
-        Everest.Events.LevelLoader.OnLoadingThread += AddStamp;
+        On.Celeste.HudRenderer.RenderContent += RenderWatermark;
         Everest.Events.Level.OnEnter += ClearSessionOnEnter;
 
         On.Celeste.Player.Update += OnPlayerUpdateEventHook;
         On.Celeste.Level.Update += OnUpdateEventHook;
+
 
         typeof(GravityHelperImports).ModInterop();
         typeof(ExtendedVariantImports).ModInterop();
@@ -199,10 +201,11 @@ public class LeniencyHelperModule : EverestModule
         }
 
         Everest.Events.Level.OnCreatePauseMenuButtons -= AddTweaksMenuButton;
-        Everest.Events.LevelLoader.OnLoadingThread -= AddStamp;
+        On.Celeste.HudRenderer.RenderContent -= RenderWatermark;
         Everest.Events.Level.OnEnter -= ClearSessionOnEnter;
     }
 
+    #region settings && session
     private static void ClearSessionOnEnter(Session session, bool justEntered)
     {
         if (!justEntered)
@@ -239,6 +242,7 @@ public class LeniencyHelperModule : EverestModule
             }
         }
     }
+    #endregion
 
     private void AddTweaksMenuButton(Level level, TextMenu menu, bool minimal)
     {
@@ -254,8 +258,24 @@ public class LeniencyHelperModule : EverestModule
         menu.Insert(optionsIndex, button);
     }
 
-    private static void AddStamp(Level level)
+    private static Monocle.MTexture Watermark;
+    private static void RenderWatermark(On.Celeste.HudRenderer.orig_RenderContent orig, HudRenderer self, Monocle.Scene scene)
     {
-        level.Add(new StampRenderer(new Vector2(41f, 240f)));
+        orig(self, scene);
+
+        if (Settings is null || Session is null) return;
+
+        foreach (string tweak in TweakList)
+        {
+            if (Settings.PlayerTweaks[tweak] == true && (Session.UseController[tweak] ?
+                Session.ControllerTweaks[tweak] : Session.TriggerTweaks[tweak]) == false)
+            {
+                Monocle.Draw.SpriteBatch.Begin();
+                Watermark.Draw(new Vector2(27, 285), Vector2.Zero, Color.White * 0.15f, 0.5f);
+                Monocle.Draw.SpriteBatch.End();
+
+                break;
+            }
+        }
     }
 }

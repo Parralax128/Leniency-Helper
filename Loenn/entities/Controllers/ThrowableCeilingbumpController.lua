@@ -8,7 +8,7 @@ controller.placements = {
         name = "Throwable ceiling bump Controller",
         data = { 
             DisableGroundFriction = false,
-            EntityList = "Glider, TheoCrystal",
+            WhiteList = "Glider, TheoCrystal",
             StopFlag = ""
         }
     }
