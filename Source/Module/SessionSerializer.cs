@@ -17,19 +17,6 @@ public static class SessionSerializer
         {
             File.Delete(path);
         }
-        return;
-        foreach(string tweak in LeniencyHelperModule.TweakList)
-        {
-            LeniencyHelperModule.Session.ControllerTweaks[tweak] = false;
-            LeniencyHelperModule.Session.UseController[tweak] = false;
-
-            if (SettingMaster.AssociatedTweaks[tweak] == null) continue;
-
-            foreach(string tweakSetting in SettingMaster.AssociatedTweaks[tweak])
-            {
-                LeniencyHelperModule.Session.ControllerSettings.Set(tweakSetting, SettingMaster.GetDefaultSetting(tweakSetting));
-            }
-        }
     }
 
     public static void SaveSession(int saveFileIndex, LeniencyHelperSession session)

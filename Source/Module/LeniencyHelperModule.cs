@@ -4,10 +4,10 @@ using MonoMod.ModInterop;
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Celeste.Mod.LeniencyHelper.UI;
 using System.Linq;
 using System.Reflection;
 using Celeste.Mod.LeniencyHelper.Controllers;
+using Celeste.Mod.LeniencyHelper.UI;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
 public class LeniencyHelperModule : EverestModule
@@ -174,7 +174,6 @@ public class LeniencyHelperModule : EverestModule
         On.Celeste.Player.Update += OnPlayerUpdateEventHook;
         On.Celeste.Level.Update += OnUpdateEventHook;
 
-
         typeof(GravityHelperImports).ModInterop();
         typeof(ExtendedVariantImports).ModInterop();
     }
@@ -206,6 +205,7 @@ public class LeniencyHelperModule : EverestModule
     }
 
     #region settings && session
+    
     private static void ClearSessionOnEnter(Session session, bool justEntered)
     {
         if (!justEntered)
@@ -229,7 +229,7 @@ public class LeniencyHelperModule : EverestModule
     {
         _Session = SessionSerializer.LoadSession(index);
     }
-
+    
     public override void LoadSettings()
     {
         base.LoadSettings();
@@ -263,7 +263,7 @@ public class LeniencyHelperModule : EverestModule
     {
         orig(self, scene);
 
-        if (Settings is null || Session is null) return;
+        if (Settings is null || Session is null || scene is not Level) return;
 
         foreach (string tweak in TweakList)
         {

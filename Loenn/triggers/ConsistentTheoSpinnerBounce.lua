@@ -7,11 +7,12 @@ trigger.placements = {
     {
         name = "Consistent Theo Spinner-bounce Trigger",
         data = {
+            BounceDirection = "All",
+            ForceLoadSpinners = true,
             Enabled = true,
             RevertOnLeave = true,
             Flag = "",
-            OneUse = false,
-            BounceDirection = "All"
+            OneUse = false            
         }
     }
 }

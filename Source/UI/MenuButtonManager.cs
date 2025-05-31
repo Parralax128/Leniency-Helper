@@ -18,7 +18,7 @@ public static class MenuButtonManager
 
     private static void RestrictMove(On.Celeste.TextMenu.orig_MoveSelection orig, TextMenu self, int dir, bool wiggle)
     {
-        if (self.Components.Get<LHmenuTracker>() != null )
+        if (self.Components.Get<LHmenuTracker>() != null)
         {
             if (InSingleSubsettingMenu && InSubsettingsMode) return;
             if (self.Items[self.Selection] is TweakSlider slider && slider.addedSubsettings) return;
@@ -47,7 +47,7 @@ public static class MenuButtonManager
     {
         TextMenu.Button resetTweaksButton = new TextMenu.Button(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENU_RESETTWEAKS"));
         resetTweaksButton.OnPressed = () => Audio.Play("event:/ui/main/button_toggle_off");
-        
+
         TextMenu.Button resetSettingsButton = new TextMenu.Button(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENU_RESETSETTINGS"));
         resetSettingsButton.OnPressed = () =>
         {
@@ -88,9 +88,9 @@ public static class MenuButtonManager
             }
             else
             {
-                foreach(TweakSlider slider in menu.Items.FindAll(i => i is TweakSlider))
+                foreach (TweakSlider slider in menu.Items.FindAll(i => i is TweakSlider))
                 {
-                    if(slider.subOptions.Contains(selectedItem))
+                    if (slider.subOptions.Contains(selectedItem))
                     {
                         slider.CopyWikiLinkToCliboard();
                         break;
@@ -99,7 +99,7 @@ public static class MenuButtonManager
             }
         }
     }
-    
+
     private static void OnButtonPress(TextMenu parentMenu)
     {
         Level level = Engine.Scene as Level;
@@ -116,7 +116,7 @@ public static class MenuButtonManager
 
             if (InSubsettingsMode)
             {
-                foreach(TextMenu.Item item in thisMenu.Items)
+                foreach (TextMenu.Item item in thisMenu.Items)
                 {
                     if (item is TweakSlider slider && slider.addedSubsettings)
                     {
@@ -133,7 +133,7 @@ public static class MenuButtonManager
             }
         };
 
-        thisMenu.OnESC = () => 
+        thisMenu.OnESC = () =>
         {
             Audio.Play(SFX.ui_main_button_back);
             LeniencyHelperModule.Instance.SaveSettings();
@@ -143,7 +143,7 @@ public static class MenuButtonManager
             level.PauseMainMenuOpen = comesFromPauseMainMenu;
         };
 
-        thisMenu.OnPause = () => 
+        thisMenu.OnPause = () =>
         {
             LeniencyHelperModule.Instance.SaveSettings();
 

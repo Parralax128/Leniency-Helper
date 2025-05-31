@@ -76,7 +76,6 @@ public class BackboostProtection : AbstractTweak
 
         if(Math.Sign(self.Speed.X) == -1)
         {
-            LeniencyHelperModule.Log(s.rightTimer);
             if(s.rightTimer > 0f)
             {
                 savedPlayerFacing = self.Facing;
@@ -88,7 +87,6 @@ public class BackboostProtection : AbstractTweak
         }
         else if(Math.Sign(self.Speed.X) == 1)
         {
-            LeniencyHelperModule.Log(s.leftTimer);
             if (s.leftTimer > 0f)
             {
                 savedPlayerFacing = self.Facing;

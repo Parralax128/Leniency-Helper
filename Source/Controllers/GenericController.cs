@@ -29,15 +29,16 @@ public abstract class GenericController : Entity
         base.Added(scene);
 
         if (!removeOthers) return;
-
-        return;
         
-        foreach (GenericController controller in SceneAs<Level>().Tracker.GetEntities<GenericController>())
+        foreach(Entity e in Scene.Entities)
         {
-            if (!controller.Equals(this) && controller.GetType() == this.GetType())
+            if(e is GenericController controller)
             {
-                LeniencyHelperModule.Log($"removed {this.GetType()} clone!");
-                controller.RemoveSelf();
+                if (!controller.Equals(this) && controller.GetType() == this.GetType())
+                {
+                    Logger.Log(LogLevel.Warn, "LeniencyHelper", $"removed {this.GetType().Name} clone!");
+                    controller.RemoveSelf();
+                }
             }
         }
     }

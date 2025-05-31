@@ -16,14 +16,12 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
                 if (str[index] == ',')
                 {
                     result.Add(currentWord);
-                    LeniencyHelperModule.Log(currentWord);
                     currentWord = "";
                 }
                 else if(index == str.Length - 1)
                 {
                     currentWord += str[index];
                     result.Add(currentWord);
-                    LeniencyHelperModule.Log(currentWord);
                     currentWord = "";
                 }
                 else if (str[index] != ' ')

@@ -3,25 +3,14 @@ using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using static Celeste.Mod.LeniencyHelper.Triggers.InputRequiresBlockboostTrigger;
 using System.Collections.Generic;
 using System.Linq;
-using VivHelper.Entities;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
 
 public class LeniencyHelperSession : EverestModuleSession
 {
-    public LeniencyHelperSession()
-    {
-        TriggerTweaks = TweakList.ToDictionary(tweak => tweak, tweak => false);
-        ControllerTweaks = TweakList.ToDictionary(tweak => tweak, tweak => false);
-        UseController = TweakList.ToDictionary(tweak => tweak, tweak => false);
-
-        TriggerSettings = new SettingList();
-        ControllerSettings = new SettingList();
-    }
-
-    public Dictionary<string, bool> TriggerTweaks { get; set; }
-    public Dictionary<string, bool> ControllerTweaks { get; set; }
-    public Dictionary<string, bool> UseController { get; set; }
+    public Dictionary<string, bool> TriggerTweaks { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
+    public Dictionary<string, bool> ControllerTweaks { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
+    public Dictionary<string, bool> UseController { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
 
     public SettingList TriggerSettings { get; set; } = new SettingList();
     public SettingList ControllerSettings { get; set; } = new SettingList();

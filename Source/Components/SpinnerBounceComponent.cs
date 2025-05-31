@@ -53,7 +53,7 @@ public class SpinnerBounceComponent : Component
             holdComponent.OnHitSpinner = (spinner) =>
             {
                 Vector2 saveSpeed = holdComponent.GetSpeed();
-                orig(spinner);
+                if(orig != null) orig(spinner);
                 SetSpeed(saveSpeed);
             };
         }
@@ -65,9 +65,9 @@ public class SpinnerBounceComponent : Component
     private void SetEntitySpeed(Entity entity, Vector2 speed)
     {
         FieldInfo speedField = entity.GetType().GetField("Speed");
-        if (speedField is not null)
+        if (speedField != null)
         {
-            if (speedField.FieldType.ToString().ToLower() == "microsoft.xna.framework.vector2")
+            if (speedField.FieldType == typeof(Vector2))
             {
                 speedField.SetValue(entity, speed);
                 return;
@@ -75,10 +75,9 @@ public class SpinnerBounceComponent : Component
         }
 
         PropertyInfo speedProperty = entity.GetType().GetProperty("Speed");
-        if (speedProperty is not null)
+        if (speedProperty != null)
         {
-            if (speedProperty.PropertyType.ToString().ToLower() == "microsoft.xna.framework.vector2"
-                && speedProperty.GetSetMethod() is not null)
+            if (speedProperty.PropertyType == typeof(Vector2) && speedProperty.GetSetMethod() != null)
             {
                 speedProperty.SetValue(entity, speed);
             }

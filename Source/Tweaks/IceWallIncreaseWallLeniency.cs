@@ -4,7 +4,6 @@ using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using Monocle;
 using Celeste.Mod.ShroomHelper.Entities;
-using System.Linq;
 using Celeste.Mod.LeniencyHelper.Module;
 using System.Collections.Generic;
 

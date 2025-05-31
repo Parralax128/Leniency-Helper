@@ -11,7 +11,7 @@ namespace Celeste.Mod.LeniencyHelper.UI
         }
         public override float Height()
         {
-            return (float)offset;
+            return offset;
         }
     }
 }

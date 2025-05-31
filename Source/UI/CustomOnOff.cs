@@ -7,7 +7,7 @@ namespace Celeste.Mod.LeniencyHelper.UI
     public class CustomOnOff : TextMenu.Option<bool>
     {
         public bool value;
-        private string text => Dialog.Clean($"MODOPTIONS_LENIENCYHELPER_ENUMVALUES_{(value?"ON":"OFF")}");
+        private string text => Dialog.Clean($"MODOPTIONS_LENIENCYHELPER_ENUMVALUES_{(value ? "ON" : "OFF")}");
         public float len;
         private float Measure(bool on)
         {
@@ -30,8 +30,8 @@ namespace Celeste.Mod.LeniencyHelper.UI
         {
             if (!value)
             {
-                lastDir = 1;   
-                
+                lastDir = 1;
+
                 value = true;
                 if (OnValueChange != null) OnValueChange(value);
             }
@@ -43,7 +43,7 @@ namespace Celeste.Mod.LeniencyHelper.UI
             if (value)
             {
                 lastDir = -1;
-                
+
                 value = false;
                 if (OnValueChange != null) OnValueChange(value);
             }
@@ -61,7 +61,7 @@ namespace Celeste.Mod.LeniencyHelper.UI
                 Audio.Play("event:/ui/main/button_toggle_off");
             }
 
-            if (value == GetDefaultSetting<bool>(settingName) || (value == false && GetDefaultSetting<bool>(settingName) == true)) lastDir = 1;
+            if (value == GetDefaultSetting<bool>(settingName) || value == false && GetDefaultSetting<bool>(settingName) == true) lastDir = 1;
             else lastDir = -1;
 
             ValueWiggler.Start();
@@ -76,22 +76,22 @@ namespace Celeste.Mod.LeniencyHelper.UI
 
             float alpha = Container.Alpha;
             Color strokeColor = Color.Black * (alpha * alpha * alpha);
-            Color color = (Disabled ? inactiveColor : ((highlighted ? Container.HighlightColor : UnselectedColor) * alpha));
+            Color color = Disabled ? inactiveColor : (highlighted ? Container.HighlightColor : UnselectedColor) * alpha;
             ActiveFont.DrawOutline(Label, position, new Vector2(0f, 0.5f), Vector2.One, color, 2f, strokeColor);
-            ActiveFont.DrawOutline(text, position + new Vector2(Container.Width - len * 0.5f + (float)lastDir * ValueWiggler.Value * 8f, 0f),
+            ActiveFont.DrawOutline(text, position + new Vector2(Container.Width - len * 0.5f + lastDir * ValueWiggler.Value * 8f, 0f),
                 new Vector2(0.5f, 0.5f), Vector2.One * 0.8f, color, 2f, strokeColor);
 
-            Vector2 vector = Vector2.UnitX * (highlighted ? ((float)Math.Sin(sine * 4f) * 4f) : 0f);
+            Vector2 vector = Vector2.UnitX * (highlighted ? (float)Math.Sin(sine * 4f) * 4f : 0f);
 
 
-            Color leftArrowColor = (value ? color : (inactiveColor * alpha));
-            Vector2 leftArrowPos = position + new Vector2(Container.Width - len + 40f + ((lastDir < 0) ?
-                ((0f - ValueWiggler.Value) * 8f) : 0f), 0f) - (value ? vector : Vector2.Zero);
+            Color leftArrowColor = value ? color : inactiveColor * alpha;
+            Vector2 leftArrowPos = position + new Vector2(Container.Width - len + 40f + (lastDir < 0 ?
+                (0f - ValueWiggler.Value) * 8f : 0f), 0f) - (value ? vector : Vector2.Zero);
             ActiveFont.DrawOutline("<", leftArrowPos, new Vector2(0.5f, 0.5f), Vector2.One, leftArrowColor, 2f, strokeColor);
 
-            Color color3 = (!value ? color : (inactiveColor * alpha));
-            Vector2 position3 = position + new Vector2(Container.Width - 40f + ((lastDir > 0)?
-                (ValueWiggler.Value * 8f) : 0f), 0f) + (!value ? vector : Vector2.Zero);
+            Color color3 = !value ? color : inactiveColor * alpha;
+            Vector2 position3 = position + new Vector2(Container.Width - 40f + (lastDir > 0 ?
+                ValueWiggler.Value * 8f : 0f), 0f) + (!value ? vector : Vector2.Zero);
             ActiveFont.DrawOutline(">", position3, new Vector2(0.5f, 0.5f), Vector2.One, color3, 2f, strokeColor);
         }
     }

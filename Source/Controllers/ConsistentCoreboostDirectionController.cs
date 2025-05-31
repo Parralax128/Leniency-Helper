@@ -44,8 +44,6 @@ public class ConsistentCoreboostDirectionController : Entity
             cursor.EmitLdarg0();
             cursor.EmitDelegate(GetBounceDir);
         }
-
-        //Log(il);
     }
     private static bool MatchVivHelperBounceDir(Mono.Cecil.Cil.Instruction instr)
     {
@@ -91,7 +89,6 @@ public class ConsistentCoreboostDirectionController : Entity
 
     #endregion
 
-    private static void Log(object o) => Module.LeniencyHelperModule.Log(o);
 
     private bool aimCorner;
     private string stopFlag;

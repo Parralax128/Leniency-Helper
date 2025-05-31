@@ -15,6 +15,11 @@
         <PackageReference PrivateAssets="all" ExcludeAssets="runtime" />
         <Reference Private="false" />
     </ItemDefinitionGroup>
+    <ItemGroup>
+      <Compile Remove="Entities\**" />
+      <EmbeddedResource Remove="Entities\**" />
+      <None Remove="Entities\**" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="MonoMod.RuntimeDetour" Version="25.2.3" PrivateAssets="all" ExcludeAssets="runtime">
@@ -40,10 +45,6 @@
         <Reference Include="YamlDotNet">
           <HintPath>..\..\..\YamlDotNet.dll</HintPath>
         </Reference>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Entities\" />
     </ItemGroup>
 
     <Target Name="CopyFiles" AfterTargets="Build" Inputs="$(OutputPath)\$(AssemblyName).dll;$(OutputPath)\$(AssemblyName).pdb" Outputs="..\bin\$(AssemblyName).dll;..\bin\$(AssemblyName).pdb">
