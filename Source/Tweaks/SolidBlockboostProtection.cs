@@ -23,7 +23,7 @@ public class SolidBlockboostProtection : AbstractTweak
 
         On.Celeste.Platform.Update += GainSavedBlockboost;
         On.Celeste.Platform.ctor += GiveComponentToPlatform;
-
+        
         IL.Celeste.JumpThru.MoveHExact += ComponentOnMove;
         IL.Celeste.Solid.MoveHExact += ComponentOnMove;
         IL.Celeste.JumpThru.MoveVExact += ComponentOnMove;
@@ -34,12 +34,12 @@ public class SolidBlockboostProtection : AbstractTweak
     {
         On.Celeste.Platform.Update -= GainSavedBlockboost;
         On.Celeste.Platform.ctor -= GiveComponentToPlatform;
-
+        
         IL.Celeste.JumpThru.MoveHExact -= ComponentOnMove;
         IL.Celeste.Solid.MoveHExact -= ComponentOnMove;
         IL.Celeste.JumpThru.MoveVExact -= ComponentOnMove;
         IL.Celeste.Solid.MoveVExact -= ComponentOnMove;
-
+        
         if(LeniencyHelperModule.ModLoaded("MaxHelpingHand"))
         {
             UnloadSidewaysHook();

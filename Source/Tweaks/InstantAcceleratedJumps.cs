@@ -16,7 +16,6 @@ public class InstantAcceleratedJumps : AbstractTweak
     {
         IL.Celeste.Player.Jump -= RecieveSpeedOnStart;
         IL.Celeste.Player.Bounce -= RecieveSpeedOnStart;
-        //asljdfadsjfalsfjdslkasdfasfdassdfss
     }
 
     private static void RecieveSpeedOnStart(ILContext il)

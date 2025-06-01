@@ -7,7 +7,7 @@ namespace Celeste.Mod.LeniencyHelper.Components;
 public class RefillCoyoteComponent : PlayerComponent
 {
     public static float RefillCoyoteTime => GetSetting<bool>("CountRefillCoyoteTimeInFrames", "RefillDashInCoyote") ?
-        GetSetting<float>("RefillCoyoteTime", "RefillDashInCoyote") / Engine.FPS : GetSetting<float>("RefillCoyoteTime", "RefillDashInCoyote");
+        GetSetting<float>("RefillCoyoteTime", "RefillDashInCoyote") * Engine.DeltaTime : GetSetting<float>("RefillCoyoteTime", "RefillDashInCoyote");
 
     public float refillCoyoteTimer;
     public RefillCoyoteComponent() : base("RefillDashInCoyote") 

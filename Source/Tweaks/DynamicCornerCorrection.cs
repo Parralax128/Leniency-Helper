@@ -7,6 +7,7 @@ using static Celeste.Mod.LeniencyHelper.SettingMaster;
 using System.Linq;
 using VivHelper.Entities;
 using Celeste.Mod.LeniencyHelper.Module;
+using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
@@ -28,6 +29,7 @@ public class DynamicCornerCorrection : AbstractTweak
     }
     public static int GetDynamicCorrection(int defaultValue, Player player, bool vertical)
     {
+        defaultValue = (int)Math.Abs(defaultValue);
         if (!Enabled("DynamicCornerCorrection") || (Math.Abs(player.DashDir.X) > 0.2f && Math.Abs(player.DashDir.Y) > 0.2f))
         {
             LeniencyHelperModule.Session.cornerCorrection = vertical ?
@@ -65,7 +67,6 @@ public class DynamicCornerCorrection : AbstractTweak
             instr => instr.MatchBle(out ILLabel label)))
         {
             cursor.Index--;
-
             cursor.EmitLdarg0();
             cursor.EmitLdcI4(1);
             cursor.EmitDelegate(GetDynamicCorrection);
@@ -73,7 +74,6 @@ public class DynamicCornerCorrection : AbstractTweak
     }
     public static void CustomOnCollideV(ILContext il)
     {
-        
         ILCursor cursor = new ILCursor(il);
 
         if (cursor.TryGotoNext(MoveType.After,
@@ -87,7 +87,6 @@ public class DynamicCornerCorrection : AbstractTweak
                 cursor.EmitDelegate(GetDynamicCorrection);
                 cursor.EmitNeg();
             }
-
         }
 
         if (cursor.TryGotoNextBestFit(MoveType.After,

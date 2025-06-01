@@ -86,7 +86,7 @@ public class RefillDashInCoyote : AbstractTweak
             LeniencyHelperModule.Session.artificialChecking = true;
             return true;
         }
-        else return false;
+        return false;
     }
     private static void CancelArtificialCheck()
     {

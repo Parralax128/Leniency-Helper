@@ -87,7 +87,7 @@ public class CornerWaveLeniency : AbstractTweak
     }
     private static void OnGroundDetected(Player player)
     {
-        if (!groundChecking) return;
+        if (!groundChecking || !Enabled("CornerWaveLeniency")) return;
 
         groundDetected = true;
 
