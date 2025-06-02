@@ -210,7 +210,7 @@ public class LeniencyHelperModule : EverestModule
     {
         if (!justEntered)
         {
-            SessionSerializer.ClearSession(global::Celeste.SaveData.LoadedModSaveDataIndex);
+            SessionSerializer.ClearSessionFile(global::Celeste.SaveData.LoadedModSaveDataIndex);
         }
     }
     public override byte[] SerializeSession(int index)

@@ -78,7 +78,7 @@ public static class SettingMaster
 
         foreach (string setting in allSettings)
         {
-            SetPlayerSetting(setting, LeniencyHelperModule.DefaultSettings.Get(setting));
+            SetPlayerSetting(setting, LeniencyHelperModule.DefaultSettings[setting]);
         }
     }
     #endregion
@@ -102,16 +102,16 @@ public static class SettingMaster
             (GetControllerSetting(name) != null ? GetControllerSetting(name) : GetDefaultSetting(name))
             : (GetTriggerSetting(name) != null ? GetTriggerSetting(name) : GetDefaultSetting(name)));
     }
-    public static T GetDefaultSetting<T>(string name) => (T)LeniencyHelperModule.DefaultSettings.Get(name);
-    public static object GetDefaultSetting(string name) => LeniencyHelperModule.DefaultSettings.Get(name);
+    public static T GetDefaultSetting<T>(string name) => (T)LeniencyHelperModule.DefaultSettings[name];
+    public static object GetDefaultSetting(string name) => LeniencyHelperModule.DefaultSettings[name];
 
-    public static object GetPlayerSetting(string name) => LeniencyHelperModule.Settings.PlayerSettings.Get(name);
-    public static object GetTriggerSetting(string name) => LeniencyHelperModule.Session.TriggerSettings.Get(name);
-    public static object GetControllerSetting(string name) => LeniencyHelperModule.Session.ControllerSettings.Get(name);
+    public static object GetPlayerSetting(string name) => LeniencyHelperModule.Settings.PlayerSettings[name];
+    public static object GetTriggerSetting(string name) => LeniencyHelperModule.Session.TriggerSettings[name];
+    public static object GetControllerSetting(string name) => LeniencyHelperModule.Session.ControllerSettings[name];
 
-    public static void SetPlayerSetting(string name, object value) => LeniencyHelperModule.Settings.PlayerSettings.Set(name, value);
-    public static void SetTriggerSetting(string name, object value) => LeniencyHelperModule.Session.TriggerSettings.Set(name, value);
-    public static void SetControllerSetting(string name, object value) => LeniencyHelperModule.Session.ControllerSettings.Set(name, value);
+    public static void SetPlayerSetting(string name, object value) => LeniencyHelperModule.Settings.PlayerSettings[name] = value;
+    public static void SetTriggerSetting(string name, object value) => LeniencyHelperModule.Session.TriggerSettings[name] = value;
+    public static void SetControllerSetting(string name, object value) => LeniencyHelperModule.Session.ControllerSettings[name] = value;
 
     #endregion
 
@@ -137,7 +137,7 @@ public static class SettingMaster
 
             object value = null;
 
-            Type settingType = LeniencyHelperModule.DefaultSettings.Get(setting).GetType();
+            Type settingType = LeniencyHelperModule.DefaultSettings[setting].GetType();
             if (settingType == typeof(bool)) value = data.Bool(settingInData, GetDefaultSetting<bool>(setting));
             else if (settingType == typeof(int)) value = data.Int(settingInData, GetDefaultSetting<int>(setting));
             else if (settingType == typeof(float)) value = data.Float(settingInData, GetDefaultSetting<float>(setting));

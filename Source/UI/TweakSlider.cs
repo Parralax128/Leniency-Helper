@@ -71,7 +71,7 @@ public class TweakSlider : Option<int>
     {
         foreach (string setting in SettingMaster.AssociatedTweaks[tweakName])
         {
-            SetupSubOption(setting, DefaultSettings.Get(setting).GetType());
+            SetupSubOption(setting, DefaultSettings[setting].GetType());
         }
 
         CustomOnOff toggler = subOptions.Find(i => i.GetType() == typeof(CustomOnOff) && (i as CustomOnOff).framesModeToggler == true) as CustomOnOff;
@@ -115,19 +115,6 @@ public class TweakSlider : Option<int>
             (newOption as FloatSlider).isTimer = IsTimer(nameInSettings);
 
             OnValueChange += (value) => (newOption as FloatSlider).value = SettingMaster.GetSetting<float>(nameInSettings, tweakName);
-
-
-            if (tweakName == "CustomBufferTime")
-            {
-                OnValueChange += (value) =>
-                {
-                    CustomBufferTime.UpdateCustomBuffers();
-                };
-                (newOption as FloatSlider).OnValueChange += (value) =>
-                {
-                    CustomBufferTime.UpdateCustomBuffers();
-                };
-            }
         }
         else if (type == typeof(int))
         {
@@ -219,7 +206,6 @@ public class TweakSlider : Option<int>
             menu.Selection = optionsIndex + 1;
 
             if (subOptions.Count == 1) MenuButtonManager.InSingleSubsettingMenu = true;
-
             else
             {
                 MenuButtonManager.InSingleSubsettingMenu = false;

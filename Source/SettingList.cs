@@ -1,5 +1,4 @@
-﻿using VivHelper.Entities;
-using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
+﻿using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 
 namespace Celeste.Mod.LeniencyHelper;
 
@@ -90,12 +89,15 @@ public class SettingList
     public bool countWallCoyoteTimeInFrames = false;
     public bool consistentBlockboost = true;
     
-    public object Get(string setting)
+    public object this[string setting]
     {
-        return SettingMaster.SettingListFields[setting].GetValue(this);
-    }
-    public void Set(string setting, object value)
-    {
-        SettingMaster.SettingListFields[setting].SetValue(this, value);
+        get
+        {
+            return SettingMaster.SettingListFields[setting].GetValue(this);
+        }
+        set
+        {
+            SettingMaster.SettingListFields[setting].SetValue(this, value);
+        }
     }
 }

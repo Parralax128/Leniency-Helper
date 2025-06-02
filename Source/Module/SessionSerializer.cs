@@ -9,7 +9,7 @@ namespace Celeste.Mod.LeniencyHelper.Module;
 
 public static class SessionSerializer
 {
-    public static void ClearSession(int saveFileIndex)
+    public static void ClearSessionFile(int saveFileIndex)
     {
         string path = UserIO.GetSaveFilePath(SaveData.GetFilename(saveFileIndex) + "-modsession-LeniencyHelper");
 
@@ -21,7 +21,13 @@ public static class SessionSerializer
 
     public static void SaveSession(int saveFileIndex, LeniencyHelperSession session)
     {
-        ClearSession(saveFileIndex);
+        if (session == null)
+        {
+            Logger.Warn("LeniencyHelper", "no session to save!");
+            return;
+        }
+
+        ClearSessionFile(saveFileIndex);
 
         string path = UserIO.GetSaveFilePath(SaveData.GetFilename(saveFileIndex) + "-modsession-LeniencyHelper");
         Directory.CreateDirectory(Path.GetDirectoryName(path));
@@ -41,7 +47,7 @@ public static class SessionSerializer
         string controllerSettings = "\n[break]\nControllerSettings";
         foreach (FieldInfo field in SettingMaster.SettingListFields.Values)
         {
-            controllerSettings += $"\n{field.FieldType} {field.Name} {session.ControllerSettings.Get(field.Name)}";
+            controllerSettings += $"\n{field.FieldType} {field.Name} {session.ControllerSettings[field.Name]}";
         }
 
         writer.Write(controllerSettings + "\n[break]");
@@ -98,13 +104,13 @@ public static class SessionSerializer
                 string setting; object value;
                 ParseSetting(line, out setting, out value);
 
-                if (SettingMaster.SettingListFields.ContainsKey(line))
-                    result.ControllerSettings.Set(setting, value);
+                if (SettingMaster.SettingListFields.ContainsKey(setting))
+                {
+                    result.ControllerSettings[setting] = value;
+                }
             }
         }
-
         reader.Close();
-
         return result;
     }
 
