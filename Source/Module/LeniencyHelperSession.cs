@@ -68,6 +68,11 @@ public class LeniencyHelperSession : EverestModuleSession
     public float retainCbSpeed { get; set; }
     public float retainCbSpeedTimer { get; set; }
 
+    // ReverseLeniency
+    public float redirectTimer { get; set; } = 0f;
+    public Facings prevFrameFacing { get; set; }
+    public float redirectSpeed { get; set; }
+
     #endregion
 
 

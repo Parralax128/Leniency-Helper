@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Celeste.Mod.LeniencyHelper.Module;
+using Celeste.Mod.LeniencyHelper.Tweaks;
 
 namespace Celeste.Mod.LeniencyHelper;
 public static class SettingMaster
@@ -182,6 +183,7 @@ public static class SettingMaster
         { "RefillDashInCoyote", new List<string>{ "RefillCoyoteTime", "CountRefillCoyoteTimeInFrames" } },
         { "RemoveDBlockCCorection", null },
         { "RetainSpeedCornerboost", new List<string>{ "RetainCbSpeedTime", "countRetainTimeInFrames" } },
+        { "ReverseLeniency", new List<string>{ "redirectTime", "countRedirectTimeInFrames" } },
         { "SolidBlockboostProtection", new List<string>{ "bboostSaveTime", "countSolidBoostSaveTimeInFrames" } },
         { "SuperdashSteeringProtection", null },
         { "SuperOverWalljump", null },

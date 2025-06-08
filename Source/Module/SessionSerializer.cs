@@ -26,7 +26,7 @@ public static class SessionSerializer
             Logger.Warn("LeniencyHelper", "no session to save!");
             return;
         }
-
+        
         ClearSessionFile(saveFileIndex);
 
         string path = UserIO.GetSaveFilePath(SaveData.GetFilename(saveFileIndex) + "-modsession-LeniencyHelper");
@@ -34,7 +34,7 @@ public static class SessionSerializer
 
         StreamWriter writer = new StreamWriter(path);
 
-        writer.Write("v1.0.2");
+        writer.Write("v1.0.3");
         string controllerTweaks = "\n[break]\nControllerTweaks", useController = "\n[break]\nUseController";
         foreach (string tweak in TweakList)
         {

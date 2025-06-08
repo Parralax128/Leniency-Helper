@@ -30,9 +30,8 @@ public class BackboostProtection : AbstractTweak
 
         if(s.pickupTimeLeft > 0f || player.minHoldTimer > 0f)
         {
-            saveDuration = Math.Min( 
-                GetSetting<float>("earlyBackboostTiming")
-                    * (GetSetting<bool>("countBackboostTimingInFrames") ? Engine.DeltaTime : 1f),
+            saveDuration = Math.Min(
+                GetSetting<float>("earlyBackboostTiming") * (GetSetting<bool>("countBackboostTimingInFrames") ? Engine.DeltaTime : 1f),
                 Player.HoldMinTime + s.pickupTimeLeft);
         }
         else

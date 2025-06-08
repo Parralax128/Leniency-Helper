@@ -25,6 +25,8 @@ public class ThrowableCeilingBumpController : GenericController
     private static void BeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self)
     {
         orig(self);
+
+        if (self.Tracker.GetComponents<UnceilingBumpComponent>() == null) return;
         foreach(UnceilingBumpComponent bumpComponent in self.Tracker.GetComponents<UnceilingBumpComponent>())
         {
             bumpComponent.BeforeUpdate();

@@ -1,7 +1,7 @@
 local trigger = {}
 
 trigger.name = "LeniencyHelper/Triggers/CustomSnapDownDistance"
-trigger.triggerText = "Backwards Retention Trigger"
+trigger.triggerText = "Custom Snap down distance Trigger"
 trigger.depth = -1000000
 trigger.placements = {
     {

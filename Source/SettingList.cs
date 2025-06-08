@@ -76,6 +76,10 @@ public class SettingList
     public float RetainCbSpeedTime = 0.1f;
     public bool countRetainTimeInFrames = false;
 
+    // ReverseLeniency
+    public float redirectTime = 0.08f;
+    public bool countRedirectTimeInFrames = false;
+
     // SolidBlockboostProtection
     public float bboostSaveTime = 0.1f;
     public bool countSolidBoostSaveTimeInFrames = false;
