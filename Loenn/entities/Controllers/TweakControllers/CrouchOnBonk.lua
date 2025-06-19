@@ -1,14 +1,12 @@
 local controller = {}
 
-controller.name = "LeniencyHelper/Controllers/ReverseLeniency"
+controller.name = "LeniencyHelper/Controllers/CrouchOnBonk"
 controller.depth = -1000000
 controller.texture = "objects/LeniencyHelper/Controllers/genericController"
 controller.placements = {
     {
-        name = "Reverse leniency Controller",
+        name = "Crouch on Bonk Controller",
         data = {
-            RedirectTiming = 0.08,
-            CountTimeInFrames = false,
             StopFlag = "",
             Persistent = true
         }

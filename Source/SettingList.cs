@@ -76,7 +76,7 @@ public class SettingList
     public float RetainCbSpeedTime = 0.1f;
     public bool countRetainTimeInFrames = false;
 
-    // ReverseLeniency
+    // LateReverses
     public float redirectTime = 0.08f;
     public bool countRedirectTimeInFrames = false;
 

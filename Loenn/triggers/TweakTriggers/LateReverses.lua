@@ -1,11 +1,11 @@
 local trigger = {}
 
-trigger.name = "LeniencyHelper/Triggers/ReverseLeniency"
-trigger.triggerText = "Reverse leniency Trigger"
+trigger.name = "LeniencyHelper/Triggers/LateReverses"
+trigger.triggerText = "Late Reverses Trigger"
 trigger.depth = -1000000
 trigger.placements = {
     {
-        name = "Reverse leniency Trigger",
+        name = "Late Reverses Trigger",
         data = { 
             RedirectTiming = 0.08,
             CountTimeInFrames = false,

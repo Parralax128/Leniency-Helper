@@ -4,23 +4,10 @@ using MonoMod.Cil;
 using Microsoft.Xna.Framework;
 using Celeste.Mod.Helpers;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using Celeste.Mod;
-using Celeste.Mod.Core;
-using Celeste.Pico8;
-using CelesteMod.Publicizer;
-using FMOD.Studio;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Monocle;
-using MonoMod;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class ReverseLeniency : AbstractTweak
+public class LateReverses : AbstractTweak
 {
     [OnLoad]
     public static void LoadHooks()
@@ -69,7 +56,7 @@ public class ReverseLeniency : AbstractTweak
         if(s.redirectTimer <= GetSetting<float>("redirectTime") * (GetSetting<bool>("countRedirectTimeInFrames") ? Engine.DeltaTime : 1f))
         {
             s.redirectTimer += Engine.DeltaTime;
-            if (Enabled("ReverseLeniency") && s.prevFrameFacing != player.Facing)
+            if (Enabled("LateReverses") && s.prevFrameFacing != player.Facing)
             {
                 player.Speed.X = s.redirectSpeed;
                 s.redirectTimer = 0f;
