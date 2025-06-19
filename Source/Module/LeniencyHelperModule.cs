@@ -265,12 +265,11 @@ public class LeniencyHelperModule : EverestModule
     {
         orig(self, scene);
 
-        if (Settings is null || Session is null || scene is not Level) return;
+        if (Settings == null || Session == null || scene is not Level) return;
 
         foreach (string tweak in TweakList)
         {
-            if (Settings.PlayerTweaks[tweak] == true && (Session.UseController[tweak] ?
-                Session.ControllerTweaks[tweak] : Session.TriggerTweaks[tweak]) == false)
+            if (Settings.PlayerTweaks[tweak] == true)
             {
                 Monocle.Draw.SpriteBatch.Begin();
                 Watermark.Draw(new Vector2(27, 285), Vector2.Zero, Color.White * 0.15f, 0.5f);
