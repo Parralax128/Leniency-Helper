@@ -176,6 +176,7 @@ public static class SettingMaster
         { "DynamicWallLeniency", new List<string>{ "wallLeniencyTiming", "countWallTimingInFrames" } },
         { "ExtendBufferOnFreezeAndPickup", new List<string>{ "ExtendBufferOnPickup", "ExtendBufferOnFreeze" } },
         { "ForceCrouchDemodash", null },
+        { "GultraCancel", null },
         { "IceWallIncreaseWallLeniency", new List<string>{ "iceWJLeniency" } },
         { "InstantAcceleratedJumps", null },
         { "InstantClimbHop", null },

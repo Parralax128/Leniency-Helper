@@ -52,6 +52,9 @@ public class LeniencyHelperSession : EverestModuleSession
     public bool dashExtended { get; set; } = false;
     public bool demoExtended { get; set; } = false;
 
+    // GultraCancel
+    public float? savedSpeedY { get; set; } = null;
+
     //InstantClimbHop
     public bool movedDown { get; set; } = false;
     public Solid savedClimbHopSolid { get; set; }

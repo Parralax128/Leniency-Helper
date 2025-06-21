@@ -1,5 +1,8 @@
 ﻿using Celeste.Mod.LeniencyHelper.Module;
+using Celeste.Mod.UI;
 using Monocle;
+using System;
+using System.Threading;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
 
@@ -30,6 +33,7 @@ public static class MenuButtonManager
     public static bool InSingleSubsettingMenu = false;
 
     public static bool InSubsettingsMode = false;
+    private static Action searchLabel;
 
     private static TextMenu BuildMenu()
     {
@@ -39,6 +43,8 @@ public static class MenuButtonManager
         menu.Add(new TextMenu.Header(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENU")));
         AddItemsToMenu(menu);
         menu.Add(new LHmenuTracker());
+        
+        searchLabel = OuiModOptions.AddSearchBox(menu);
 
         return menu;
     }
@@ -46,12 +52,17 @@ public static class MenuButtonManager
     private static void AddItemsToMenu(TextMenu menu)
     {
         TextMenu.Button resetTweaksButton = new TextMenu.Button(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENU_RESETTWEAKS"));
-        resetTweaksButton.OnPressed = () => Audio.Play("event:/ui/main/button_toggle_off");
+        resetTweaksButton.OnPressed = () =>
+        {
+            Audio.Play("event:/ui/main/button_toggle_off");
+            resetTweaksButton.SelectWiggler.Start();
+        };
 
         TextMenu.Button resetSettingsButton = new TextMenu.Button(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENU_RESETSETTINGS"));
         resetSettingsButton.OnPressed = () =>
         {
             Audio.Play("event:/ui/main/button_toggle_off");
+            resetSettingsButton.SelectWiggler.Start();
             SettingMaster.ResetPlayerSettings();
         };
 
@@ -97,6 +108,11 @@ public static class MenuButtonManager
                     }
                 }
             }
+        }
+        if(Input.QuickRestart.Pressed)
+        {
+            Input.QuickRestart.ConsumeBuffer();
+            searchLabel.Invoke();
         }
     }
 

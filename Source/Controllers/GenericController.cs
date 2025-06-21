@@ -1,7 +1,4 @@
-﻿using Celeste.Mod.LeniencyHelper.Module;
-using Celeste.Mod.LeniencyHelper.TweakControllers;
-using IL.MonoMod;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Monocle;
 
 namespace Celeste.Mod.LeniencyHelper.Controllers;

@@ -2,6 +2,7 @@
 using Celeste.Mod.LeniencyHelper.Tweaks;
 using MonoMod.ModInterop;
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System.Linq;
@@ -34,7 +35,6 @@ public class LeniencyHelperModule : EverestModule
         { "ExtendedVariantMode", (new Version(0,35,0), false) }
     };
     public static bool ModLoaded(string mod) => ModsLoaded[mod].Item2;
-
     public enum Inputs
     {
         Jump,
@@ -70,6 +70,7 @@ public class LeniencyHelperModule : EverestModule
         "DynamicWallLeniency",
         "ExtendBufferOnFreezeAndPickup",
         "ForceCrouchDemodash",
+        "GultraCancel",
         "IceWallIncreaseWallLeniency",
         "InstantAcceleratedJumps",
         "LateReverses",
@@ -83,15 +84,14 @@ public class LeniencyHelperModule : EverestModule
         "SuperOverWalljump",
         "WallAttraction",
         "WallCoyoteFrames",    
-    };
 
+    };
     public static SettingList DefaultSettings = new SettingList();
 
     public LeniencyHelperModule()
-    {
+    {        
         Instance = this;
         Logger.SetLogLevel(nameof(LeniencyHelperModule), LogLevel.Verbose);
-
         foreach (FieldInfo field in typeof(SettingList).GetFields())
         {
             SettingMaster.SettingListFields.Add(field.Name, field);
@@ -101,7 +101,6 @@ public class LeniencyHelperModule : EverestModule
     {
         Logger.Log(LogLevel.Info, "LeniencyHelper", input == null ? "null" : input.ToString());
     }
-
     public static bool CollideOnWJdist<T>(Monocle.Entity entity, int dir, Vector2? at) where T : Monocle.Entity
     {
         Vector2 savePos = entity.Position;
