@@ -286,6 +286,7 @@ public class TweakSlider : Option<int>
             ToWikiPageName(Dialog.Clean("LENIENCYTWEAKS_" + tweakName.ToUpper())));
 
         SelectWiggler.Start();
+        Audio.Play("event:/ui/main/rollover_up");
     }
     private static string ToWikiPageName(string tweakNameUpper)
     {

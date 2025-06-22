@@ -38,7 +38,7 @@ public class GultraCancel : AbstractTweak
     private static void ClearSavedSpeed(On.Celeste.Player.orig_DashBegin orig, Player self)
     {
         orig(self);
-        LeniencyHelperModule.Session.savedSpeedY = null;
+        LeniencyHelperModule.Session.savedSpeed = null;
     }
     private static void AddSpeedPreservation(ILContext il, bool coroutine)
     {
@@ -64,16 +64,17 @@ public class GultraCancel : AbstractTweak
     }
     private static void SaveSpeedY(Player player)
     {
-        LeniencyHelperModule.Session.savedSpeedY = player.Speed.Y;
+        LeniencyHelperModule.Session.savedSpeed = player.Speed;
     }
 
     private static int CancelGultraOnMidAir(On.Celeste.Player.orig_DashUpdate orig, Player self)
     {
-        if (Enabled("GultraCancel") && LeniencyHelperModule.Session.savedSpeedY.HasValue
+        if (Enabled("GultraCancel") && LeniencyHelperModule.Session.savedSpeed.HasValue
             && !self.OnGround() && self.DashDir.Y == 0f && self.Speed.Y == 0f)
         {
-            self.Speed.Y = LeniencyHelperModule.Session.savedSpeedY.Value;
+            self.Speed = LeniencyHelperModule.Session.savedSpeed.Value;
             self.DashDir = new Vector2(Math.Sign(self.Speed.X), Math.Sign(self.Speed.Y)).SafeNormalize();
+            self.Ducking = false;
         }
         return orig(self);
     }

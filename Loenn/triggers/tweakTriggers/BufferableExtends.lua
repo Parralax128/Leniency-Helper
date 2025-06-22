@@ -9,6 +9,7 @@ BufferableExtends.placements = {
         data = { 
             ForceWaitForRefill = false,
             BufferTiming = 0.08,
+            CountTimeInFrames = false,
             Enabled = true,
             RevertOnLeave = true,
             Flag = "",

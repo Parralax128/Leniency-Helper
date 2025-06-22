@@ -1,7 +1,6 @@
 ﻿using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 
 namespace Celeste.Mod.LeniencyHelper;
-
 public class SettingList
 {
     // BackboostProtection
@@ -16,6 +15,7 @@ public class SettingList
     // BufferableExtends
     public bool forceWaitForRefill = false;
     public float extendsTiming = 0.08f;
+    public bool countExtendTimingInFrames;
 
     // ConsistentDashOnDBlockExit
     public bool resetDashCDonLeave = true;
@@ -95,13 +95,7 @@ public class SettingList
     
     public object this[string setting]
     {
-        get
-        {
-            return SettingMaster.SettingListFields[setting].GetValue(this);
-        }
-        set
-        {
-            SettingMaster.SettingListFields[setting].SetValue(this, value);
-        }
+        get => SettingMaster.SettingListFields[setting].GetValue(this);
+        set => SettingMaster.SettingListFields[setting].SetValue(this, value);
     }
 }

@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Celeste.Mod.LeniencyHelper.Module;
-using Celeste.Mod.LeniencyHelper.Tweaks;
 
 namespace Celeste.Mod.LeniencyHelper;
 public static class SettingMaster
@@ -159,7 +158,7 @@ public static class SettingMaster
         { "BackboostProtection", new List<string>{ "earlyBackboostTiming", "lateBackboostTiming", "countBackboostTimingInFrames" } },
         { "BackwardsRetention", null },
         { "BufferableClimbtrigger", new List<string>{ "onNormalUpdate", "onDash" } },
-        { "BufferableExtends", new List<string>{ "forceWaitForRefill", "extendsTiming" } },
+        { "BufferableExtends", new List<string>{ "forceWaitForRefill", "extendsTiming", "countExtendTimingInFrames" } },
         { "ConsistentDashOnDBlockExit", new List<string>{ "resetDashCDonLeave" } },
         { "ConsistentWallboosters", new List<string>{ "instantWallboosterAcceleration", "newWallboosterAcceleration",
             "consistentWallboosterBlockboost", "bufferableWallboosterMaxjumps" } },

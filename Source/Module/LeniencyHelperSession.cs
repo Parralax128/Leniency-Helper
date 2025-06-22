@@ -15,11 +15,9 @@ public class LeniencyHelperSession : EverestModuleSession
     public SettingList TriggerSettings { get; set; } = new SettingList();
     public SettingList ControllerSettings { get; set; } = new SettingList();
 
-
     #region temp vars
     public int wjDistR { get; set; } = 3;
     public int wjDistL { get; set; } = 3;
-
 
     //BackboostProtection
     public Facings lastFacing { get; set; } = Facings.Right;
@@ -53,7 +51,7 @@ public class LeniencyHelperSession : EverestModuleSession
     public bool demoExtended { get; set; } = false;
 
     // GultraCancel
-    public float? savedSpeedY { get; set; } = null;
+    public Vector2? savedSpeed { get; set; } = null;
 
     //InstantClimbHop
     public bool movedDown { get; set; } = false;

@@ -21,6 +21,9 @@ public class BufferableExtends : AbstractTweak
         LeniencyHelperModule.OnPlayerUpdate -= CheckForDashStart;
     }
 
+    private static float BufferableTiming => GetSetting<float>("extendsTiming")
+        * (GetSetting<bool>("countExtendTimingInFrames") ? Engine.DeltaTime : 1f);
+
     public static bool CanSuperjump(Player player)
     {
         if (player.Dashes >= player.MaxDashes || !Enabled("BufferableExtends")) return true;
@@ -31,7 +34,7 @@ public class BufferableExtends : AbstractTweak
             float refillTimer = player.Get<Components.RefillCoyoteComponent>().refillCoyoteTimer;
 
             if (refillTimer > player.dashRefillCooldownTimer
-                && GetSetting<float>("extendsTiming") > player.dashRefillCooldownTimer
+                && BufferableTiming > player.dashRefillCooldownTimer
                 && Input.Jump.bufferCounter > player.dashRefillCooldownTimer)
             {
                 return false;
@@ -47,9 +50,9 @@ public class BufferableExtends : AbstractTweak
         player.Dashes = saveDashes;
 
         if (!player.Inventory.NoRefills
-            && GetSetting<float>("extendsTiming") - Engine.DeltaTime > player.dashRefillCooldownTimer
+            && BufferableTiming - Engine.DeltaTime > player.dashRefillCooldownTimer
             && Input.Jump.bufferCounter - Engine.DeltaTime > player.dashRefillCooldownTimer
-            && Module.LeniencyHelperModule.Session.dashTimer <= 0f)
+            && LeniencyHelperModule.Session.dashTimer <= 0f)
         {
             return false;
         }

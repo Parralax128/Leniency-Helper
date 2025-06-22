@@ -4,9 +4,7 @@ using System.Linq;
 using System.Reflection;
 using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 
-
 namespace Celeste.Mod.LeniencyHelper.Module;
-
 public static class SessionSerializer
 {
     public static void ClearSessionFile(int saveFileIndex)
@@ -34,7 +32,7 @@ public static class SessionSerializer
 
         StreamWriter writer = new StreamWriter(path);
 
-        writer.Write("v1.0.3");
+        writer.Write("v1.1.0");
         string controllerTweaks = "\n[break]\nControllerTweaks", useController = "\n[break]\nUseController";
         foreach (string tweak in TweakList)
         {

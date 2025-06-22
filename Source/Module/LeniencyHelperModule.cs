@@ -9,6 +9,9 @@ using System.Linq;
 using System.Reflection;
 using Celeste.Mod.LeniencyHelper.Controllers;
 using Celeste.Mod.LeniencyHelper.UI;
+using MonoMod.RuntimeDetour;
+using MonoMod.Utils;
+using MonoMod.Cil;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
 public class LeniencyHelperModule : EverestModule
@@ -158,6 +161,7 @@ public class LeniencyHelperModule : EverestModule
         Watermark = GFX.Gui["LeniencyHelper/Parralax/Watermark"];
     }
 
+    ILHook onQuickRestartButtonPress;
     public override void Load()
     {
         var loadHooksMethods = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypesSafe()).Where(x => x.IsClass)
@@ -171,6 +175,8 @@ public class LeniencyHelperModule : EverestModule
         Everest.Events.Level.OnCreatePauseMenuButtons += AddTweaksMenuButton;
         On.Celeste.HudRenderer.RenderContent += RenderWatermark;
         Everest.Events.Level.OnEnter += ClearSessionOnEnter;
+
+        IL.Celeste.Level.GiveUp += InsertSessionClear;
 
         On.Celeste.Player.Update += OnPlayerUpdateEventHook;
         On.Celeste.Level.Update += OnUpdateEventHook;
@@ -214,23 +220,20 @@ public class LeniencyHelperModule : EverestModule
             SessionSerializer.ClearSessionFile(global::Celeste.SaveData.LoadedModSaveDataIndex);
         }
     }
-    public override byte[] SerializeSession(int index)
+    public override byte[] SerializeSession(int index) => null;
+    public override void WriteSession(int index, byte[] data) => SessionSerializer.SaveSession(index, Session);
+    public override byte[] ReadSession(int index) => null;
+    public override void DeserializeSession(int index, byte[] data) =>_Session = SessionSerializer.LoadSession(index);
+    private static void InsertSessionClear(ILContext il)
     {
-        return null;
+        ILCursor cursor = new ILCursor(il);
+
+        if(cursor.TryGotoNext(MoveType.Before, instr => instr.MatchCallvirt<TextMenu.Item>("Pressed")))
+        {
+            cursor.EmitDelegate(ClearSessionOnButtonPress);
+        }
     }
-    public override void WriteSession(int index, byte[] data)
-    {
-        SessionSerializer.SaveSession(index, Session);
-    }
-    public override byte[] ReadSession(int index)
-    {
-        return null;
-    }
-    public override void DeserializeSession(int index, byte[] data)
-    {
-        _Session = SessionSerializer.LoadSession(index);
-    }
-    
+    private static Action ClearSessionOnButtonPress(Action orig) => (() => SessionSerializer.ClearSessionFile(global::Celeste.SaveData.LoadedModSaveDataIndex)) + orig;
     public override void LoadSettings()
     {
         base.LoadSettings();
