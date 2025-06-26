@@ -100,23 +100,6 @@ public class LeniencyHelperModule : EverestModule
             SettingMaster.SettingListFields.Add(field.Name, field);
         }
     }
-    public static string? ToLoennCase(string setting)
-    {
-        if (setting.ToLower().Contains("inframe")) return null;
-
-        string fromDialog = Dialog.Clean($"MODOPTIONS_LENIENCYHELPER_SETTINGS_{setting.ToUpper()}", Dialog.Languages["english"]);
-
-        string settingInData = "";
-        for (int c = 0; c < fromDialog.Length; c++) //converting to CamelCase
-        {
-            if (fromDialog[c] == ' ' || fromDialog[c] == '-') continue;
-
-            if (c == 0 || fromDialog[c - 1] == ' ' || fromDialog[c - 1] == '-') settingInData += fromDialog[c].ToString().ToUpper();
-            else settingInData += fromDialog[c];
-        }
-
-        return settingInData;
-    }
     public static void Log(object input)
     {
         Logger.Log(LogLevel.Info, "LeniencyHelper", input == null ? "null" : input.ToString());
