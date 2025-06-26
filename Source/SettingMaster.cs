@@ -73,7 +73,7 @@ public static class SettingMaster
     public static void ResetPlayerSettings()
     {
         List<string> allSettings = new List<string>();
-        foreach (List<string> setting in AssociatedTweaks.Values.Where(list => list != null))
+        foreach (List<string> setting in AssociatedSettings.Values.Where(list => list != null))
             allSettings.AddRange(setting);
 
         foreach (string setting in allSettings)
@@ -119,7 +119,7 @@ public static class SettingMaster
     {
         Dictionary<string, object> result = null;
 
-        foreach (string setting in AssociatedTweaks[tweakName])
+        foreach (string setting in AssociatedSettings[tweakName])
         {
             string fromDialog;
             if (setting.ToLower().Contains("inframe"))
@@ -152,7 +152,7 @@ public static class SettingMaster
         return result;
     }
 
-    public static Dictionary<string, List<string>> AssociatedTweaks = new Dictionary<string, List<string>>
+    public static Dictionary<string, List<string>> AssociatedSettings = new Dictionary<string, List<string>>
     {
         { "AutoSlowfall", null },
         { "BackboostProtection", new List<string>{ "earlyBackboostTiming", "lateBackboostTiming", "countBackboostTimingInFrames" } },

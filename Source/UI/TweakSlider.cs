@@ -48,7 +48,7 @@ public class TweakSlider : Option<int>
 
         Index = PreviousIndex = defaultIndex;
 
-        if (SettingMaster.AssociatedTweaks[tweakName] != null)
+        if (SettingMaster.AssociatedSettings[tweakName] != null)
             AddSubOptions();
 
         if (subOptions.Count > 0)
@@ -69,7 +69,7 @@ public class TweakSlider : Option<int>
     #region SubOptions
     private void AddSubOptions()
     {
-        foreach (string setting in SettingMaster.AssociatedTweaks[tweakName])
+        foreach (string setting in SettingMaster.AssociatedSettings[tweakName])
         {
             SetupSubOption(setting, DefaultSettings[setting].GetType());
         }

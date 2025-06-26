@@ -37,6 +37,23 @@ public static class MenuButtonManager
 
     private static TextMenu BuildMenu()
     {
+        foreach (string tweak in LeniencyHelperModule.TweakList)
+        {
+            Console.WriteLine($"# {tweak}\n" +
+                $"triggers.LeniencyHelper/Triggers/{tweak}.placements.description.");
+
+            if (SettingMaster.AssociatedSettings[tweak] != null)
+            {
+                foreach (string setting in SettingMaster.AssociatedSettings[tweak])
+                {
+                    string settingInData = LeniencyHelperModule.ToLoennCase(setting);
+                    if (settingInData != null)
+                        Console.WriteLine($"triggers.LeniencyHelper/Triggers/{tweak}.attributes.description.{settingInData}=");
+                }
+            }
+            Console.WriteLine("");
+        }
+
         TextMenu menu = new TextMenu();
 
         menu.OnUpdate += () => OnUpdate(menu);

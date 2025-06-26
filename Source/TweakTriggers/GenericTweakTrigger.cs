@@ -18,7 +18,7 @@ public class GenericTweakTrigger : Triggers.GenericTrigger
     public GenericTweakTrigger(EntityData data, Vector2 offset, string tweak) : base(data, offset)
     {
         tweakName = tweak;
-        if (SettingMaster.AssociatedTweaks[tweak] != null)
+        if (SettingMaster.AssociatedSettings[tweak] != null)
             Data = SettingMaster.GetSettingsFromData(data, tweak);
     }
     public override void ApplySettings()

@@ -15,10 +15,10 @@ public abstract class AbstractTweak
     public static T GetSetting<T>(string name)
     {
         string tweak = "null";
-        foreach(string key in SettingMaster.AssociatedTweaks.Keys)
+        foreach(string key in SettingMaster.AssociatedSettings.Keys)
         {
-            if (SettingMaster.AssociatedTweaks[key] == null) continue;
-            if (SettingMaster.AssociatedTweaks[key].Contains(name))
+            if (SettingMaster.AssociatedSettings[key] == null) continue;
+            if (SettingMaster.AssociatedSettings[key].Contains(name))
             {
                 tweak = key;
                 break;
@@ -26,4 +26,6 @@ public abstract class AbstractTweak
         }
         return SettingMaster.GetSetting<T>(name, tweak);
     }
+
+    public static void Log(object var) => LeniencyHelperModule.Log(var);
 }

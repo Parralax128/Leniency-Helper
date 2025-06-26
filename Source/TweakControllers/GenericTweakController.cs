@@ -19,7 +19,7 @@ public class GenericTweakController : Controllers.GenericController
     public GenericTweakController(EntityData data, Vector2 offset, string tweak) : base(data, offset, true)
     {
         tweakName = tweak;
-        if (SettingMaster.AssociatedTweaks[tweak] != null)
+        if (SettingMaster.AssociatedSettings[tweak] != null)
             Data = SettingMaster.GetSettingsFromData(data, tweak);
     }
 
