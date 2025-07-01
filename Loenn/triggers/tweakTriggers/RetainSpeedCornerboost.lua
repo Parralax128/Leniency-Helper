@@ -7,7 +7,7 @@ RetainSpeedCornerboost.placements = {
     {
         name = "Retain Speed Cornerboost Trigger",
         data = { 
-            MaxRetentionTime = 0.1,
+            RetainTime = 0.1,
             CountTimeInFrames = false,
             Enabled = true,
             RevertOnLeave = true,
