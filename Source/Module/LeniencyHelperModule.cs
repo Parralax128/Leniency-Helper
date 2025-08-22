@@ -12,6 +12,8 @@ using Celeste.Mod.LeniencyHelper.UI;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
 using MonoMod.Cil;
+using IL.Monocle;
+using Monocle;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
 public class LeniencyHelperModule : EverestModule
@@ -66,6 +68,7 @@ public class LeniencyHelperModule : EverestModule
         "CustomDashbounceTiming",
         "CustomSnapDownDistance",
         "DashCDIgnoreFFrames",
+        "DelayedClimbtrigger",
         "DirectionalReleaseProtection",
         "DisableBackboost",
         "DisableForcemovedTech",
@@ -90,6 +93,7 @@ public class LeniencyHelperModule : EverestModule
 
     };
     public static SettingList DefaultSettings = new SettingList();
+    public static Player player;
 
     public LeniencyHelperModule()
     {        
@@ -102,7 +106,7 @@ public class LeniencyHelperModule : EverestModule
     }
     public static void Log(object input)
     {
-        Logger.Log(LogLevel.Info, "LeniencyHelper", input == null ? "null" : input.ToString());
+        Logger.Log(LogLevel.Info, "LeniencyHelper", input.ToString() ?? "null");
     }
     public static bool CollideOnWJdist<T>(Monocle.Entity entity, int dir, Vector2? at) where T : Monocle.Entity
     {
@@ -118,6 +122,7 @@ public class LeniencyHelperModule : EverestModule
 
         return entity.Scene.CollideCheck<T>(checkRect);
     }
+
     public static bool CollideOnWJdist(Monocle.Entity entity, Monocle.Entity with, int dir, Vector2? at = null)
     {
         Vector2 savePos = entity.Position;
@@ -164,13 +169,15 @@ public class LeniencyHelperModule : EverestModule
     ILHook onQuickRestartButtonPress;
     public override void Load()
     {
-        var loadHooksMethods = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypesSafe()).Where(x => x.IsClass)
-        .SelectMany(x => x.GetMethods()).Where(x => x.GetCustomAttributes(typeof(OnLoad), false).FirstOrDefault() != null);
+        var loadHooksMethods = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypesSafe()).
+            Where(x => x.IsClass).SelectMany(x => x.GetMethods()).
+            Where(x => x.GetCustomAttributes(typeof(OnLoad), false).FirstOrDefault() != null);
 
         foreach (MethodInfo method in loadHooksMethods)
         {
             method.Invoke(null, null);
         }
+
 
         Everest.Events.Level.OnCreatePauseMenuButtons += AddTweaksMenuButton;
         On.Celeste.HudRenderer.RenderContent += RenderWatermark;
@@ -178,11 +185,18 @@ public class LeniencyHelperModule : EverestModule
 
         IL.Celeste.Level.GiveUp += InsertSessionClear;
 
+        On.Celeste.Player.ctor += HandlePlayer;
+
         On.Celeste.Player.Update += OnPlayerUpdateEventHook;
         On.Celeste.Level.Update += OnUpdateEventHook;
 
         typeof(GravityHelperImports).ModInterop();
         typeof(ExtendedVariantImports).ModInterop();
+    }
+    private static void HandlePlayer(On.Celeste.Player.orig_ctor orig, Player self, Vector2 pos, PlayerSpriteMode mode)
+    {
+        orig(self, pos, mode);
+        player = self;
     }
     private static void OnPlayerUpdateEventHook(On.Celeste.Player.orig_Update orig, Player self)
     {
@@ -233,7 +247,8 @@ public class LeniencyHelperModule : EverestModule
             cursor.EmitDelegate(ClearSessionOnButtonPress);
         }
     }
-    private static Action ClearSessionOnButtonPress(Action orig) => (() => SessionSerializer.ClearSessionFile(global::Celeste.SaveData.LoadedModSaveDataIndex)) + orig;
+    private static Action ClearSessionOnButtonPress(Action orig) 
+        => (() => SessionSerializer.ClearSessionFile(global::Celeste.SaveData.LoadedModSaveDataIndex)) + orig;
     public override void LoadSettings()
     {
         base.LoadSettings();

@@ -1,7 +1,7 @@
 ﻿using MonoMod.Cil;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
-public class DisableForcemovedTech : AbstractTweak
+public class DisableForcemovedTech : AbstractTweak<DisableForcemovedTech>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -42,7 +42,7 @@ public class DisableForcemovedTech : AbstractTweak
 
     private static Facings UnforcedFacing(Facings orig)
     {
-        if (!Enabled("DisableForcemovedTech")) return orig;
+        if (!Enabled) return orig;
         return Input.MoveX.Value != 0 ? (Facings)Input.MoveX.Value : orig;
     }
 }

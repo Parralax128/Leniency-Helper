@@ -6,7 +6,7 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class BufferableExtends : AbstractTweak
+public class BufferableExtends : AbstractTweak<BufferableExtends>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -21,20 +21,17 @@ public class BufferableExtends : AbstractTweak
         LeniencyHelperModule.OnPlayerUpdate -= CheckForDashStart;
     }
 
-    private static float BufferableTiming => GetSetting<float>("extendsTiming")
-        * (GetSetting<bool>("countExtendTimingInFrames") ? Engine.DeltaTime : 1f);
-
     public static bool CanSuperjump(Player player)
     {
-        if (player.Dashes >= player.MaxDashes || !Enabled("BufferableExtends")) return true;
+        if (player.Dashes >= player.MaxDashes || !Enabled) return true;
         if (GetSetting<bool>("forceWaitForRefill")) return false;
 
-        if (Enabled("RefillDashInCoyote"))
+        if (RefillDashInCoyote.Enabled)
         {
             float refillTimer = player.Get<Components.RefillCoyoteComponent>().refillCoyoteTimer;
 
             if (refillTimer > player.dashRefillCooldownTimer
-                && BufferableTiming > player.dashRefillCooldownTimer
+                && GetTime("extendsTiming") > player.dashRefillCooldownTimer
                 && Input.Jump.bufferCounter > player.dashRefillCooldownTimer)
             {
                 return false;
@@ -50,7 +47,7 @@ public class BufferableExtends : AbstractTweak
         player.Dashes = saveDashes;
 
         if (!player.Inventory.NoRefills
-            && BufferableTiming - Engine.DeltaTime > player.dashRefillCooldownTimer
+            && GetTime("extendsTiming") - Engine.DeltaTime > player.dashRefillCooldownTimer
             && Input.Jump.bufferCounter - Engine.DeltaTime > player.dashRefillCooldownTimer
             && LeniencyHelperModule.Session.dashTimer <= 0f)
         {
@@ -62,7 +59,7 @@ public class BufferableExtends : AbstractTweak
 
     private static void CheckForDashStart(Player player)
     {
-        if (!Enabled("BufferableExtends")) return;
+        if (!Enabled) return;
 
         var s = Module.LeniencyHelperModule.Session;
         if (s.dashTimer > 0f) s.dashTimer -= Engine.DeltaTime;

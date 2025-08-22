@@ -1,27 +1,46 @@
 # AutoSlowfall
 triggers.LeniencyHelper/Triggers/AutoSlowfall.placements.description.Auto Slowfall Trigger=Forces full-height for all jumps and bounces
 
+entities.LeniencyHelper/Controllers/AutoSlowfall.placements.description.Auto Slowfall Controller=Forces full-height for all jumps and bounces
+
 # BackboostProtection
 triggers.LeniencyHelper/Triggers/BackboostProtection.placements.description.Backboost Protection Trigger=Allows to perform backboosts even after releasing opposite direction for some time
 triggers.LeniencyHelper/Triggers/BackboostProtection.attributes.description.EarlyBackboostTiming=Time period, during which opposite directional inputs are saved until the holdable throw becomes possible
 triggers.LeniencyHelper/Triggers/BackboostProtection.attributes.description.LateBackboostTiming=The same as early timing but related to backboosts after the moment holdable throw becomes possible
 
+entities.LeniencyHelper/Controllers/BackboostProtection.placements.description.Backboost Protection Controller=Allows to perform backboosts even after releasing opposite direction for some time
+entities.LeniencyHelper/Controllers/BackboostProtection.attributes.description.EarlyBackboostTiming=Time period, during which opposite directional inputs are saved until the holdable throw becomes possible
+entities.LeniencyHelper/Controllers/BackboostProtection.attributes.description.LateBackboostTiming=The same as early timing but related to backboosts after the moment holdable throw becomes possible
+
 # BackwardsRetention
 triggers.LeniencyHelper/Triggers/BackwardsRetention.placements.description.Backwards Retention Trigger=Allows to retain speed for a few frames after colliding with a wall even while facing backwards
+
+entities.LeniencyHelper/Controllers/BackwardsRetention.placements.description.Backwards Retention Controller=Allows to retain speed for a few frames after colliding with a wall even while facing backwards
 
 # BufferableClimbtrigger
 triggers.LeniencyHelper/Triggers/BufferableClimbtrigger.placements.description.Bufferable Climbtrigger Trigger=Forces block triggering on climbjumps and while flying up or dashing
 triggers.LeniencyHelper/Triggers/BufferableClimbtrigger.attributes.description.InstantUpwardClimbtrigger=Allows to trigger blocks while flying up
 triggers.LeniencyHelper/Triggers/BufferableClimbtrigger.attributes.description.ClimbTriggerOnDash=Allows to trigger blocks while dashing
 
+entities.LeniencyHelper/Controllers/BufferableClimbtrigger.placements.description.Bufferable Climbtrigger Controller=Forces block triggering on climbjumps and while flying up or dashing
+entities.LeniencyHelper/Controllers/BufferableClimbtrigger.attributes.description.InstantUpwardClimbtrigger=Allows to trigger blocks while flying up
+entities.LeniencyHelper/Controllers/BufferableClimbtrigger.attributes.description.ClimbTriggerOnDash=Allows to trigger blocks while dashing
+
 # BufferableExtends
 triggers.LeniencyHelper/Triggers/BufferableExtends.placements.description.Bufferable Extends Trigger=Makes jump timing for extended supers/hypers bufferable
 triggers.LeniencyHelper/Triggers/BufferableExtends.attributes.description.ForceWaitForRefill=If enabled, the tweak bypasses all additional checks, cancelling supers/hypers unless a dash is refilled
 triggers.LeniencyHelper/Triggers/BufferableExtends.attributes.description.BufferTiming=Customizable buffer time for jump in extended tech
 
+entities.LeniencyHelper/Controllers/BufferableExtends.placements.description.Bufferable Extends Controller=Makes jump timing for extended supers/hypers bufferable
+entities.LeniencyHelper/Controllers/BufferableExtends.attributes.description.ForceWaitForRefill=If enabled, the tweak bypasses all additional checks, cancelling supers/hypers unless a dash is refilled
+entities.LeniencyHelper/Controllers/BufferableExtends.attributes.description.BufferTiming=Customizable buffer time for jump in extended tech
+
 # ConsistentDashOnDBlockExit
 triggers.LeniencyHelper/Triggers/ConsistentDashOnDBlockExit.placements.description.Consistent Dash on Dreamblock exit Trigger=Sets player's position to the 4th pixel from a dreamblock on its exit and resets dash cooldown if required
 triggers.LeniencyHelper/Triggers/ConsistentDashOnDBlockExit.attributes.description.ResetDashCooldown=Allows to dash instantly on dreamblock exit
+
+entities.LeniencyHelper/Controllers/ConsistentDashOnDBlockExit.placements.description.Consistent Dash on Dreamblock exit Controller=Sets player's position to the 4th pixel from a dreamblock on its exit and resets dash cooldown if required
+entities.LeniencyHelper/Controllers/ConsistentDashOnDBlockExit.attributes.description.ResetDashCooldown=Allows to dash instantly on dreamblock exit
 
 # ConsistentWallboosters
 triggers.LeniencyHelper/Triggers/ConsistentWallboosters.placements.description.Consistent Wallboosters Trigger=Makes Wall Boosters (wall conveyors) grant consistent speed and blockboost. Optionally makes max-height jumps bufferable
@@ -30,17 +49,31 @@ triggers.LeniencyHelper/Triggers/ConsistentWallboosters.attributes.description.C
 triggers.LeniencyHelper/Triggers/ConsistentWallboosters.attributes.description.ConsistentBlockboost=Whether any blockboost received from the Wall Booster should be max non-reliant on current player speed
 triggers.LeniencyHelper/Triggers/ConsistentWallboosters.attributes.description.BufferableMaxJumps=Makes max-height jumps off Wall Boosters' top corners bufferable
 
+entities.LeniencyHelper/Controllers/ConsistentWallboosters.placements.description.Consistent Wallboosters Controller=Makes Wall Boosters (wall conveyors) grant consistent speed and blockboost. Optionally makes max-height jumps bufferable
+entities.LeniencyHelper/Controllers/ConsistentWallboosters.attributes.descrithe dash frame window, 0.05s (3f) by defaultption.InstantAcceleration=Makes player speed accelerate instantly, ignores Custom acceleration if enabled
+entities.LeniencyHelper/Controllers/ConsistentWallboosters.attributes.description.CustomAcceleration=Customizes player speed acceleration
+entities.LeniencyHelper/Controllers/ConsistentWallboosters.attributes.description.ConsistentBlockboost=Whether any blockboost received from the Wall Booster should be max non-reliant on current player speed
+entities.LeniencyHelper/Controllers/ConsistentWallboosters.attributes.description.BufferableMaxJumps=Makes max-height jumps off Wall Boosters' top corners bufferable
+
 # CornerWaveLeniency
 triggers.LeniencyHelper/Triggers/CornerWaveLeniency.placements.description.Corner Wave Leniency Trigger=Protects wavedashes and ultra-jumps from turning into walljumps off platforms' edges
+
+entities.LeniencyHelper/Controllers/CornerWaveLeniency.placements.description.Corner Wave Leniency Controller=Protects wavedashes and ultra-jumps from turning into walljumps off platforms' edges
 
 # CrouchOnBonk
 triggers.LeniencyHelper/Triggers/CrouchOnBonk.placements.description.Crouch on Bonk Trigger=Forces player to crouch when hitting the ceiling
 
+entities.LeniencyHelper/Controllers/CrouchOnBonk.placements.description.Crouch on Bonk Controller=Forces player to crouch when hitting the ceiling
+
 # CustomBufferTime
 triggers.LeniencyHelper/Triggers/CustomBufferTime.placements.description.Custom Buffer time Trigger=Makes jump, dash and demo buffer windows customizable
 
+entities.LeniencyHelper/Controllers/CustomBufferTime.placements.description.Custom Buffer time Controller=Makes jump, dash and demo buffer windows customizable
+
 # CustomDashbounceTiming
 triggers.LeniencyHelper/Triggers/CustomDashbounceTiming.placements.description.Custom Dashbounce Timing=Makes dash timing for dashbounces customizable
+
+entities.LeniencyHelper/Controllers/CustomDashbounceTiming.placements.description.Custom Dashbounce Timing=Makes dash timing for dashbounces customizable
 
 # CustomSnapDownDistance
 triggers.LeniencyHelper/Triggers/CustomSnapDownDistance.placements.description.Custom Snap down distance Trigger=Makes distance player can be grounded during the dash from customizable, optionally making the distance depend on player speed
@@ -48,77 +81,135 @@ triggers.LeniencyHelper/Triggers/CustomSnapDownDistance.attributes.description.S
 triggers.LeniencyHelper/Triggers/CustomSnapDownDistance.attributes.description.SnapDownTiming=Whether snap down distance should depend on player speed
 triggers.LeniencyHelper/Triggers/CustomSnapDownDistance.attributes.description.DynamicSnapDownDistance=Time that player must spend to cover the snap down distance with their speed
 
+entities.LeniencyHelper/Controllers/CustomSnapDownDistance.placements.description.Custom Snap down distance Controller=Makes distance player can be grounded during the dash from customizable, optionally making the distance depend on player speed
+entities.LeniencyHelper/Controllers/CustomSnapDownDistance.attributes.description.StaticSnapDownDistance=Distance player can be snapped down to the ground from
+entities.LeniencyHelper/Controllers/CustomSnapDownDistance.attributes.description.SnapDownTiming=Whether snap down distance should depend on player speed
+entities.LeniencyHelper/Controllers/CustomSnapDownDistance.attributes.description.DynamicSnapDownDistance=Time that player must spend to cover the snap down distance with their speed
+
 # DashCDIgnoreFFrames
 triggers.LeniencyHelper/Triggers/DashCDIgnoreFFrames.placements.description.Dash CD ignores Freeze-frames Trigger=Cancels freezeframes' effect on actual-time dash cooldown
+
+entities.LeniencyHelper/Controllers/DashCDIgnoreFFrames.placements.description.Dash CD ignores Freeze-frames Controller=Cancels freezeframes' effect on actual-time dash cooldown
 
 # DirectionalReleaseProtection
 triggers.LeniencyHelper/Triggers/DirectionalReleaseProtection.placements.description.Directional Release Protection Trigger=Saves dash aim and jump direction for Protection time even if the directional inputs are released
 triggers.LeniencyHelper/Triggers/DirectionalReleaseProtection.attributes.description.ProtectionTime=Time directions are saved for
 
+entities.LeniencyHelper/Controllers/DirectionalReleaseProtection.placements.description.Directional Release Protection Controller=Saves dash aim and jump direction for Protection time even if the directional inputs are released
+entities.LeniencyHelper/Controllers/DirectionalReleaseProtection.attributes.description.ProtectionTime=Time directions are saved for
+
 # DisableBackboost
 triggers.LeniencyHelper/Triggers/DisableBackboost.placements.description.
 
+entities.LeniencyHelper/Controllers/DisableBackboost.placements.description.
+
 # DisableForcemovedTech
 triggers.LeniencyHelper/Triggers/DisableForcemovedTech.placements.description.Disable forcemoved tech Trigger=Cancels forcemove effect on supers, hypers and holdable throws
+
+entities.LeniencyHelper/Controllers/DisableForcemovedTech.placements.description.Disable forcemoved tech Controller=Cancels forcemove effect on supers, hypers and holdable throws
 
 # DynamicCornerCorrection
 triggers.LeniencyHelper/Triggers/DynamicCornerCorrection.placements.description.Dynamic Corner-correction Trigger=Extends corner correction range depending on player speed
 triggers.LeniencyHelper/Triggers/DynamicCornerCorrection.attributes.description.FloorCorrectionTiming=time player must spend to cover the floor corner correction range (player is moved vertically)
 triggers.LeniencyHelper/Triggers/DynamicCornerCorrection.attributes.description.WallCorrectionTiming=time player must spend to cover the wall corner correction range (player is moved horizontally)
 
+entities.LeniencyHelper/Controllers/DynamicCornerCorrection.placements.description.Dynamic Corner-correction Controller=Extends corner correction range depending on player speed
+entities.LeniencyHelper/Controllers/DynamicCornerCorrection.attributes.description.FloorCorrectionTiming=time player must spend to cover the floor corner correction range (player is moved vertically)
+entities.LeniencyHelper/Controllers/DynamicCornerCorrection.attributes.description.WallCorrectionTiming=time player must spend to cover the wall corner correction range (player is moved horizontally)
+
 # DynamicWallLeniency
 triggers.LeniencyHelper/Triggers/DynamicWallLeniency.placements.description.Dynamic Wall-leniency Trigger=Extends walljump, climbjump or wallbounce range depending on player speed
 triggers.LeniencyHelper/Triggers/DynamicWallLeniency.attributes.description.WallLeniencyTiming=Time player must spend to cover the walljump range
 
+entities.LeniencyHelper/Controllers/DynamicWallLeniency.placements.description.Dynamic Wall-leniency Controller=Extends walljump, climbjump or wallbounce range depending on player speed
+entities.LeniencyHelper/Controllers/DynamicWallLeniency.attributes.description.WallLeniencyTiming=Time player must spend to cover the walljump range
+
 # ExtendBufferOnFreezeAndPickup
 triggers.LeniencyHelper/Triggers/ExtendBufferOnFreezeAndPickup.placements.description.Extend Buffer on Freeze and Pickup Trigger=Extends inputs' buffer timers on frame freeze (by freeze time) and on pick up (by pickup duration)
+
+entities.LeniencyHelper/Controllers/ExtendBufferOnFreezeAndPickup.placements.description.Extend Buffer on Freeze and Pickup Controller=Extends inputs' buffer timers on frame freeze (by freeze time) and on pick up (by pickup duration)
 
 # ForceCrouchDemodash
 triggers.LeniencyHelper/Triggers/ForceCrouchDemodash.placements.description.Force Crouch Demodash Trigger=Forces player to be crouched on demodash
 
+entities.LeniencyHelper/Controllers/ForceCrouchDemodash.placements.description.Force Crouch Demodash Controller=Forces player to be crouched on demodash
+
 # GultraCancel
 triggers.LeniencyHelper/Triggers/GultraCancel.placements.description.Gultra Cancel Trigger=Allows grounded ultras to return their vertical speed in mid-air
+
+entities.LeniencyHelper/Controllers/GultraCancel.placements.description.Gultra Cancel Controller=Allows grounded ultras to return their vertical speed in mid-air
 
 # IceWallIncreaseWallLeniency
 triggers.LeniencyHelper/Triggers/IceWallIncreaseWallLeniency.placements.description.Icewall increase Wall-leniency Trigger=Increases walljump/wallbounce range from Ice walls by Additional wall leniency
 
+entities.LeniencyHelper/Controllers/IceWallIncreaseWallLeniency.placements.description.Icewall increase Wall-leniency Controller=Increases walljump/wallbounce range from Ice walls by Additional wall leniency
+
 # InstantAcceleratedJumps
 triggers.LeniencyHelper/Triggers/InstantAcceleratedJumps.placements.description.Instant-accelerated Jumps Trigger=Sets the lowest possible player speed on jumps and bounces to the max walkspeed
+
+entities.LeniencyHelper/Controllers/InstantAcceleratedJumps.placements.description.Instant-accelerated Jumps Controller=Sets the lowest possible player speed on jumps and bounces to the max walkspeed
 
 # LateReverses
 triggers.LeniencyHelper/Triggers/LateReverses.placements.description.Late Reverses Trigger=Allows to perform reversed supers/hypers even with opposite direction pressed after the jump
 triggers.LeniencyHelper/Triggers/LateReverses.attributes.description.RedirectTiming=Time during which player can reverse their tech
 
+entities.LeniencyHelper/Controllers/LateReverses.placements.description.Late Reverses Controller=Allows to perform reversed supers/hypers even with opposite direction pressed after the jump
+entities.LeniencyHelper/Controllers/LateReverses.attributes.description.RedirectTiming=Time during which player can reverse their tech
+
 # ManualDreamhyperLeniency
 triggers.LeniencyHelper/Triggers/ManualDreamhyperLeniency.placements.description.Manual Dreamhyper leniency Trigger=Allows dreamhypers performed out of down-diagonal even after the first frame of the dash,\nmaking them share the timing with demo-dreamhypers
+
+entities.LeniencyHelper/Controllers/ManualDreamhyperLeniency.placements.description.Manual Dreamhyper leniency Controller=Allows dreamhypers performed out of down-diagonal even after the first frame of the dash,\nmaking them share the timing with demo-dreamhypers
 
 # NoFailedTech
 triggers.LeniencyHelper/Triggers/NoFailedTech.placements.description.No Failed Tech Trigger=Allows to perform supers/hypers for a little time after the dash end
 triggers.LeniencyHelper/Triggers/NoFailedTech.attributes.description.ProtectedTechTime=Timing after the end of the dash during which supers/hypers become possible
 
+entities.LeniencyHelper/Controllers/NoFailedTech.placements.description.No Failed Tech Controller=Allows to perform supers/hypers for a little time after the dash end
+entities.LeniencyHelper/Controllers/NoFailedTech.attributes.description.ProtectedTechTime=Timing after the end of the dash during which supers/hypers become possible
+
 # RefillDashInCoyote
 triggers.LeniencyHelper/Triggers/RefillDashInCoyote.placements.description.Refill Dash in-coyote Trigger=Makes dash refillable for a little time after leaving the ground
 triggers.LeniencyHelper/Triggers/RefillDashInCoyote.attributes.description.RefillTime=Coyote time for dash refills
 
+entities.LeniencyHelper/Controllers/RefillDashInCoyote.placements.description.Refill Dash in-coyote Controller=Makes dash refillable for a little time after leaving the ground
+entities.LeniencyHelper/Controllers/RefillDashInCoyote.attributes.description.RefillTime=Coyote time for dash refills
+
 # RemoveDBlockCCorection
 triggers.LeniencyHelper/Triggers/RemoveDBlockCCorection.placements.description.Remove Dreamblock corner-correction Trigger=Cancels corner correction onto dreamblocks
+
+entities.LeniencyHelper/Controllers/RemoveDBlockCCorection.placements.description.Remove Dreamblock corner-correction Controller=Cancels corner correction onto dreamblocks
 
 # RetainSpeedCornerboost
 triggers.LeniencyHelper/Triggers/RetainSpeedCornerboost.placements.description.Retain Speed Cornerboost Trigger=Makes unbuffered cornerboosts possible by preserving player's speed for Retain time
 triggers.LeniencyHelper/Triggers/RetainSpeedCornerboost.attributes.description.RetainTime=Time cornerboost momentum is saved for
 
+entities.LeniencyHelper/Controllers/RetainSpeedCornerboost.placements.description.Retain Speed Cornerboost Controller=Makes unbuffered cornerboosts possible by preserving player's speed for Retain time
+entities.LeniencyHelper/Controllers/RetainSpeedCornerboost.attributes.description.RetainTime=Time cornerboost momentum is saved for
+
 # SolidBlockboostProtection
 triggers.LeniencyHelper/Triggers/SolidBlockboostProtection.placements.description.Solid blockboost protection trigger=Makes solids able to grant blockboosts for a Protection time on stop
 triggers.LeniencyHelper/Triggers/SolidBlockboostProtection.attributes.description.ProtectionTime=Time solids save their blockboost after stop for
 
+entities.LeniencyHelper/Controllers/SolidBlockboostProtection.placements.description.Solid blockboost protection trigger=Makes solids able to grant blockboosts for a Protection time on stop
+entities.LeniencyHelper/Controllers/SolidBlockboostProtection.attributes.description.ProtectionTime=Time solids save their blockboost after stop for
+
 # SuperdashSteeringProtection
 triggers.LeniencyHelper/Triggers/SuperdashSteeringProtection.placements.description.Superdash Steering protection Trigger=Allows to steer superdashes even if the difference between\naim and current superdash angles exceeds 90 degrees
+
+entities.LeniencyHelper/Controllers/SuperdashSteeringProtection.placements.description.Superdash Steering protection Controller=Allows to steer superdashes even if the difference between\naim and current superdash angles exceeds 90 degrees
 
 # SuperOverWalljump
 triggers.LeniencyHelper/Triggers/SuperOverWalljump.placements.description.Super over Walljump Trigger=Prevents accidental walljumps in favor of buffered corner-corrected supers/demohypers
 
+entities.LeniencyHelper/Controllers/SuperOverWalljump.placements.description.Super over Walljump Controller=Prevents accidental walljumps in favor of buffered corner-corrected supers/demohypers
+
 # WallAttraction
 triggers.LeniencyHelper/Triggers/WallAttraction.placements.description.Wall Attraction Trigger=Places player onto the wall if they are\ntrying to grab it within distance coverable in the Approach time
 
+entities.LeniencyHelper/Controllers/WallAttraction.placements.description.Wall Attraction Controller=Places player onto the wall if they are\ntrying to grab it within distance coverable in the Approach time
+
 # WallCoyoteFrames
 triggers.LeniencyHelper/Triggers/WallCoyoteFrames.placements.description.Wall Coyote-frames Trigger=Adds special coyote time given by walls,\nwhich allows to perform walljumps, climbjumps and wallbounces for the Wall coyote time after leaving the wall
+
+entities.LeniencyHelper/Controllers/WallCoyoteFrames.placements.description.Wall Coyote-frames Controller=Adds special coyote time given by walls,\nwhich allows to perform walljumps, climbjumps and wallbounces for the Wall coyote time after leaving the wall

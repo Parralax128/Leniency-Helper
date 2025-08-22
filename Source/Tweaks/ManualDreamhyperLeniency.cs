@@ -4,7 +4,7 @@ using MonoMod.Cil;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class ManualDreamhyperLeniency : AbstractTweak
+public class ManualDreamhyperLeniency : AbstractTweak<ManualDreamhyperLeniency>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -53,6 +53,6 @@ public class ManualDreamhyperLeniency : AbstractTweak
 
     private static bool DreamHyperCheck(Player player, bool alreadyChecked)
     {
-        return Enabled("ManualDreamhyperLeniency") && !alreadyChecked && player.DashDir.Y > 0f && player.DashDir.X != 0f;
+        return Enabled && !alreadyChecked && player.DashDir.Y > 0f && player.DashDir.X != 0f;
     }
 }

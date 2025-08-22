@@ -88,8 +88,7 @@ public static class SessionSerializer
 
             if (mode == "ControllerTweaks" || mode == "UseController")
             {
-                string tweak; bool enabled;
-                ParseTweak(line, out tweak, out enabled);
+                ParseTweak(line, out string tweak, out bool enabled);
 
                 if (TweakList.Contains(tweak))
                 {
@@ -99,8 +98,7 @@ public static class SessionSerializer
             }
             else
             {
-                string setting; object value;
-                ParseSetting(line, out setting, out value);
+                ParseSetting(line, out string setting, out object value);
 
                 if (SettingMaster.SettingListFields.ContainsKey(setting))
                 {

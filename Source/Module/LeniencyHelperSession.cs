@@ -16,9 +16,10 @@ public class LeniencyHelperSession : EverestModuleSession
     public SettingList ControllerSettings { get; set; } = new SettingList();
 
     #region temp vars
+    
     public int wjDistR { get; set; } = 3;
     public int wjDistL { get; set; } = 3;
-
+    
     //BackboostProtection
     public Facings lastFacing { get; set; } = Facings.Right;
     public float rightTimer { get; set; } = 0f;

@@ -15,7 +15,7 @@ public class SettingList
     // BufferableExtends
     public bool forceWaitForRefill = false;
     public float extendsTiming = 0.08f;
-    public bool countExtendTimingInFrames;
+    public bool countExtendsTimingInFrames;
 
     // ConsistentDashOnDBlockExit
     public bool resetDashCDonLeave = true;
@@ -42,6 +42,10 @@ public class SettingList
     public bool dynamicSnapdownDistance = true;
     public bool countSnapdownTimingInFrames = false;
 
+    // Delayed Climbtrigger
+    public float triggerDelay = 0.25f;
+    public bool countTriggerDelayInFrames = false;
+
     // DirectionalReleaseProtection
     public Dirs dashDir = Dirs.Down;
     public Dirs jumpDir = Dirs.None;
@@ -55,7 +59,7 @@ public class SettingList
 
     // DynamicWallLeniency
     public float wallLeniencyTiming = 0.05f;
-    public bool countWallTimingInFrames = false;
+    public bool countWallLeniencyTimingInFrames = false;
 
     // ExtendBufferOnFreezeAndPickup
     public bool ExtendBufferOnFreeze = true;
@@ -86,7 +90,7 @@ public class SettingList
 
     // WallAttraction
     public float wallApproachTime = 0.08f;
-    public bool countAttractionTimeInFrames = false;
+    public bool countWallApproachTimeInFrames = false;
 
     // WallCoyoteFrames
     public float wallCoyoteTime = 0.08f;

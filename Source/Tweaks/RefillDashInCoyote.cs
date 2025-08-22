@@ -7,7 +7,7 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class RefillDashInCoyote : AbstractTweak
+public class RefillDashInCoyote : AbstractTweak<RefillDashInCoyote>
 {
     private static ILHook origUpdateHook;
 
@@ -81,7 +81,7 @@ public class RefillDashInCoyote : AbstractTweak
     }
     private static bool StartChecking()
     {
-        if (Enabled("RefillDashInCoyote"))
+        if (Enabled)
         {
             LeniencyHelperModule.Session.artificialChecking = true;
             return true;
@@ -90,12 +90,12 @@ public class RefillDashInCoyote : AbstractTweak
     }
     private static void CancelArtificialCheck()
     {
-        if (Enabled("RefillDashInCoyote"))
+        if (Enabled)
             LeniencyHelperModule.Session.artificialChecking = false;
     }
     private static bool OnRefillCheck(Player player)
     {
-        if (LeniencyHelperModule.Session.artificialChecking && Enabled("RefillDashInCoyote"))
+        if (LeniencyHelperModule.Session.artificialChecking && Enabled)
         {
             RefillCoyoteComponent component = player.Get<RefillCoyoteComponent>();
             int saveDashes = player.Dashes;

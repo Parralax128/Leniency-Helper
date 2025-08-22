@@ -10,7 +10,7 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class SolidBlockboostProtection : AbstractTweak
+public class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection>
 {
     private static Hook SidewaysAddedHook = null;
     private static Hook SidewaysOnMoveHook = null;
@@ -57,7 +57,7 @@ public class SolidBlockboostProtection : AbstractTweak
     {
         orig(self);
 
-        if (!Enabled("SolidBlockboostProtection")) return;
+        if (!Enabled) return;
 
         SolidLiftboostComponent component = self.Get<SolidLiftboostComponent>();
         if (component is null || component.boostSaveTimer <= 0f) return;
@@ -105,7 +105,7 @@ public class SolidBlockboostProtection : AbstractTweak
     }
     private static void MoveDelegate(Entity self)
     {
-        if (Enabled("SolidBlockboostProtection") && self is Platform p && p.LiftSpeed.LengthSquared() > 0.01f)
+        if (Enabled && self is Platform p && p.LiftSpeed.LengthSquared() > 0.01f)
         {
             p.Get<SolidLiftboostComponent>().OnMove();
         }
@@ -137,7 +137,7 @@ public class SolidBlockboostProtection : AbstractTweak
     {
         orig(platform, playerInteractingSolid, left, move);
 
-        if(Enabled("SolidBlockboostProtection") && LeniencyHelperModule.ModLoaded("MaxHelpingHand") && (platform is AttachedSidewaysJumpThru))
+        if(Enabled && LeniencyHelperModule.ModLoaded("MaxHelpingHand") && (platform is AttachedSidewaysJumpThru))
         {
             platform.Get<SolidLiftboostComponent>()?.OnSidewaysMove(playerInteractingSolid.LiftSpeed);
         }
@@ -166,7 +166,7 @@ public class SolidBlockboostProtection : AbstractTweak
 
     private static void GainSidewaysBlockboost(AttachedSidewaysJumpThru self, Solid interactSolid)
     {
-        if (!Enabled("SolidBlockboostProtection")) return;
+        if (!Enabled) return;
 
         SolidLiftboostComponent component = self.Get<SolidLiftboostComponent>();
         if (component is null || component.boostSaveTimer <= 0f) return;

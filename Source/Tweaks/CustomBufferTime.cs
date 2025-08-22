@@ -1,10 +1,9 @@
 using Monocle;
-using Microsoft.Xna.Framework;
 using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class CustomBufferTime : AbstractTweak
+public class CustomBufferTime : AbstractTweak<CustomBufferTime>
 {
     [OnLoad]
     public static void LoadHooks()

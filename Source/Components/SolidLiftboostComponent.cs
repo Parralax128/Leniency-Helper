@@ -23,7 +23,7 @@ public class SolidLiftboostComponent : Component
 
     public void OnMove()
     {
-        if (!Tweaks.AbstractTweak.Enabled("SolidBlockboostProtection")) return;
+        if (!Tweaks.SolidBlockboostProtection.Enabled) return;
         
         if(Entity is Platform p && p.LiftSpeed != Vector2.Zero)
         {

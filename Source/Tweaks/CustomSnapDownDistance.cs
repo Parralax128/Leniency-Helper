@@ -1,16 +1,10 @@
-﻿using Celeste.Mod.LeniencyHelper.Module;
-using Celeste.Mod.ShroomHelper.Entities;
-using MonoMod.Cil;
+﻿using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class CustomSnapDownDistance : AbstractTweak
+public class CustomSnapDownDistance : AbstractTweak<CustomSnapDownDistance>
 {
     private static ILHook origUpdateHook;
 
@@ -28,14 +22,12 @@ public class CustomSnapDownDistance : AbstractTweak
 
     private static float GetCustomDistance(float defaultValue, Player player)
     {
-        if (!Enabled("CustomSnapDownDistance")) return defaultValue;
+        if (!Enabled) return defaultValue;
 
         if (GetSetting<bool>("dynamicSnapdownDistance"))
         {
-            float timing = GetSetting<float>("snapdownTiming") *
-                (GetSetting<bool>("countSnapdownTimingInFrames") ? Monocle.Engine.DeltaTime : 1f);
-
-            return (int)Math.Max(defaultValue, Math.Max(Math.Abs(player.beforeDashSpeed.Y), Math.Abs(player.Speed.Y)) * timing);
+            return (int)Math.Max(defaultValue, Math.Max(Math.Abs(player.beforeDashSpeed.Y),
+                Math.Abs(player.Speed.Y)) * GetTime("snapdownTiming"));
         }
         else
         {

@@ -3,7 +3,7 @@ using MonoMod.Cil;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class WallCoyoteFrames : AbstractTweak
+public class WallCoyoteFrames : AbstractTweak<WallCoyoteFrames>
 {
     public enum WallCoyoteTypes
     {
@@ -46,7 +46,7 @@ public class WallCoyoteFrames : AbstractTweak
     }
     private static void ConsumeCoyoteTime(Player player)
     {
-        if (!Enabled("WallCoyoteFrames")) return;
+        if (!Enabled) return;
 
         WallCoyoteFramesComponent component = player.Get<WallCoyoteFramesComponent>();
         if (component == null) return;
@@ -58,7 +58,7 @@ public class WallCoyoteFrames : AbstractTweak
 
     public static bool CoyoteWallJumpCheck(On.Celeste.Player.orig_WallJumpCheck orig, Player self, int dir)
     {
-        if (!Enabled("WallCoyoteFrames") || useOrigWJCheck)
+        if (!Enabled || useOrigWJCheck)
         {
             return orig(self, dir);
         }

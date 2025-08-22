@@ -1,19 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
-using Celeste.Mod.Helpers;
-using Celeste.Mod.LeniencyHelper.Module;
+﻿using Celeste.Mod.Helpers;
 using Microsoft.Xna.Framework;
-using Monocle;
 using MonoMod.Cil;
-using VivHelper;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class SuperdashSteeringProtection : AbstractTweak
+public class SuperdashSteeringProtection : AbstractTweak<SuperdashSteeringProtection>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -46,5 +37,5 @@ public class SuperdashSteeringProtection : AbstractTweak
             cursor.MarkLabel(skipCondition);
         }
     }
-    private static bool CheckConditionSkip(float cos) => Enabled("SuperdashSteeringProtection") && cos < 0.99f;
+    private static bool CheckConditionSkip(float cos) => Enabled && cos < 0.99f;
 }

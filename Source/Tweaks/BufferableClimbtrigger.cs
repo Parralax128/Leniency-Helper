@@ -9,7 +9,7 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class BufferableClimbtrigger : AbstractTweak
+public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -59,21 +59,21 @@ public class BufferableClimbtrigger : AbstractTweak
     }
     
     private static int safeClimbtriggerDir;
-    private static bool useOrigCheck = false;
+    public static bool useOrigCheck = false;
 
 
     private static void ClimbTriggerOnClimbJump(On.Celeste.Player.orig_ClimbJump orig, Player self)
     {
         orig(self);
 
-        if (Enabled("BufferableClimbtrigger"))
+        if (Enabled)
         {
             self.ClimbTrigger((int)self.Facing);
         }
     }
     private static int ClimbTriggerDuringDash(On.Celeste.Player.orig_DashUpdate orig, Player self)
     {
-        if (Enabled("BufferableClimbtrigger") && GetSetting<bool>("onDash"))
+        if (Enabled && GetSetting<bool>("onDash"))
         {
             if (self.Holding == null && Math.Sign(self.Speed.X) != 0 - self.Facing && self.ClimbBoundsCheck((int)self.Facing)
                 && Input.GrabCheck && !self.IsTired && !self.Ducking)
@@ -122,27 +122,29 @@ public class BufferableClimbtrigger : AbstractTweak
 
     private static bool ForceRideSolid(On.Celeste.Player.orig_IsRiding_Solid orig, Player self, Solid solid)
     {
-        return (!useOrigCheck && GetClimbTriggeringPlayer(solid, self) != null) || orig(self, solid);
+        return (!useOrigCheck && GetClimbTriggeringPlayer(solid, self) != null)
+            || (!DelayedClimbtrigger.useOrigCheck && DelayedClimbtrigger.GetClimbtriggeringPlayer(solid, self) != null)
+            || orig(self, solid);
     }
     private static Player ForceClimbSolid(On.Celeste.Solid.orig_GetPlayerClimbing orig, Solid self)
     {
-        return orig(self) == null ? GetClimbTriggeringPlayer(self) : orig(self);
+        return orig(self) ?? GetClimbTriggeringPlayer(self) ?? DelayedClimbtrigger.GetClimbtriggeringPlayer(self);
     }
     private static Player ForceCoreBlockTrigger(On.Celeste.BounceBlock.orig_WindUpPlayerCheck orig, BounceBlock self)
     {
-        return orig(self) == null ? GetClimbTriggeringPlayer(self) : orig(self);
+        return orig(self) ?? GetClimbTriggeringPlayer(self) ?? DelayedClimbtrigger.GetClimbtriggeringPlayer(self);
     }
     private static Player ForceCustomCoreblockTrigger(Func<ReskinnableBounceBlock, Player> orig, ReskinnableBounceBlock self)
     {
-        return orig(self) == null ? GetClimbTriggeringPlayer(self) : orig(self);
+        return orig(self) ?? GetClimbTriggeringPlayer(self) ?? DelayedClimbtrigger.GetClimbtriggeringPlayer(self);
     }
 
     private static Player GetClimbTriggeringPlayer(Solid solid, Player player = null)
     {
-        if (!Enabled("BufferableClimbtrigger")) return null;
+        if (!Enabled) return null;
 
-        if (player == null) player = solid.Scene.Tracker.GetNearestEntity<Player>(solid.Center);
-        if (player == null || safeClimbtriggerDir == 0) return null;
+        if (player == null) player = LeniencyHelperModule.player;
+        if (safeClimbtriggerDir == 0) return null;
 
         return LeniencyHelperModule.CollideOnWJdist(player, solid, safeClimbtriggerDir)? player : null;
     }
@@ -163,7 +165,7 @@ public class BufferableClimbtrigger : AbstractTweak
     }
 
 
-    private static void SetUseOrig(bool value) { useOrigCheck = value; }
+    private static void SetUseOrig(bool value) { useOrigCheck = DelayedClimbtrigger.useOrigCheck = value; }
     
     private static void ClimbtriggerDelegate(Player player)
     {
@@ -173,6 +175,6 @@ public class BufferableClimbtrigger : AbstractTweak
     
     private static bool CheckEnabled(Player player)
     {
-        return Enabled("BufferableClimbtrigger") && GetSetting<bool>("onNormalUpdate");
+        return Enabled && GetSetting<bool>("onNormalUpdate");
     }    
 }

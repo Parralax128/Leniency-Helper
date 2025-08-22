@@ -11,7 +11,7 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class DirectionalReleaseProtection : AbstractTweak
+public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProtection>
 {
     private static Vector2 bufferAimTimer;
     private static Vector2 savedAimValue;
@@ -74,7 +74,7 @@ public class DirectionalReleaseProtection : AbstractTweak
 
     private static void UpdateDirectionalBuffers()
     {
-        if (LeniencyHelperModule.Session == null || !Enabled("DirectionalReleaseProtection")) return;
+        if (LeniencyHelperModule.Session == null || !Enabled) return;
 
         if (bufferAimTimer.X > 0f) bufferAimTimer.X -= Engine.RawDeltaTime;
         if (bufferAimTimer.Y > 0f) bufferAimTimer.Y -= Engine.RawDeltaTime;
@@ -129,7 +129,7 @@ public class DirectionalReleaseProtection : AbstractTweak
     }
     private static void JumpDirBuffer(On.Celeste.Player.orig_Jump orig, Player self, bool particles, bool playSfx)
     {
-        if(!Enabled("DirectionalReleaseProtection"))
+        if(!Enabled)
         {
             orig(self, particles, playSfx);
             return;
@@ -148,7 +148,7 @@ public class DirectionalReleaseProtection : AbstractTweak
 
     private static void SuperJumpDirBuffer(On.Celeste.Player.orig_SuperJump orig, Player self)
     {
-        if(!Enabled("DirectionalReleaseProtection"))
+        if(!Enabled)
         {
             orig(self);
             return;
@@ -166,7 +166,7 @@ public class DirectionalReleaseProtection : AbstractTweak
     }
     private static void WallJumpDirBuffer(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
     {
-        if (!Enabled("DirectionalReleaseProtection"))
+        if (!Enabled)
         {
             orig(self, dir);
             return;
@@ -184,7 +184,7 @@ public class DirectionalReleaseProtection : AbstractTweak
     }
     private static void ClimbJumpDirBuffer(On.Celeste.Player.orig_ClimbJump orig, Player self)
     {
-        if (!Enabled("DirectionalReleaseProtection"))
+        if (!Enabled)
         {
             orig(self);
             return;
@@ -203,7 +203,7 @@ public class DirectionalReleaseProtection : AbstractTweak
 
     private static Vector2 ChangeLastAim(Vector2 orig)
     {
-        if (!Enabled("DirectionalReleaseProtection"))
+        if (!Enabled)
         {
             return orig;
         }

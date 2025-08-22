@@ -1,6 +1,9 @@
-﻿namespace Celeste.Mod.LeniencyHelper.Tweaks;
+﻿using Celeste.Mod.LeniencyHelper.CrossModSupport;
+using System;
 
-public class CrouchOnBonk : AbstractTweak
+namespace Celeste.Mod.LeniencyHelper.Tweaks;
+
+public class CrouchOnBonk : AbstractTweak<CrouchOnBonk>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -16,7 +19,7 @@ public class CrouchOnBonk : AbstractTweak
 
     public static void CrouchOnCollide(On.Celeste.Player.orig_OnCollideV orig, Player self, CollisionData data)
     {
-        if(Enabled("CrouchOnBonk") && !self.Ducking && (self.PreviousPosition.Y > self.Position.Y || self.Speed.Y <= 0f))
+        if (Enabled && !self.Ducking && (Math.Sign(self.Speed.Y) == -GravityHelperImports.currentGravity))
         {
             self.Ducking = true;
         }

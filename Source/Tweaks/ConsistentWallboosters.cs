@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class ConsistentWallboosters : AbstractTweak
+public class ConsistentWallboosters : AbstractTweak<ConsistentWallboosters>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -84,7 +84,7 @@ public class ConsistentWallboosters : AbstractTweak
 
     private static bool EdgeJumpCheck(Player player)
     {
-        if (!Enabled("ConsistentWallboosters") || !GetSetting<bool>("bufferableWallboosterMaxjumps")) return true;
+        if (!Enabled || !GetSetting<bool>("bufferableWallboosterMaxjumps")) return true;
         
         Vector2 savedPos = player.Position;
         player.Position += player.Speed * Input.Jump.bufferCounter;
@@ -105,16 +105,16 @@ public class ConsistentWallboosters : AbstractTweak
     }
 
     private static bool InstantAccelerationEnabled() =>
-         Enabled("ConsistentWallboosters") && GetSetting<bool>("instantWallboosterAcceleration");
+         Enabled && GetSetting<bool>("instantWallboosterAcceleration");
 
     private static float GetNewAcceleration(float orig)
     {
-        if (!Enabled("ConsistentWallboosters") || GetSetting<bool>("instantWallboosterAcceleration"))
+        if (!Enabled || GetSetting<bool>("instantWallboosterAcceleration"))
             return orig;
 
         return GetSetting<int>("newWallboosterAcceleration") * 60f;
     }
 
     private static float GetConsistentBlockboost(float orig, float target) => 
-        Enabled("ConsistentWallboosters") && GetSetting<bool>("consistentWallboosterBlockboost") ? target : orig;         
+        Enabled && GetSetting<bool>("consistentWallboosterBlockboost") ? target : orig;         
 }

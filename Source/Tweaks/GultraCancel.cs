@@ -9,7 +9,7 @@ using MonoMod.Utils;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class GultraCancel : AbstractTweak
+public class GultraCancel : AbstractTweak<GultraCancel>
 {
     private static ILHook modifyDashCoroutine;
     private static ILContext.Manipulator onCollideVHook = (ILContext il) => AddSpeedPreservation(il, false);
@@ -69,7 +69,7 @@ public class GultraCancel : AbstractTweak
 
     private static int CancelGultraOnMidAir(On.Celeste.Player.orig_DashUpdate orig, Player self)
     {
-        if (Enabled("GultraCancel") && LeniencyHelperModule.Session.savedSpeed.HasValue
+        if (Enabled && LeniencyHelperModule.Session.savedSpeed.HasValue
             && !self.OnGround() && self.DashDir.Y == 0f && self.Speed.Y == 0f)
         {
             self.Speed = LeniencyHelperModule.Session.savedSpeed.Value;

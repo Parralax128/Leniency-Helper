@@ -1,7 +1,7 @@
 local trigger = {}
 
 trigger.name = "LeniencyHelper/Triggers/ConsistentWallboosters"
-trigger.triggerText = "Backwards Retention Trigger"
+trigger.triggerText = "Consistent Wallboosters Trigger"
 trigger.depth = -1000000
 trigger.placements = {
     {

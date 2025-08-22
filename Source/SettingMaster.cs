@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Celeste.Mod.LeniencyHelper.Module;
+using IL.Monocle;
 
 namespace Celeste.Mod.LeniencyHelper;
 public static class SettingMaster
@@ -88,19 +89,26 @@ public static class SettingMaster
     //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=//
 
     #region subsettings
+
+    public static float GetTime(string setting, string tweakName)
+    {
+        string modeName = $"count{char.ToUpper(setting[0])}{setting.Substring(1)}InFrames";
+        return GetSetting<float>(setting, tweakName) * (GetSetting<bool>(modeName, tweakName) ? 
+            Monocle.Engine.DeltaTime : 1f);
+    }
     public static T GetSetting<T>(string name, string tweakName)
     {
         if (LeniencyHelperModule.Settings.PlayerTweaks[tweakName] == true)
         {
-            return (T)(GetPlayerSetting(name) != null ? GetPlayerSetting(name) : GetDefaultSetting(name));
+            return (T)(GetPlayerSetting(name) ?? GetDefaultSetting(name));
         }
         if (LeniencyHelperModule.Settings.PlayerTweaks[tweakName] == false)
         {
             return (T)GetDefaultSetting(name);
         }
         return (T)(LeniencyHelperModule.Session.UseController[tweakName] ?
-            (GetControllerSetting(name) != null ? GetControllerSetting(name) : GetDefaultSetting(name))
-            : (GetTriggerSetting(name) != null ? GetTriggerSetting(name) : GetDefaultSetting(name)));
+            (GetControllerSetting(name) ?? GetDefaultSetting(name))
+            : (GetTriggerSetting(name) ?? GetDefaultSetting(name)));
     }
     public static T GetDefaultSetting<T>(string name) => (T)LeniencyHelperModule.DefaultSettings[name];
     public static object GetDefaultSetting(string name) => LeniencyHelperModule.DefaultSettings[name];
@@ -131,7 +139,7 @@ public static class SettingMaster
             {
                 if (fromDialog[c] == ' ' || fromDialog[c] == '-') continue;
 
-                if (c == 0 || fromDialog[c - 1] == ' ' || fromDialog[c - 1] == '-') settingInData += fromDialog[c].ToString().ToUpper();
+                if (c == 0 || fromDialog[c - 1] == ' ' || fromDialog[c - 1] == '-') settingInData += char.ToUpper(fromDialog[c]);
                 else settingInData += fromDialog[c];
             }
 
@@ -158,7 +166,7 @@ public static class SettingMaster
         { "BackboostProtection", new List<string>{ "earlyBackboostTiming", "lateBackboostTiming", "countBackboostTimingInFrames" } },
         { "BackwardsRetention", null },
         { "BufferableClimbtrigger", new List<string>{ "onNormalUpdate", "onDash" } },
-        { "BufferableExtends", new List<string>{ "forceWaitForRefill", "extendsTiming", "countExtendTimingInFrames" } },
+        { "BufferableExtends", new List<string>{ "forceWaitForRefill", "extendsTiming", "countExtendsTimingInFrames" } },
         { "ConsistentDashOnDBlockExit", new List<string>{ "resetDashCDonLeave" } },
         { "ConsistentWallboosters", new List<string>{ "instantWallboosterAcceleration", "newWallboosterAcceleration",
             "consistentWallboosterBlockboost", "bufferableWallboosterMaxjumps" } },
@@ -168,11 +176,12 @@ public static class SettingMaster
         { "CustomDashbounceTiming", new List<string>{ "dashbounceTiming", "countDashbounceTimingInFrames" } },
         { "CustomSnapDownDistance", new List<string>{ "staticSnapdownDistance", "snapdownTiming", "dynamicSnapdownDistance", "countSnapdownTimingInFrames" } },
         { "DashCDIgnoreFFrames", null },
+        { "DelayedClimbtrigger", new List<string>{ "triggerDelay", "countTriggerDelayInFrames" } },
         { "DirectionalReleaseProtection", new List<string>{ "DirectionalBufferTime", "CountProtectionTimeInFrames", "dashDir", "jumpDir" } },
         { "DisableBackboost", null },
         { "DisableForcemovedTech", null },
         { "DynamicCornerCorrection", new List<string>{ "FloorCorrectionTiming", "WallCorrectionTiming", "ccorectionTimingInFrames" } },
-        { "DynamicWallLeniency", new List<string>{ "wallLeniencyTiming", "countWallTimingInFrames" } },
+        { "DynamicWallLeniency", new List<string>{ "wallLeniencyTiming", "countWallLeniencyTimingInFrames" } },
         { "ExtendBufferOnFreezeAndPickup", new List<string>{ "ExtendBufferOnPickup", "ExtendBufferOnFreeze" } },
         { "ForceCrouchDemodash", null },
         { "GultraCancel", null },
@@ -188,9 +197,9 @@ public static class SettingMaster
         { "SolidBlockboostProtection", new List<string>{ "bboostSaveTime", "countSolidBoostSaveTimeInFrames" } },
         { "SuperdashSteeringProtection", null },
         { "SuperOverWalljump", null },
-        { "WallAttraction", new List<string>{ "wallApproachTime", "countAttractionTimeInFrames" } },
+        { "WallAttraction", new List<string>{ "wallApproachTime", "countWallApproachTimeInFrames" } },
         { "WallCoyoteFrames", new List<string>{ "wallCoyoteTime", "countWallCoyoteTimeInFrames" } },
-    };
+    };  
 
     public static Dictionary<string, FieldInfo> SettingListFields { get; set; } = new Dictionary<string, FieldInfo>();
 }

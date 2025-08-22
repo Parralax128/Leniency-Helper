@@ -6,7 +6,7 @@ using static Celeste.Mod.LeniencyHelper.SettingMaster;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class RetainSpeedCornerboost : AbstractTweak
+public class RetainSpeedCornerboost : AbstractTweak<RetainSpeedCornerboost>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -26,7 +26,7 @@ public class RetainSpeedCornerboost : AbstractTweak
     private static void SaveCbSpeed(On.Celeste.Player.orig_OnCollideH orig, Player self,
         CollisionData data)
     {
-        if (!Enabled("RetainSpeedCornerboost"))
+        if (!Enabled)
         {
             orig(self, data);
             return;
@@ -46,7 +46,7 @@ public class RetainSpeedCornerboost : AbstractTweak
     
     private static void RetainTimerUpdate(Player player)
     {
-        if (!Enabled("RetainSpeedCornerboost")) return;
+        if (!Enabled) return;
 
         var s = LeniencyHelperModule.Session;
 
@@ -65,7 +65,7 @@ public class RetainSpeedCornerboost : AbstractTweak
 
     private static void RetainSpeedOnClimbJump(On.Celeste.Player.orig_ClimbJump orig, Player self)
     {
-        if (Enabled("RetainSpeedCornerboost"))
+        if (Enabled)
         {
             var s = LeniencyHelperModule.Session;
             if (s.retainCbSpeedTimer > 0f && Math.Abs(s.retainCbSpeed) > Math.Abs(self.Speed.X))

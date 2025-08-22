@@ -1,7 +1,7 @@
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class AutoSlowfall : AbstractTweak
+public class AutoSlowfall : AbstractTweak<AutoSlowfall>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -16,7 +16,7 @@ public class AutoSlowfall : AbstractTweak
 
     private static int AutoSlowfallOnUpdate(On.Celeste.Player.orig_NormalUpdate orig, Player self)
     {
-        if (Enabled("AutoSlowfall")) self.AutoJump = true;
+        if (Enabled) self.AutoJump = true;
         return orig(self);
     }
 }   

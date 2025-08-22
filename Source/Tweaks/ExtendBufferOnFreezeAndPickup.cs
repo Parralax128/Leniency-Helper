@@ -6,7 +6,7 @@ using System.Reflection;
 using Celeste.Mod.LeniencyHelper.Module;
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class ExtendBufferOnFreezeAndPickup : AbstractTweak
+public class ExtendBufferOnFreezeAndPickup : AbstractTweak<ExtendBufferOnFreezeAndPickup>
 {
     private static ILHook customPickupDelayHook;
 
@@ -35,7 +35,7 @@ public class ExtendBufferOnFreezeAndPickup : AbstractTweak
         {
             if (s.prevFrameState != 8) s.pickupTimeLeft = s.pickupDelay;
 
-            if(s.pickupTimeLeft > 0f && Enabled("ExtendBufferOnFreezeAndPickup") && GetSetting<bool>("ExtendBufferOnPickup"))
+            if(s.pickupTimeLeft > 0f && Enabled && GetSetting<bool>("ExtendBufferOnPickup"))
             {
                 if (Input.Dash.Pressed && !s.dashExtended)
                 {
@@ -82,7 +82,7 @@ public class ExtendBufferOnFreezeAndPickup : AbstractTweak
     {
         orig(time);
         
-        if (!(Enabled("ExtendBufferOnFreezeAndPickup") && GetSetting<bool>("ExtendBufferOnFreeze"))) return;
+        if (!(Enabled && GetSetting<bool>("ExtendBufferOnFreeze"))) return;
 
         if(Input.Dash.bufferCounter > 0f) Input.Dash.bufferCounter += time;
         if(Input.CrouchDash.bufferCounter > 0f) Input.CrouchDash.bufferCounter += time;

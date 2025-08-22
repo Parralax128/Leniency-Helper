@@ -22,7 +22,7 @@ public class WallCoyoteFramesComponent : PlayerComponent
     public override void Update()
     {
         base.Update();
-        if (!Tweaks.AbstractTweak.Enabled("WallCoyoteFrames") || LeniencyHelperModule.Session == null) return;
+        if (!SettingMaster.GetTweakEnabled("WallCoyoteFrames") || LeniencyHelperModule.Session == null) return;
 
         if (wallCoyoteTimer > 0f) wallCoyoteTimer -= Engine.DeltaTime;
         else wallCoyoteTimer = 0f;

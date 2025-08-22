@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Reflection;
 using Celeste.Mod.LeniencyHelper.Module;
+using Microsoft.Build.Utilities;
 
 namespace Celeste.Mod.LeniencyHelper.Components;
 
@@ -13,7 +14,7 @@ public class UnceilingBumpComponent : Component
     public bool disableCeilingBump;
     public bool disableGroundFriction;
 
-    private FieldInfo? speedField;
+    private FieldInfo speedField;
     public Vector2 savedSpeed;
     public float speedDecceleration;
     public bool wasOnGround;
@@ -22,6 +23,8 @@ public class UnceilingBumpComponent : Component
 
     public UnceilingBumpComponent(bool disableGroundFriction) : base(true, true)
     {
+        Audio.currentMusicEvent.getTimelinePosition(out int result);
+
         disableCeilingBump = true;
         this.disableGroundFriction = disableGroundFriction;
     }

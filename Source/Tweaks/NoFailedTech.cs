@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class NoFailedTech : AbstractTweak
+public class NoFailedTech : AbstractTweak<NoFailedTech>
 {
     private static ILHook dashCoroutineHook;
 
@@ -31,7 +31,7 @@ public class NoFailedTech : AbstractTweak
 
     private static void JumpToTech(On.Celeste.Player.orig_Jump orig, Player self, bool particles = true, bool playSfx = true)
     {
-        if (Enabled("NoFailedTech") && self.CanUnDuck && self.DashDir.X != 0
+        if (Enabled && self.CanUnDuck && self.DashDir.X != 0
             && self.OnGround() && LeniencyHelperModule.Session.protectedDashAttackTimer > 0f)
         {
             self.Ducking = LeniencyHelperModule.Session.dashCrouched || LeniencyHelperModule.Session.downDiag;
@@ -61,9 +61,7 @@ public class NoFailedTech : AbstractTweak
     {
         orig(self);
 
-        LeniencyHelperModule.Session.protectedDashAttackTimer = GetSetting<float>("protectedTechTime")
-            * (GetSetting<bool>("countProtectedTechTimeInFrames") ? Engine.DeltaTime : 1f);
-
+        LeniencyHelperModule.Session.protectedDashAttackTimer = GetTime("protectedTechTime");
         LeniencyHelperModule.Session.dashCrouched = self.Ducking;
     }
     private static void RunTimer()

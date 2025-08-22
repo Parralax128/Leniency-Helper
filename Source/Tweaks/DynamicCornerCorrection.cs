@@ -3,15 +3,12 @@ using System;
 using MonoMod.Cil;
 using Celeste.Mod.Helpers;
 using static Celeste.Mod.Helpers.ILCursorExtensions;
-using static Celeste.Mod.LeniencyHelper.SettingMaster;
 using System.Linq;
-using VivHelper.Entities;
 using Celeste.Mod.LeniencyHelper.Module;
-using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class DynamicCornerCorrection : AbstractTweak
+public class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -30,7 +27,7 @@ public class DynamicCornerCorrection : AbstractTweak
     public static int GetDynamicCorrection(int defaultValue, Player player, bool vertical)
     {
         defaultValue = (int)Math.Abs(defaultValue);
-        if (!Enabled("DynamicCornerCorrection") || (Math.Abs(player.DashDir.X) > 0.2f && Math.Abs(player.DashDir.Y) > 0.2f))
+        if (!Enabled || (Math.Abs(player.DashDir.X) > 0.2f && Math.Abs(player.DashDir.Y) > 0.2f))
         {
             LeniencyHelperModule.Session.cornerCorrection = vertical ?
                 LeniencyHelperModule.Session.cornerCorrection with { Y = defaultValue } :
@@ -120,7 +117,7 @@ public class DynamicCornerCorrection : AbstractTweak
             }
         }
     }
-    private static float DoubleAbs(float orig) => Enabled("DynamicCornerCorrection") ? (orig < 0f ? orig * -2f : orig) : orig;
+    private static float DoubleAbs(float orig) => Enabled ? (orig < 0f ? orig * -2f : orig) : orig;
     private static void CustomJumpThruCorrection(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
@@ -148,7 +145,7 @@ public class DynamicCornerCorrection : AbstractTweak
 
                 cursor.GotoPrev(MoveType.After, instr => instr.MatchLdloc(out int a), instr => instr.MatchCall<Entity>("CollideCheck"));
 
-                cursor.EmitDelegate(() => Enabled("DynamicCornerCorrection"));
+                cursor.EmitDelegate(() => Enabled);
                 cursor.EmitBrfalse(skipBoundsCheck);
 
                 cursor.EmitPop();

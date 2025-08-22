@@ -17,7 +17,7 @@ public class RefillCoyoteComponent : PlayerComponent
     public override void Update()
     {
         base.Update();
-        if (!Tweaks.AbstractTweak.Enabled("RefillDashInCoyote")) return;
+        if (!RefillDashInCoyote.Enabled) return;
 
         Player player = Entity as Player;
         if (refillCoyoteTimer > 0f)

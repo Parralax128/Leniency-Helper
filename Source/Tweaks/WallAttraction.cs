@@ -7,7 +7,7 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class WallAttraction : AbstractTweak
+public class WallAttraction : AbstractTweak<WallAttraction>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -24,7 +24,7 @@ public class WallAttraction : AbstractTweak
 
     private static void AttractUpdate(Player player)
     {
-        if (!Enabled("WallAttraction"))
+        if (!Enabled)
         {
             return;
         }
@@ -33,7 +33,7 @@ public class WallAttraction : AbstractTweak
             Math.Sign(player.Speed.X) != -(int)player.Facing && player.Holding == null && player.Speed.Y >= 0)
         {
             float distance = GetSetting<float>("wallApproachTime") * (Math.Abs(player.Speed.X) /
-                (GetSetting<bool>("countAttractionTimeInFrames") ? Engine.FPS : 1f));
+                (GetSetting<bool>("countWallApproachTimeInFrames") ? Engine.FPS : 1f));
 
             Vector2 origPos = player.Position;
             for (int c = 0; c < (int)distance; c++)

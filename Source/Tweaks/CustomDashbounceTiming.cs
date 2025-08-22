@@ -7,7 +7,7 @@ using System;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class CustomDashbounceTiming : AbstractTweak
+public class CustomDashbounceTiming : AbstractTweak<CustomDashbounceTiming>
 {
     private static ILHook dashCoroutineHook;
 
@@ -37,11 +37,11 @@ public class CustomDashbounceTiming : AbstractTweak
     {
         orig(self, dir);
         LeniencyHelperModule.Session.varJumpTime = self.varJumpTimer;
+        
 
-        if (Enabled("CustomDashbounceTiming"))
+        if (Enabled)
         {
-            LeniencyHelperModule.Session.dashbounceTimer = GetSetting<float>("dashbounceTiming") *
-                (GetSetting<bool>("countDashbounceTimingInFrames") ? Engine.DeltaTime : 1f);
+            LeniencyHelperModule.Session.dashbounceTimer = GetTime("dashbounceTiming");
         }
     }
     private static void UpdateTimer()
@@ -62,18 +62,20 @@ public class CustomDashbounceTiming : AbstractTweak
 
         s.canDashbounce = s.dashbounceTimer > 0f;
         s.dashbounceTimer = null;
+
+        if (Enabled && s.canDashbounce == false)
+        {
+            self.varJumpTimer = 0f;
+        }
     }
     private static void ConsumeDashbounce(On.Celeste.Player.orig_DashEnd orig, Player self)
     {
         var s = LeniencyHelperModule.Session;
-        if (s.canDashbounce == true)
-        {
-            self.varJumpTimer = Math.Max(self.varJumpTimer, s.varJumpTime - (s.dashDuration + 0.05f));
+        if (Enabled && s.canDashbounce == true)
+        {   
+            self.varJumpTimer = Math.Max(self.varJumpTimer, s.varJumpTime - (s.dashDuration + 0.05f + Engine.DeltaTime * 0.9f));
         }
-        else if(s.canDashbounce == false)
-        {
-            self.varJumpTimer = 0f;
-        }
+
         s.canDashbounce = null;
 
         orig(self);

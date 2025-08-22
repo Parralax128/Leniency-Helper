@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class ConsistentDashOnDBlockExit : AbstractTweak
+public class ConsistentDashOnDBlockExit : AbstractTweak<ConsistentDashOnDBlockExit>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -31,11 +31,11 @@ public class ConsistentDashOnDBlockExit : AbstractTweak
         orig(self);
 
         var s = LeniencyHelperModule.Session;
-        if(Enabled("ConsistentDashOnDBlockExit")) s.dreamDashEnded = true;
+        if(Enabled) s.dreamDashEnded = true;
     }
     private static void MoveToDBlock(Player player)
     {
-        if (Enabled("ConsistentDashOnDBlockExit") && LeniencyHelperModule.Session.dreamDashEnded)
+        if (Enabled && LeniencyHelperModule.Session.dreamDashEnded)
         {
             int negSign = -Math.Sign(player.Speed.X);
             for (int c = 0; c < Math.Abs(player.Speed.X * Engine.DeltaTime * 2f); c++)
@@ -52,13 +52,13 @@ public class ConsistentDashOnDBlockExit : AbstractTweak
     }
     private static float ZeroIfEnabled(float orig)
     {
-        if (!Enabled("ConsistentDashOnDBlockExit")) return orig;
+        if (!Enabled) return orig;
         else return 0f;
     }
 
     private static void ResetDashCDifEnabled(Player player)
     {
-        if(Enabled("ConsistentDashOnDBlockExit") && GetSetting<bool>("resetDashCDonLeave"))
+        if(Enabled && GetSetting<bool>("resetDashCDonLeave"))
         {
             player.dashCooldownTimer = 0f;
         }

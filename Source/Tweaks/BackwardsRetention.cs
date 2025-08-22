@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-class BackwardsRetention : AbstractTweak
+class BackwardsRetention : AbstractTweak<BackwardsRetention>
 {
     private static ILHook origUpdateHook;
     [OnLoad]
@@ -22,8 +22,8 @@ class BackwardsRetention : AbstractTweak
     
     private static bool CanSkipCancel(Player player)
     {
-        return Enabled("BackwardsRetention") ? (Math.Abs(player.Speed.X) < 40f) : false; 
-        // ~40 is speed player can reach in their wallRetainTime from zero with air-movement
+        return Enabled ? (Math.Abs(player.Speed.X) < 40f) : false; 
+        // ~40 is speed player can reach in their wallRetainTime from zero via air-movement
     }
     private static void HookedUpdate(ILContext il)
     {
@@ -58,9 +58,9 @@ class BackwardsRetention : AbstractTweak
         }
     }
 
-    private static float AddCollideCheckDist(float defalutValue, Player player)
+    private static float AddCollideCheckDist(float @default, Player player)
     {
-        float result = defalutValue * (Enabled("BackwardsRetention") &&
+        float result = @default * (Enabled &&
             Math.Sign(player.Speed.X) == -Math.Sign(player.wallSpeedRetained) ? 4 : 1);
         
         return result;

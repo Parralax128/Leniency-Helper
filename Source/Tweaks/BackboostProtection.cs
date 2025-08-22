@@ -4,7 +4,7 @@ using Monocle;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class BackboostProtection : AbstractTweak
+public class BackboostProtection : AbstractTweak<BackboostProtection>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -56,13 +56,13 @@ public class BackboostProtection : AbstractTweak
 
     private static void ConsumeBackboostFacing(On.Celeste.Player.orig_Throw orig, Player self)
     {
-        if (!Enabled("BackboostProtection"))
+        if (!Enabled)
         {
             orig(self);
             return;
         }
 
-        if(self.forceMoveXTimer > 0f && !Enabled("DisableForcemovedTech"))
+        if(self.forceMoveXTimer > 0f && !Enabled)
         {
             orig(self);
             return;

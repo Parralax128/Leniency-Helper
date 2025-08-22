@@ -9,7 +9,7 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class CornerWaveLeniency : AbstractTweak
+public class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
 {
     private static ILHook origUpdateHook;
     [OnLoad]
@@ -87,7 +87,7 @@ public class CornerWaveLeniency : AbstractTweak
     }
     private static void OnGroundDetected(Player player)
     {
-        if (!groundChecking || !Enabled("CornerWaveLeniency")) return;
+        if (!groundChecking || !Enabled) return;
 
         groundDetected = true;
 
@@ -120,7 +120,7 @@ public class CornerWaveLeniency : AbstractTweak
 
     private static bool CheckDiag(Player player)
     {
-        if (!Enabled("CornerWaveLeniency")) return false;
+        if (!Enabled) return false;
 
         return player.DashDir.X != 0f && player.DashDir.Y > 0f && player.Speed.Y > 0f;
     }
@@ -148,7 +148,7 @@ public class CornerWaveLeniency : AbstractTweak
     }
     private static void StartGroundCheck(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
     {
-        if (Enabled("CornerWaveLeniency") && !groundChecking && Math.Sign(self.Speed.X) == dir && CheckCorner(self, -dir))
+        if (Enabled && !groundChecking && Math.Sign(self.Speed.X) == dir && CheckCorner(self, -dir))
         {
             groundChecking = true;
             groundDetected = false;

@@ -2,11 +2,10 @@
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
-using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class SuperOverWalljump : AbstractTweak
+public class SuperOverWalljump : AbstractTweak<SuperOverWalljump>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -46,7 +45,7 @@ public class SuperOverWalljump : AbstractTweak
     }
     private static bool CanWJ(Player player, int dir)
     {
-        if (!Enabled("SuperOverWalljump") || ClimbJumpCheck(player, dir) || Math.Abs(player.DashDir.Y) > 0.2f)
+        if (!Enabled || ClimbJumpCheck(player, dir) || Math.Abs(player.DashDir.Y) > 0.2f)
         {
             return true;
         }

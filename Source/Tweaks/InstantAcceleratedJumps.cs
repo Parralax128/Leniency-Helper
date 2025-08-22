@@ -3,7 +3,7 @@ using System;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class InstantAcceleratedJumps : AbstractTweak
+public class InstantAcceleratedJumps : AbstractTweak<InstantAcceleratedJumps>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -27,7 +27,7 @@ public class InstantAcceleratedJumps : AbstractTweak
     }
     private static void RecieveWalkSpeed(Player player)
     {
-        if (Enabled("InstantAcceleratedJumps") && Math.Abs(player.Speed.X) < 90f && player.moveX != 0)
+        if (Enabled && Math.Abs(player.Speed.X) < 90f && player.moveX != 0)
         {
             player.Speed.X = player.moveX * 90f;
         }

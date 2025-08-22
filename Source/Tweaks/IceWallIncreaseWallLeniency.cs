@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class IceWallIncreaseWallLeniency : AbstractTweak
+public class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeniency>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -33,14 +33,14 @@ public class IceWallIncreaseWallLeniency : AbstractTweak
 
         int newValue = defaultValue;
 
-        if (Enabled("DynamicWallLeniency") && (Math.Sign(player.Speed.X) != dir || (player.DashAttacking && player.SuperWallJumpAngleCheck)))
+        if (DynamicWallLeniency.Enabled && (Math.Sign(player.Speed.X) != dir || (player.DashAttacking && player.SuperWallJumpAngleCheck)))
         {
             newValue = DynamicWallLeniency.GetDynamicLeniency(player, defaultValue);
         }
 
         SetWjDist(newValue, dir);
 
-        if (!Enabled("IceWallIncreaseWallLeniency"))
+        if (!Enabled)
             return newValue;
 
         int iceLeni = GetSetting<int>("iceWJLeniency");
@@ -169,11 +169,11 @@ public class IceWallIncreaseWallLeniency : AbstractTweak
     }
     private static bool BothDisabled()
     {
-        return (!Enabled("IceWallIncreaseWallLeniency") && !Enabled("DynamicWallLeniency"));
+        return (!Enabled && !DynamicWallLeniency.Enabled);
     }
     private static void ReturnOrigPos(Player player, Vector2 pos)
     {
-        if (Enabled("IceWallIncreaseWallLeniency") || Enabled("DynamicWallLeniency"))
+        if (Enabled || DynamicWallLeniency.Enabled)
         {
             player.Position = pos;
         }

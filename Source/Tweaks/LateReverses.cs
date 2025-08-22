@@ -7,7 +7,7 @@ using System;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class LateReverses : AbstractTweak
+public class LateReverses : AbstractTweak<LateReverses>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -53,10 +53,10 @@ public class LateReverses : AbstractTweak
     {   
         var s = LeniencyHelperModule.Session;
 
-        if(s.redirectTimer <= GetSetting<float>("redirectTime") * (GetSetting<bool>("countRedirectTimeInFrames") ? Engine.DeltaTime : 1f))
+        if(s.redirectTimer <= GetTime("redirectTime"))
         {
             s.redirectTimer += Engine.DeltaTime;
-            if (Enabled("LateReverses") && s.prevFrameFacing != player.Facing)
+            if (Enabled && s.prevFrameFacing != player.Facing)
             {
                 player.Speed.X = s.redirectSpeed;
                 s.redirectTimer = 0f;
