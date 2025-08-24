@@ -39,7 +39,6 @@ public class DisableForcemovedTech : AbstractTweak<DisableForcemovedTech>
             c.EmitDelegate(UnforcedFacing);
         }
     }
-
     private static Facings UnforcedFacing(Facings orig)
     {
         if (!Enabled) return orig;
