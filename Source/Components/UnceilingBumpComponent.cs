@@ -8,7 +8,7 @@ using Microsoft.Build.Utilities;
 
 namespace Celeste.Mod.LeniencyHelper.Components;
 
-[Tracked(true)]
+[Tracked]
 public class UnceilingBumpComponent : Component
 {
     public bool disableCeilingBump;
@@ -20,7 +20,7 @@ public class UnceilingBumpComponent : Component
     public bool wasOnGround;
 
     public bool prevCollidedCeiling;
-
+    
     public UnceilingBumpComponent(bool disableGroundFriction) : base(true, true)
     {
         Audio.currentMusicEvent.getTimelinePosition(out int result);

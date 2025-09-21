@@ -40,6 +40,9 @@ public class LeniencyHelperSession : EverestModuleSession
     public Player modifiedPlayer { get; set; }
     public bool useOrigFreeze { get; set; } = false;
 
+    //DirectionalReleaseProtection
+    public float featherDirDelay { get; set; } = 0.05f;
+
     //DynamicCornerCorrection
     public Vector2 cornerCorrection { get; set; } = Vector2.Zero;
 

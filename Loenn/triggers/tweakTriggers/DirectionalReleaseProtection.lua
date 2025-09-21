@@ -7,10 +7,12 @@ trigger.placements = {
     {
         name = "Directional Release Protection Trigger",
         data = { 
-            BufferTime = 0.1,
-            FreezeFramesExtendBufferTimer = false,
-            ProtectedDashDirections = "Down",
-            ProtectedJumpDirections = "None",
+            ProtectedDashDirection = "Down",
+            ProtectedJumpDirection = "None",
+            ProtectionTime = 0.1,
+            CountTimeInFrames = false,
+            AffectFeathers = false,
+            AffectSuperdashes = false,
             Enabled = true,
             RevertOnLeave = true,
             Flag = "",
@@ -20,8 +22,8 @@ trigger.placements = {
 }
 
 trigger.fieldInformation = {
-    ProtectedDashDirections = {fieldType="string",options={"Up","Down","Left","Right","All"},editable=false},
-    ProtectedJumpDirections = {fieldType="string",options={"Up","Down","Left","Right","All"},editable=false}
+    ProtectedDashDirection = {fieldType="string",options={"Up","Down","Left","Right","All","None"},editable=false},
+    ProtectedJumpDirection = {fieldType="string",options={"Up","Down","Left","Right","All","None"},editable=false}
 }
 
 return trigger

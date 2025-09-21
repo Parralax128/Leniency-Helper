@@ -75,6 +75,7 @@ public class LeniencyHelperModule : EverestModule
         "DynamicCornerCorrection",
         "DynamicWallLeniency",
         "ExtendBufferOnFreezeAndPickup",
+        "ExtendDashAttackOnPickup",
         "ForceCrouchDemodash",
         "GultraCancel",
         "IceWallIncreaseWallLeniency",
@@ -93,7 +94,7 @@ public class LeniencyHelperModule : EverestModule
 
     };
     public static SettingList DefaultSettings = new SettingList();
-    public static Player player;
+    public static Player GetPlayer(Monocle.Scene scene) => scene.Tracker.GetEntity<Player>();
 
     public LeniencyHelperModule()
     {        
@@ -166,7 +167,6 @@ public class LeniencyHelperModule : EverestModule
         Watermark = GFX.Gui["LeniencyHelper/Parralax/Watermark"];
     }
 
-    ILHook onQuickRestartButtonPress;
     public override void Load()
     {
         var loadHooksMethods = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypesSafe()).
@@ -185,18 +185,11 @@ public class LeniencyHelperModule : EverestModule
 
         IL.Celeste.Level.GiveUp += InsertSessionClear;
 
-        On.Celeste.Player.ctor += HandlePlayer;
-
         On.Celeste.Player.Update += OnPlayerUpdateEventHook;
         On.Celeste.Level.Update += OnUpdateEventHook;
 
         typeof(GravityHelperImports).ModInterop();
         typeof(ExtendedVariantImports).ModInterop();
-    }
-    private static void HandlePlayer(On.Celeste.Player.orig_ctor orig, Player self, Vector2 pos, PlayerSpriteMode mode)
-    {
-        orig(self, pos, mode);
-        player = self;
     }
     private static void OnPlayerUpdateEventHook(On.Celeste.Player.orig_Update orig, Player self)
     {
@@ -223,6 +216,11 @@ public class LeniencyHelperModule : EverestModule
         Everest.Events.Level.OnCreatePauseMenuButtons -= AddTweaksMenuButton;
         On.Celeste.HudRenderer.RenderContent -= RenderWatermark;
         Everest.Events.Level.OnEnter -= ClearSessionOnEnter;
+
+        IL.Celeste.Level.GiveUp -= InsertSessionClear;
+
+        On.Celeste.Player.Update -= OnPlayerUpdateEventHook;
+        On.Celeste.Level.Update -= OnUpdateEventHook;
     }
 
     #region settings && session

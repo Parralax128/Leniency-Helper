@@ -10,7 +10,7 @@ namespace Celeste.Mod.LeniencyHelper.Components;
 
 public  class DelayedClimbtriggerComponent : Component
 {
-    private static float Delay => SettingMaster.GetTime("triggerDelay", "DelayedClimbtrigger") /*SettingMaster.GetSetting<float>("climbtriggerDelay", "DelayedClimbtrigger")*/;
+    private static float Delay => DelayedClimbtrigger.GetTime("triggerDelay");
     public float climbtriggerTimer;
     private Solid Solid => (Solid) Entity;
     public DelayedClimbtriggerComponent() : base(true, false) { }
@@ -21,11 +21,12 @@ public  class DelayedClimbtriggerComponent : Component
         if (climbtriggerTimer > 0f) climbtriggerTimer -= Engine.DeltaTime;
 
         DelayedClimbtrigger.useOrigCheck = true;
-        if (LeniencyHelperModule.player.IsRiding(Solid))
+
+        if (Scene.Tracker.GetEntity<Player>() is Player player && player.IsRiding(Solid))
         {
             climbtriggerTimer = Delay;
-            Logger.Info("", $"triggered timer! {LeniencyHelperModule.player.Position}");
         }
+        
         DelayedClimbtrigger.useOrigCheck = false;
     }
 }

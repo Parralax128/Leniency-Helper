@@ -51,6 +51,8 @@ public class SettingList
     public Dirs jumpDir = Dirs.None;
     public float DirectionalBufferTime = 0.1f;
     public bool CountProtectionTimeInFrames = false;
+    public bool affectFeathers = false;
+    public bool affectSuperdashes = false;
 
     // DynamicCornerCorrection
     public float FloorCorrectionTiming = 0.05f;
@@ -64,6 +66,10 @@ public class SettingList
     // ExtendBufferOnFreezeAndPickup
     public bool ExtendBufferOnFreeze = true;
     public bool ExtendBufferOnPickup = false;
+
+    // ExtendDashAttackOnPickup
+    public float attackExtendTime = 0.1f;
+    public bool countAttackExtendTimeInFrames = false;
 
     // IceWallIncreaseWallLeniency
     public int iceWJLeniency = 3;

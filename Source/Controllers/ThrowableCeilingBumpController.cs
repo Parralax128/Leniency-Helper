@@ -26,7 +26,7 @@ public class ThrowableCeilingBumpController : GenericController
     {
         orig(self);
 
-        if (self.Tracker.Components.ContainsKey(typeof(UnceilingBumpComponent))
+        if (!self.Tracker.Components.ContainsKey(typeof(UnceilingBumpComponent))
             || self.Tracker.GetComponents<UnceilingBumpComponent>() == null) return;
         foreach(UnceilingBumpComponent bumpComponent in self.Tracker.GetComponents<UnceilingBumpComponent>())
         {

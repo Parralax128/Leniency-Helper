@@ -11,6 +11,13 @@ public class DelayedClimbtrigger : AbstractTweak<DelayedClimbtrigger>
     {
         On.Celeste.Solid.ctor += AddComponent;
     }
+    [OnUnload]
+    public static void UnloadHooks()
+    {
+        On.Celeste.Solid.ctor -= AddComponent;
+    }
+
+    public static bool useOrigCheck;
 
     private static void AddComponent(On.Celeste.Solid.orig_ctor orig, Solid self, Vector2 position, float width, float height, bool safe)
     {
@@ -24,9 +31,9 @@ public class DelayedClimbtrigger : AbstractTweak<DelayedClimbtrigger>
 
         var component = solid.Get<DelayedClimbtriggerComponent>();
         if (component == null) return null;
-        Log(component.climbtriggerTimer);
-        return solid.Get<DelayedClimbtriggerComponent>()?.climbtriggerTimer > 0f ? player ?? LeniencyHelperModule.player : null;
+
+        return solid.Get<DelayedClimbtriggerComponent>()?.climbtriggerTimer > 0f ?
+            player ?? LeniencyHelperModule.GetPlayer(solid.Scene) : null;
     }
 
-    public static bool useOrigCheck;
 }

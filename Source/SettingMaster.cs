@@ -177,12 +177,14 @@ public static class SettingMaster
         { "CustomSnapDownDistance", new List<string>{ "staticSnapdownDistance", "snapdownTiming", "dynamicSnapdownDistance", "countSnapdownTimingInFrames" } },
         { "DashCDIgnoreFFrames", null },
         { "DelayedClimbtrigger", new List<string>{ "triggerDelay", "countTriggerDelayInFrames" } },
-        { "DirectionalReleaseProtection", new List<string>{ "DirectionalBufferTime", "CountProtectionTimeInFrames", "dashDir", "jumpDir" } },
+        { "DirectionalReleaseProtection", new List<string>{ "DirectionalBufferTime", "CountProtectionTimeInFrames", "dashDir", "jumpDir",
+        "affectFeathers", "affectSuperdashes" } },
         { "DisableBackboost", null },
         { "DisableForcemovedTech", null },
         { "DynamicCornerCorrection", new List<string>{ "FloorCorrectionTiming", "WallCorrectionTiming", "ccorectionTimingInFrames" } },
         { "DynamicWallLeniency", new List<string>{ "wallLeniencyTiming", "countWallLeniencyTimingInFrames" } },
         { "ExtendBufferOnFreezeAndPickup", new List<string>{ "ExtendBufferOnPickup", "ExtendBufferOnFreeze" } },
+        { "ExtendDashAttackOnPickup", new List<string>{ "attackExtendTime", "countAttackExtendTimeInFrames" } },
         { "ForceCrouchDemodash", null },
         { "GultraCancel", null },
         { "IceWallIncreaseWallLeniency", new List<string>{ "iceWJLeniency" } },
@@ -199,7 +201,7 @@ public static class SettingMaster
         { "SuperOverWalljump", null },
         { "WallAttraction", new List<string>{ "wallApproachTime", "countWallApproachTimeInFrames" } },
         { "WallCoyoteFrames", new List<string>{ "wallCoyoteTime", "countWallCoyoteTimeInFrames" } },
-    };  
+    };
 
     public static Dictionary<string, FieldInfo> SettingListFields { get; set; } = new Dictionary<string, FieldInfo>();
 }

@@ -143,7 +143,7 @@ public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
     {
         if (!Enabled) return null;
 
-        if (player == null) player = LeniencyHelperModule.player;
+        if (player == null) player = LeniencyHelperModule.GetPlayer(solid.Scene);
         if (safeClimbtriggerDir == 0) return null;
 
         return LeniencyHelperModule.CollideOnWJdist(player, solid, safeClimbtriggerDir)? player : null;

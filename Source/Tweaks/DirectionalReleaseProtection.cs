@@ -8,6 +8,8 @@ using MonoMod.Utils;
 using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using Celeste.Mod.Helpers;
 using Celeste.Mod.LeniencyHelper.Module;
+using YamlDotNet.Core.Tokens;
+using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
@@ -17,6 +19,8 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
     private static Vector2 savedAimValue;
     private static Vector2 bufferMoveTimer;
     private static Vector2 savedMoveValue;
+
+    private static float featherAimTimer;
 
     private static ILHook DashCoroutineHook;
     private static ILHook BoosterCoroutineHook;
@@ -29,6 +33,9 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
         On.Celeste.Player.SuperJump += SuperJumpDirBuffer;
         On.Celeste.Player.WallJump += WallJumpDirBuffer;
         On.Celeste.Player.ClimbJump += ClimbJumpDirBuffer;
+
+        On.Celeste.Player.StarFlyUpdate += AffectSavedFeatherDir;
+        IL.Celeste.Player.DashUpdate += AffectSuperDasheDir;
 
         DashCoroutineHook = new ILHook(typeof(Player).GetMethod("DashCoroutine",
             BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(), DashDirBuffer);
@@ -49,6 +56,9 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
         On.Celeste.Player.WallJump -= WallJumpDirBuffer;
         On.Celeste.Player.ClimbJump -= ClimbJumpDirBuffer;
         IL.Celeste.Player.DashCoroutine -= DashDirBuffer;
+
+        On.Celeste.Player.StarFlyUpdate -= AffectSavedFeatherDir;
+        IL.Celeste.Player.DashUpdate -= AffectSuperDasheDir; // Determined buffer order!!
 
         DashCoroutineHook.Dispose();
         BoosterCoroutineHook.Dispose();
@@ -80,9 +90,10 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
         if (bufferAimTimer.Y > 0f) bufferAimTimer.Y -= Engine.RawDeltaTime;
         if (bufferMoveTimer.X > 0f) bufferMoveTimer.X -= Engine.RawDeltaTime;
         if (bufferMoveTimer.Y > 0f) bufferMoveTimer.Y -= Engine.RawDeltaTime;
+        if (featherAimTimer > 0f) featherAimTimer -= Engine.RawDeltaTime;
 
         Dirs dashDir = GetSetting<Dirs>("dashDir");
-        if (dashDir != Dirs.None)
+        if (dashDir != Dirs.None || GetSetting<bool>("affectFeathers") || GetSetting<bool>("affectSuperdashes"))
         {
             //X
             if (Input.Aim.Value.X > 0f && (dashDir == Dirs.Right || dashDir == Dirs.All)
@@ -123,10 +134,6 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
         }
     }
 
-    private static void ConsumeMoveX()
-    {
-
-    }
     private static void JumpDirBuffer(On.Celeste.Player.orig_Jump orig, Player self, bool particles, bool playSfx)
     {
         if(!Enabled)
@@ -229,5 +236,75 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
         {
             cursor.EmitDelegate(ChangeLastAim);
         }
+    }
+
+    private static int AffectSavedFeatherDir(On.Celeste.Player.orig_StarFlyUpdate orig, Player self)
+    {
+        if (Enabled && GetSetting<bool>("affectFeathers"))
+        {
+            if (Input.Feather.Value != Vector2.Zero) featherAimTimer = ActualBufferTime;
+            if(featherAimTimer > 0f)
+            self.starFlyLastDir = SnapAim(self.starFlyLastDir);
+        }
+        
+        return orig(self);
+    }
+    public static void AffectSuperDasheDir(ILContext il)
+    {
+        ILCursor cursor = new ILCursor(il);
+
+        ILLabel endLabel;
+
+        if(cursor.TryGotoNextBestFit(MoveType.After, 
+            instr => instr.MatchLdfld<Player>("canCurveDash"),
+            instr => instr.MatchBrfalse(out endLabel),
+            instr => instr.MatchLdsfld(typeof(Input).GetField("Aim"))))
+        {
+            cursor.GotoNext(MoveType.After, instr => instr.MatchCall<Vector2>("op_Inequality"));
+            cursor.EmitDelegate(OrSuperdashesAffected);
+
+            if(cursor.TryGotoNextBestFit(MoveType.Before,
+                instr => instr.MatchLdloc0(),
+                instr => instr.MatchLdarg0(),
+                instr => instr.MatchLdfld<Player>("Speed"),
+                instr => instr.MatchCall(typeof(Calc).GetMethod("SafeNormalize", new Type[] { typeof(Vector2) })),
+                instr => instr.MatchCall<Vector2>("Dot")))
+            {
+                int saveIndex = cursor.Index;
+                
+                cursor.GotoNext(MoveType.After, instr => instr.MatchLdcR4(0.99f), instr => instr.MatchBgeUn(out ILLabel l));
+                cursor.GotoNext(MoveType.Before, instr => instr.MatchLdarg0(), instr => instr.MatchLdarg0(), instr => instr.MatchLdfld<Player>("Speed"));
+                ILLabel skipCondition = il.DefineLabel();
+                cursor.MarkLabel(skipCondition);
+
+                cursor.Goto(saveIndex);
+
+                cursor.EmitDelegate(() => Input.Aim.Value == Vector2.Zero);
+                cursor.EmitBrtrue(skipCondition);
+
+                if(cursor.TryGotoNext(MoveType.Before, instr => instr.MatchCall(typeof(Calc).GetMethod("Angle", new Type[] { typeof(Vector2) }))))
+                {
+                    cursor.EmitLdarg0();
+                    cursor.EmitLdfld(typeof(Player).GetField("Speed"));
+                    cursor.EmitDelegate(ModifySuperdashTarget);
+                }
+            }
+        }
+    }
+    private static bool OrSuperdashesAffected(bool orig) => Enabled && GetSetting<bool>("affectSuperdashes") ? true : orig;
+    private static Vector2 ModifySuperdashTarget(Vector2 orig, Vector2 speed)
+        => Enabled && GetSetting<bool>("affectSuperdashes") && Input.Aim.Value == Vector2.Zero ? SnapAim(speed) : orig;
+    
+    private static Vector2 SnapAim(Vector2 aim)
+    {
+        float num = aim.Angle();
+        int num2 = ((num < 0f) ? 1 : 0);
+        float num3 = MathF.PI / 8f - (float)num2 * ((float)Math.PI / 36f);
+        if (Calc.AbsAngleDiff(num, 0f) < num3) return new Vector2(1f, 0f);
+        if (Calc.AbsAngleDiff(num, MathF.PI) < num3) return new Vector2(-1f, 0f);
+        if (Calc.AbsAngleDiff(num, -MathF.PI / 2f) < num3) return new Vector2(0f, -1f);
+        if (Calc.AbsAngleDiff(num, MathF.PI / 2f) < num3) return new Vector2(0f, 1f);
+        
+        return new Vector2(Math.Sign(aim.X), Math.Sign(aim.Y)).SafeNormalize();
     }
 }

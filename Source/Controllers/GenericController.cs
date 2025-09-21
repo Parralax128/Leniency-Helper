@@ -33,7 +33,7 @@ public abstract class GenericController : Entity
             {
                 if (!controller.Equals(this) && controller.GetType() == this.GetType())
                 {
-                    Logger.Log(LogLevel.Warn, "LeniencyHelper", $"removed {this.GetType().Name} clone!");
+                    Logger.Warn("LeniencyHelper", $"removed {this.GetType().Name} clone!");
                     controller.RemoveSelf();
                 }
             }
