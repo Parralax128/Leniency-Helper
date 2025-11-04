@@ -192,6 +192,11 @@ triggers.LeniencyHelper/Triggers/RemoveDBlockCCorection.placements.description.R
 
 entities.LeniencyHelper/Controllers/RemoveDBlockCCorection.placements.description.Remove Dreamblock corner-correction Controller=Cancels corner correction onto dreamblocks
 
+# RespectInputOrder
+triggers.LeniencyHelper/Triggers/RespectInputOrder.placements.description.Respect Input Order Trigger=Restricts input presses unless buffer timer of every input before is expired or consumed
+
+entities.LeniencyHelper/Controllers/RespectInputOrder.placements.description.Respect Input Order Controller=Restricts input presses unless buffer timer of every input before is expired or consumed
+
 # RetainSpeedCornerboost
 triggers.LeniencyHelper/Triggers/RetainSpeedCornerboost.placements.description.Retain Speed Cornerboost Trigger=Makes unbuffered cornerboosts possible by preserving player's speed for Retain time
 triggers.LeniencyHelper/Triggers/RetainSpeedCornerboost.attributes.description.RetainTime=Time cornerboost momentum is saved for
