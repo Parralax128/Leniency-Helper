@@ -71,7 +71,7 @@ public class CustomDashbounceTiming : AbstractTweak<CustomDashbounceTiming>
     private static void ConsumeDashbounce(On.Celeste.Player.orig_DashEnd orig, Player self)
     {
         var s = LeniencyHelperModule.Session;
-        if (Enabled && s.canDashbounce == true)
+        if (s.canDashbounce == true)
         {   
             self.varJumpTimer = Math.Max(self.varJumpTimer, s.varJumpTime - (s.dashDuration + 0.05f + Engine.DeltaTime * 0.9f));
         }

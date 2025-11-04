@@ -5,7 +5,7 @@ controller.depth = -1000000
 controller.texture = "objects/LeniencyHelper/Controllers/genericController"
 controller.placements = {
     {
-        name = "Dynamic corner correction Controller",
+        name = "Dynamic Corner-correction Controller",
         data = {
             FloorCorrectionTiming = 0.05,
             WallCorrectionTiming = 0.05,

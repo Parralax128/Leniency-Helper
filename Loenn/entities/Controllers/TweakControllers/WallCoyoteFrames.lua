@@ -5,7 +5,7 @@ controller.depth = -1000000
 controller.texture = "objects/LeniencyHelper/Controllers/genericController"
 controller.placements = {
     {
-        name = "Wall coyote-frames Controller",
+        name = "Wall Coyote-frames Controller",
         data = {
             WallCoyoteTime = 0.08,
             CountTimeInFrames = false,

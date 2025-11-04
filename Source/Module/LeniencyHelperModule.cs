@@ -44,7 +44,8 @@ public class LeniencyHelperModule : EverestModule
     {
         Jump,
         Dash,
-        Demo
+        Demo,
+        Grab
     }
     public enum Dirs
     {
@@ -53,7 +54,7 @@ public class LeniencyHelperModule : EverestModule
         All, None
     }
 
-    public static string[] TweakList =
+    public static readonly string[] TweakList =
     {
         "AutoSlowfall",
         "BackboostProtection",
@@ -85,6 +86,7 @@ public class LeniencyHelperModule : EverestModule
         "NoFailedTech",
         "RefillDashInCoyote",
         "RemoveDBlockCCorection",
+        "RespectInputOrder",
         "RetainSpeedCornerboost",
         "SolidBlockboostProtection",
         "SuperdashSteeringProtection",

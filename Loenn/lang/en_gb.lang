@@ -39,7 +39,7 @@ entities.LeniencyHelper/Controllers/BufferableExtends.attributes.description.Buf
 triggers.LeniencyHelper/Triggers/ConsistentDashOnDBlockExit.placements.description.Consistent Dash on Dreamblock exit Trigger=Sets player's position to the 4th pixel from a dreamblock on its exit and resets dash cooldown if required
 triggers.LeniencyHelper/Triggers/ConsistentDashOnDBlockExit.attributes.description.ResetDashCooldown=Allows to dash instantly on dreamblock exit
 
-entities.LeniencyHelper/Controllers/ConsistentDashOnDBlockExit.placements.description.Consistent Dash on Dreamblock exit Controller=Sets player's position to the 4th pixel from a dreamblock on its exit and resets dash cooldown if required
+entities.LeniencyHelper/Controllers/ConsistentDashOnDBlockExit.placements.description.Consistent Dash on dreamblock exit Controller=Sets player's position to the 4th pixel from a dreamblock on its exit and resets dash cooldown if required
 entities.LeniencyHelper/Controllers/ConsistentDashOnDBlockExit.attributes.description.ResetDashCooldown=Allows to dash instantly on dreamblock exit
 
 # ConsistentWallboosters
@@ -71,9 +71,9 @@ triggers.LeniencyHelper/Triggers/CustomBufferTime.placements.description.Custom 
 entities.LeniencyHelper/Controllers/CustomBufferTime.placements.description.Custom Buffer time Controller=Makes jump, dash and demo buffer windows customizable
 
 # CustomDashbounceTiming
-triggers.LeniencyHelper/Triggers/CustomDashbounceTiming.placements.description.Custom Dashbounce Timing=Makes dash timing for dashbounces customizable
+triggers.LeniencyHelper/Triggers/CustomDashbounceTiming.placements.description.Custom Dashbounce Timing Trigger=Makes dash timing for dashbounces customizable
 
-entities.LeniencyHelper/Controllers/CustomDashbounceTiming.placements.description.Custom Dashbounce Timing=Makes dash timing for dashbounces customizable
+entities.LeniencyHelper/Controllers/CustomDashbounceTiming.placements.description.Custom Dashbounce Timing Controller=Makes dash timing for dashbounces customizable
 
 # CustomSnapDownDistance
 triggers.LeniencyHelper/Triggers/CustomSnapDownDistance.placements.description.Custom Snap down distance Trigger=Makes distance player can be grounded during the dash from customizable, optionally making the distance depend on player speed
@@ -90,6 +90,13 @@ entities.LeniencyHelper/Controllers/CustomSnapDownDistance.attributes.descriptio
 triggers.LeniencyHelper/Triggers/DashCDIgnoreFFrames.placements.description.Dash CD ignores Freeze-frames Trigger=Cancels freezeframes' effect on actual-time dash cooldown
 
 entities.LeniencyHelper/Controllers/DashCDIgnoreFFrames.placements.description.Dash CD ignores Freeze-frames Controller=Cancels freezeframes' effect on actual-time dash cooldown
+
+# DelayedClimbtrigger
+triggers.LeniencyHelper/Triggers/DelayedClimbtrigger.placements.description.Delayed Climbtrigger Trigger=Allows to climbtrigger solids for a few frames player is no longer riding it (via grabbing / standing on top)
+triggers.LeniencyHelper/Triggers/DelayedClimbtrigger.attributes.description.TriggerDelay=The maximal time between the end of player riding the solid and the climbtrigger
+
+entities.LeniencyHelper/Controllers/DelayedClimbtrigger.placements.description.Delayed Climbtrigger Controller=Allows to climbtrigger solids for a few frames player is no longer riding it (via grabbing / standing on top)
+entities.LeniencyHelper/Controllers/DelayedClimbtrigger.attributes.description.TriggerDelay=The maximal time between the end of player riding the solid and the climbtrigger
 
 # DirectionalReleaseProtection
 triggers.LeniencyHelper/Triggers/DirectionalReleaseProtection.placements.description.Directional Release Protection Trigger=Saves dash aim and jump direction for Protection time even if the directional inputs are released
@@ -128,6 +135,11 @@ entities.LeniencyHelper/Controllers/DynamicWallLeniency.attributes.description.W
 triggers.LeniencyHelper/Triggers/ExtendBufferOnFreezeAndPickup.placements.description.Extend Buffer on Freeze and Pickup Trigger=Extends inputs' buffer timers on frame freeze (by freeze time) and on pick up (by pickup duration)
 
 entities.LeniencyHelper/Controllers/ExtendBufferOnFreezeAndPickup.placements.description.Extend Buffer on Freeze and Pickup Controller=Extends inputs' buffer timers on frame freeze (by freeze time) and on pick up (by pickup duration)
+
+# ExtendDashAttackOnPickup
+triggers.LeniencyHelper/Triggers/ExtendDashAttackOnPickup.placements.description.Extend Dash Attack on Pickup Trigger=Extends player dash attack timer when they pickup a holdable
+
+entities.LeniencyHelper/Controllers/ExtendDashAttackOnPickup.placements.description.Extend Dash Attack on Pickup Controller=Extends player dash attack timer when they pickup a holdable
 
 # ForceCrouchDemodash
 triggers.LeniencyHelper/Triggers/ForceCrouchDemodash.placements.description.Force Crouch Demodash Trigger=Forces player to be crouched on demodash
@@ -188,10 +200,10 @@ entities.LeniencyHelper/Controllers/RetainSpeedCornerboost.placements.descriptio
 entities.LeniencyHelper/Controllers/RetainSpeedCornerboost.attributes.description.RetainTime=Time cornerboost momentum is saved for
 
 # SolidBlockboostProtection
-triggers.LeniencyHelper/Triggers/SolidBlockboostProtection.placements.description.Solid blockboost protection trigger=Makes solids able to grant blockboosts for a Protection time on stop
+triggers.LeniencyHelper/Triggers/SolidBlockboostProtection.placements.description.Solid blockboost protection Trigger=Makes solids able to grant blockboosts for a Protection time on stop
 triggers.LeniencyHelper/Triggers/SolidBlockboostProtection.attributes.description.ProtectionTime=Time solids save their blockboost after stop for
 
-entities.LeniencyHelper/Controllers/SolidBlockboostProtection.placements.description.Solid blockboost protection trigger=Makes solids able to grant blockboosts for a Protection time on stop
+entities.LeniencyHelper/Controllers/SolidBlockboostProtection.placements.description.Solid blockboost protection Controller=Makes solids able to grant blockboosts for a Protection time on stop
 entities.LeniencyHelper/Controllers/SolidBlockboostProtection.attributes.description.ProtectionTime=Time solids save their blockboost after stop for
 
 # SuperdashSteeringProtection

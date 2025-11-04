@@ -5,7 +5,7 @@ controller.depth = -1000000
 controller.texture = "objects/LeniencyHelper/Controllers/genericController"
 controller.placements = {
     {
-        name = "Dynamic wall leniency Controller",
+        name = "Dynamic Wall-leniency Controller",
         data = {
             WallLeniencyTiming = 0.05,
             CountTimeInFrames = false,

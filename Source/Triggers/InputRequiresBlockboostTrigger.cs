@@ -154,6 +154,7 @@ public class InputRequiresBlockboostTrigger : Trigger
             case LeniencyHelperModule.Inputs.Jump: return Input.Jump;
             case LeniencyHelperModule.Inputs.Dash: return Input.Dash;
             case LeniencyHelperModule.Inputs.Demo: return Input.CrouchDash;
+            case LeniencyHelperModule.Inputs.Grab: return Input.Grab;
         }
         return null;
     }

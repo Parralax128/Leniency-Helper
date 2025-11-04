@@ -54,7 +54,6 @@ public class GenericTweakTrigger : Triggers.GenericTrigger
                 SettingMaster.GetControllerSetting(key) : SettingMaster.GetTriggerSetting(key));
         }
     }
-
     public override void UndoSettings()
     {
         SettingMaster.SetTriggerTweak(tweakName, savedEnabled);

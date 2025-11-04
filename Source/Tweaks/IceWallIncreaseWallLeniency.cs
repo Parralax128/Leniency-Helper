@@ -15,7 +15,6 @@ public class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeni
     public static void LoadHooks()
     {
         IL.Celeste.Player.WallJumpCheck += CustomWJCheck;
-        //On.Celeste.Player.Render += Debug;
     }
     [OnUnload]
     public static void UnloadHooks()

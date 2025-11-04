@@ -5,7 +5,7 @@ controller.depth = -1000000
 controller.texture = "objects/LeniencyHelper/Controllers/genericController"
 controller.placements = {
     {
-        name = "Refill dash in-coyote Controller",
+        name = "Refill Dash in-coyote Controller",
         data = {
             RefillTime = 0.05,
             CountTimeInFrames = false,

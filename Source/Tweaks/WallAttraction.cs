@@ -20,7 +20,7 @@ public class WallAttraction : AbstractTweak<WallAttraction>
         LeniencyHelperModule.BeforePlayerUpdate -= AttractUpdate;
     }
 
-    private static int[] noGrabStates = { 2, 4, 5, 7, 10, 11, 16, 17, 18, 20, 21, 22, 23, 24, 25 };
+    private static readonly int[] noGrabStates = { 2, 4, 5, 7, 10, 11, 16, 17, 18, 20, 21, 22, 23, 24, 25 };
 
     private static void AttractUpdate(Player player)
     {
@@ -55,7 +55,6 @@ public class WallAttraction : AbstractTweak<WallAttraction>
             }
         }
     }
-
 
     private static bool CollidingWithSideways(Player player, Vector2 at)
     {

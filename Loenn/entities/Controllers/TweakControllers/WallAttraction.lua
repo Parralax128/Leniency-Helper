@@ -5,7 +5,7 @@ controller.depth = -1000000
 controller.texture = "objects/LeniencyHelper/Controllers/genericController"
 controller.placements = {
     {
-        name = "Wall attraction Controller",
+        name = "Wall Attraction Controller",
         data = {
             ApproachTime = 0.08,
             CountTimeInFrames = false,

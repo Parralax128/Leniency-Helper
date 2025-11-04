@@ -5,7 +5,7 @@ controller.depth = -1000000
 controller.texture = "objects/LeniencyHelper/Controllers/genericController"
 controller.placements = {
     {
-        name = "Dash CD ignores freeze-frames Controller",
+        name = "Dash CD ignores Freeze-frames Controller",
         data = {
             StopFlag = "",
             Persistent = true

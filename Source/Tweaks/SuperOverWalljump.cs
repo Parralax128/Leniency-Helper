@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Build.Utilities;
 using Microsoft.Xna.Framework;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
@@ -84,7 +85,7 @@ public class SuperOverWalljump : AbstractTweak<SuperOverWalljump>
     }
     private static bool ClimbJumpCheck(Player player, int dir)
     {
-        return ((int)player.Facing == dir && Input.GrabCheck && player.Stamina > 0f && player.Holding == null &&
-            !ClimbBlocker.Check(player.Scene, player, player.Position + Vector2.UnitX * 3f * dir));
+        return (int)player.Facing == dir && Input.GrabCheck && player.Stamina > 0f && player.Holding == null &&
+            !ClimbBlocker.Check(player.Scene, player, player.Position + Vector2.UnitX * 3f * dir);
     }
 }

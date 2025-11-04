@@ -2,11 +2,14 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using YamlDotNet.RepresentationModel;
 using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
+
 public static class SessionSerializer
 {
+
     public static void ClearSessionFile(int saveFileIndex)
     {
         string path = UserIO.GetSaveFilePath(SaveData.GetFilename(saveFileIndex) + "-modsession-LeniencyHelper");
@@ -32,7 +35,7 @@ public static class SessionSerializer
 
         StreamWriter writer = new StreamWriter(path);
 
-        writer.Write("v1.1.0");
+        writer.Write("v1.2.0");
         string controllerTweaks = "\n[break]\nControllerTweaks", useController = "\n[break]\nUseController";
         foreach (string tweak in TweakList)
         {

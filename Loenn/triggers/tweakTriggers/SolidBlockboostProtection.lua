@@ -5,7 +5,7 @@ trigger.triggerText = "Solid blockboost protection trigger"
 trigger.depth = -1000000
 trigger.placements = {
     {
-        name = "Solid blockboost protection trigger",
+        name = "Solid blockboost protection Trigger",
         data = {
             ProtectionTime = 0.1,
             CountTimeInFrames = false,

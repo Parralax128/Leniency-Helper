@@ -63,7 +63,6 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
             }
 
             ApplySettings();
-            if (oneUse) RemoveSelf();
         }
         public override void OnStay(Player player)
         {
@@ -75,7 +74,8 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
         {
             base.OnLeave(player);
 
-            if (!oneUse && revertOnLeave) UndoSettings();
+            if (revertOnLeave) UndoSettings();
+            if (oneUse) RemoveSelf();
         }
 
         public override void Update()

@@ -5,7 +5,7 @@ controller.depth = -1000000
 controller.texture = "objects/LeniencyHelper/Controllers/genericController"
 controller.placements = {
     {
-        name = "Corner-wave leniency Controller",
+        name = "Corner Wave Leniency Controller",
         data = {
             StopFlag = "",
             Persistent = true

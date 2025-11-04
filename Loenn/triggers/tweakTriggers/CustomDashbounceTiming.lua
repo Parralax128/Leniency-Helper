@@ -5,7 +5,7 @@ DashbounceTrigger.triggerText = "Custom Dashbounce Timing"
 DashbounceTrigger.depth = -1000000
 DashbounceTrigger.placements = {
     {
-        name = "Custom Dashbounce Timing",
+        name = "Custom Dashbounce Timing Trigger",
         data = {
             Timing = 0.05,
             CountTimeInFrames = false,

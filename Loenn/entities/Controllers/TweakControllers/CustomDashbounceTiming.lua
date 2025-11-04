@@ -5,7 +5,7 @@ controller.depth = -1000000
 controller.texture = "objects/LeniencyHelper/Controllers/genericController"
 controller.placements = {
     {
-        name = "Custom dashbounce timing Controller",
+        name = "Custom Dashbounce Timing Controller",
         data = {
             Timing = 0.05,
             CountTimeInFrames = false,

@@ -194,6 +194,7 @@ public static class SettingMaster
         { "ManualDreamhyperLeniency", null },
         { "RefillDashInCoyote", new List<string>{ "RefillCoyoteTime", "CountRefillCoyoteTimeInFrames" } },
         { "RemoveDBlockCCorection", null },
+        { "RespectInputOrder", new List<string> { "affectGrab" } },
         { "RetainSpeedCornerboost", new List<string>{ "RetainCbSpeedTime", "countRetainTimeInFrames" } },
         { "LateReverses", new List<string>{ "redirectTime", "countRedirectTimeInFrames" } },
         { "SolidBlockboostProtection", new List<string>{ "bboostSaveTime", "countSolidBoostSaveTimeInFrames" } },

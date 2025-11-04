@@ -82,6 +82,9 @@ public class SettingList
     public float RefillCoyoteTime = 0.05f;
     public bool CountRefillCoyoteTimeInFrames = false;
 
+    //RespectInputOrder
+    public bool affectGrab = false;
+
     // RetainSpeedCornerboost
     public float RetainCbSpeedTime = 0.1f;
     public bool countRetainTimeInFrames = false;

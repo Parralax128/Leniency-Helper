@@ -5,7 +5,7 @@ controller.depth = -1000000
 controller.texture = "objects/LeniencyHelper/Controllers/genericController"
 controller.placements = {
     {
-        name = "Instant accelerated jumps Controller",
+        name = "Instant-accelerated Jumps Controller",
         data = {
             StopFlag = "",
             Persistent = true

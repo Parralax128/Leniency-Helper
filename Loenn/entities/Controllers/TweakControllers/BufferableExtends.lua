@@ -5,7 +5,7 @@ controller.depth = -1000000
 controller.texture = "objects/LeniencyHelper/Controllers/genericController"
 controller.placements = {
     {
-        name = "Bufferable extends Controller",
+        name = "Bufferable Extends Controller",
         data = {
             ForceWaitForRefill = false,
             BufferTiming = 0.08,

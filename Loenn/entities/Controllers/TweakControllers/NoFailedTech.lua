@@ -5,7 +5,7 @@ controller.depth = -1000000
 controller.texture = "objects/LeniencyHelper/Controllers/genericController"
 controller.placements = {
     {
-        name = "No failed tech Controller",
+        name = "No Failed Tech Controller",
         data = {
             ProtectedTechTime = 0.1,
             CountTimeInFrames = false,

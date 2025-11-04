@@ -5,7 +5,7 @@ controller.depth = -1000000
 controller.texture = "objects/LeniencyHelper/Controllers/genericController"
 controller.placements = {
     {
-        name = "Extend buffer on freeze and pickup Controller",
+        name = "Extend Buffer on Freeze and Pickup Controller",
         data = {
             ExtendBuffersOnFreezeFrames = true,
             ExtendBuffersOnPickup = false,

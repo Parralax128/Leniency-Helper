@@ -5,7 +5,7 @@ controller.depth = -1000000
 controller.texture = "objects/LeniencyHelper/Controllers/genericController"
 controller.placements = {
     {
-        name = "Directional inputs release protection Controller",
+        name = "Directional Release Protection Controller",
         data = {
             ProtectedDashDirection = "Down",
             ProtectedJumpDirection = "None",
