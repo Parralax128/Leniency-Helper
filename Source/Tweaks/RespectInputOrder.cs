@@ -2,7 +2,6 @@ using Monocle;
 using System.Collections.Generic;
 using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using Celeste.Mod.LeniencyHelper.Triggers;
-using System.Linq;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
@@ -26,8 +25,9 @@ public class RespectInputOrder : AbstractTweak<RespectInputOrder>
     private static void OnInputUpdate(On.Monocle.MInput.orig_Update orig)
     {
         orig();
+        if (Engine.Scene is not Level) return;
 
-        List<Inputs> pressed = new();
+        List <Inputs> pressed = new();
         if(BindPressed(Input.Jump)) pressed.Add(Inputs.Jump);
         if(BindPressed(Input.Dash)) pressed.Add(Inputs.Dash);
         if(BindPressed(Input.CrouchDash)) pressed.Add(Inputs.Demo);
@@ -35,7 +35,7 @@ public class RespectInputOrder : AbstractTweak<RespectInputOrder>
         
         if(pressed.Count > 0) Queue.Enqueue(pressed);
 
-        if (Engine.Scene is not Level || !Enabled || Queue.Count == 0) return;
+        if (!Enabled || Queue.Count == 0) return;
 
         List<Inputs> current = Queue.Peek();
 
