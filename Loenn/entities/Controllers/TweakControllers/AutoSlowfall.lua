@@ -7,6 +7,10 @@ controller.placements = {
     {
         name = "Auto Slowfall Controller",
         data = { 
+            TechOnly = false,
+            DelayedJumpRelease = false,
+            ReleaseDelay = 0.05,
+            CountTimeInFrames = false,
             StopFlag = "",
             Persistent = true
         }

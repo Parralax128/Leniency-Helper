@@ -7,6 +7,8 @@ trigger.placements = {
     {
         name = "Gultra Cancel Trigger",
         data = { 
+            CancelTime = 0.07,
+            CountTimeInFrames = false,
             Enabled = true,
             RevertOnLeave = true,
             Flag = "",

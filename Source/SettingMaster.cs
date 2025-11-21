@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Celeste.Mod.LeniencyHelper.Module;
-using IL.Monocle;
 
 namespace Celeste.Mod.LeniencyHelper;
 public static class SettingMaster
@@ -31,7 +30,7 @@ public static class SettingMaster
 
         DisableTweaks();
 
-        self.Add(new Components.WallCoyoteFramesComponent()); // adding tweak components
+        self.Add(new Components.WallCoyoteFramesComponent());
         self.Add(new Components.RefillCoyoteComponent());
     }
     public static void DisableTweaksOnLoad(On.Celeste.LevelLoader.orig_ctor orig,
@@ -58,13 +57,22 @@ public static class SettingMaster
     #endregion
 
     #region tweaks
-    public static bool GetTweakEnabled(string tweak)
+    public static bool GetTweakEnabled(string tweak, bool ignoreOverride = false)
     {
-        if (LeniencyHelperModule.Settings.PlayerTweaks[tweak].HasValue)
+        var session = LeniencyHelperModule.Session;
+
+        if (!ignoreOverride && session.OverridePlayerSettings && session.OverrideTweaks[tweak] != null)
+            return session.OverrideTweaks[tweak].Value;
+
+        if (LeniencyHelperModule.Settings.PlayerTweaks[tweak] != null)
             return LeniencyHelperModule.Settings.PlayerTweaks[tweak].Value;
 
-        return LeniencyHelperModule.Session.UseController[tweak] ?
-            LeniencyHelperModule.Session.ControllerTweaks[tweak] : LeniencyHelperModule.Session.TriggerTweaks[tweak];
+        if (!ignoreOverride && session.OverrideTweaks[tweak] != null)
+            return session.OverrideTweaks[tweak].Value;
+
+
+        return session.UseController[tweak] ?
+            session.ControllerTweaks[tweak] : session.TriggerTweaks[tweak];
     }
     public static void SetPlayerTweak(string tweak, bool? newValue) => LeniencyHelperModule.Settings.PlayerTweaks[tweak] = newValue;
     public static void SetTriggerTweak(string tweak, bool newValue) => LeniencyHelperModule.Session.TriggerTweaks[tweak] = newValue;
@@ -162,7 +170,7 @@ public static class SettingMaster
 
     public static Dictionary<string, List<string>> AssociatedSettings = new Dictionary<string, List<string>>
     {
-        { "AutoSlowfall", null },
+        { "AutoSlowfall", new List<string> {"techOnly", "delayedJumpRelease", "releaseDelay", "countReleaseDelayInFrames"} },
         { "BackboostProtection", new List<string>{ "earlyBackboostTiming", "lateBackboostTiming", "countBackboostTimingInFrames" } },
         { "BackwardsRetention", null },
         { "BufferableClimbtrigger", new List<string>{ "onNormalUpdate", "onDash" } },
@@ -186,7 +194,7 @@ public static class SettingMaster
         { "ExtendBufferOnFreezeAndPickup", new List<string>{ "ExtendBufferOnPickup", "ExtendBufferOnFreeze" } },
         { "ExtendDashAttackOnPickup", new List<string>{ "attackExtendTime", "countAttackExtendTimeInFrames" } },
         { "ForceCrouchDemodash", null },
-        { "GultraCancel", null },
+        { "GultraCancel", new List<string> { "cancelTime", "countCancelTimeInFrames" } },
         { "IceWallIncreaseWallLeniency", new List<string>{ "iceWJLeniency" } },
         { "InstantAcceleratedJumps", null },
         { "InstantClimbHop", null },
@@ -200,7 +208,7 @@ public static class SettingMaster
         { "SolidBlockboostProtection", new List<string>{ "bboostSaveTime", "countSolidBoostSaveTimeInFrames" } },
         { "SuperdashSteeringProtection", null },
         { "SuperOverWalljump", null },
-        { "WallAttraction", new List<string>{ "wallApproachTime", "countWallApproachTimeInFrames" } },
+        { "WallAttraction", new List<string>{ "wallApproachTime", "countWallApproachTimeInFrames", "staticApproachDistance", "useDynamicApproachDistance" } },
         { "WallCoyoteFrames", new List<string>{ "wallCoyoteTime", "countWallCoyoteTimeInFrames" } },
     };
 

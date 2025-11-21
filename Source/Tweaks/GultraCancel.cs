@@ -65,16 +65,23 @@ public class GultraCancel : AbstractTweak<GultraCancel>
     private static void SaveSpeedY(Player player)
     {
         LeniencyHelperModule.Session.savedSpeed = player.Speed;
+        LeniencyHelperModule.Session.cancelTimer = GetTime("cancelTime");
     }
 
     private static int CancelGultraOnMidAir(On.Celeste.Player.orig_DashUpdate orig, Player self)
     {
-        if (Enabled && LeniencyHelperModule.Session.savedSpeed.HasValue
-            && !self.OnGround() && self.DashDir.Y == 0f && self.Speed.Y == 0f)
+        if(LeniencyHelperModule.Session.cancelTimer > 0f)
         {
-            self.Speed = LeniencyHelperModule.Session.savedSpeed.Value;
-            self.DashDir = new Vector2(Math.Sign(self.Speed.X), Math.Sign(self.Speed.Y)).SafeNormalize();
-            self.Ducking = false;
+            LeniencyHelperModule.Session.cancelTimer -= Engine.DeltaTime;
+            
+            // dash started on ground check!
+            if (Enabled && LeniencyHelperModule.Session.savedSpeed.HasValue && !self.dashStartedOnGround
+            && !self.OnGround() && self.DashDir.Y == 0f && self.Speed.Y == 0f)
+            {
+                self.Speed = LeniencyHelperModule.Session.savedSpeed.Value;
+                self.DashDir = new Vector2(Math.Sign(self.Speed.X), Math.Sign(self.Speed.Y)).SafeNormalize();
+                self.Ducking = false;
+            }
         }
         return orig(self);
     }

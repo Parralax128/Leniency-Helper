@@ -143,6 +143,9 @@ public static class MenuButtonManager
             }
             else
             {
+                InSubsettingsMode = false;
+                InSingleSubsettingMenu = false;
+
                 thisMenu.Close();
                 level.Add(parentMenu);
                 level.PauseMainMenuOpen = comesFromPauseMainMenu;
@@ -153,11 +156,13 @@ public static class MenuButtonManager
         {
             Audio.Play(SFX.ui_main_button_back);
             LeniencyHelperModule.Instance.SaveSettings();
+            InSubsettingsMode = false;
+            InSingleSubsettingMenu = false;
 
             thisMenu.Close();
             level.Add(parentMenu);
             level.PauseMainMenuOpen = comesFromPauseMainMenu;
-        };
+        };  
 
         thisMenu.OnPause = () =>
         {

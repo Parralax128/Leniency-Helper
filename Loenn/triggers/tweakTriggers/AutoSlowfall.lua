@@ -7,6 +7,10 @@ AutoSlowfall.placements = {
     {
         name = "Auto Slowfall Trigger",
         data = { 
+            TechOnly = false,
+            DelayedJumpRelease = false,
+            ReleaseDelay = 0.05,
+            CountTimeInFrames = false,
             Enabled = true,
             RevertOnLeave = true,
             Flag = "",

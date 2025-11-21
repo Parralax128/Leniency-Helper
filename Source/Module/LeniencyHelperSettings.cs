@@ -5,7 +5,7 @@ namespace Celeste.Mod.LeniencyHelper.Module;
 
 public class LeniencyHelperSettings : EverestModuleSettings
 {
-    private static Dictionary<string, bool?> NulledTweaks()
+    public static Dictionary<string, bool?> NulledTweaks()
     {
         Dictionary<string, bool?> result = new Dictionary<string, bool?>();
         foreach (string tweak in TweakList)

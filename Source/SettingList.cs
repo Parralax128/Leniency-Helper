@@ -3,6 +3,12 @@
 namespace Celeste.Mod.LeniencyHelper;
 public class SettingList
 {
+    // AutoSlowfall
+    public bool techOnly = true;
+    public bool delayedJumpRelease = false;
+    public float releaseDelay = 0.05f;
+    public bool countReleaseDelayInFrames = false;
+
     // BackboostProtection
     public float earlyBackboostTiming = 0.35f;
     public float lateBackboostTiming = 0.1f;
@@ -71,6 +77,10 @@ public class SettingList
     public float attackExtendTime = 0.1f;
     public bool countAttackExtendTimeInFrames = false;
 
+    //Gultra Cancel
+    public float cancelTime = 0.07f;
+    public bool countCancelTimeInFrames = false;
+
     // IceWallIncreaseWallLeniency
     public int iceWJLeniency = 3;
 
@@ -98,6 +108,8 @@ public class SettingList
     public bool countSolidBoostSaveTimeInFrames = false;
 
     // WallAttraction
+    public int staticApproachDistance = 3;
+    public bool useDynamicApproachDistance = false;
     public float wallApproachTime = 0.08f;
     public bool countWallApproachTimeInFrames = false;
 

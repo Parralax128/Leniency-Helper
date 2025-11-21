@@ -7,6 +7,8 @@ controller.placements = {
     {
         name = "Wall Attraction Controller",
         data = {
+            StaticApproachDistance = 3,
+            UseDynamicApproachDistance = false,
             ApproachTime = 0.08,
             CountTimeInFrames = false,
             StopFlag = "",

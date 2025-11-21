@@ -7,7 +7,9 @@ WallAttraction.placements = {
     {
         name = "Wall Attraction Trigger",
         data = { 
-            ApproachTime = 0.085,
+            StaticApproachDistance = 3,
+            UseDynamicApproachDistance = false,
+            ApproachTime = 0.08,
             CountTimeInFrames = false,
             Enabled = true,
             RevertOnLeave = true,

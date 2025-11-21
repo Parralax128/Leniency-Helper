@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Linq;
-using Monocle;
 using Celeste.Mod.MaxHelpingHand.Entities;
 using Celeste.Mod.LeniencyHelper.Module;
 
@@ -12,28 +11,35 @@ public class WallAttraction : AbstractTweak<WallAttraction>
     [OnLoad]
     public static void LoadHooks()
     {
-        LeniencyHelperModule.BeforePlayerUpdate += AttractUpdate;
+        Everest.Events.Player.OnBeforeUpdate += AttractUpdate;
     }
     [OnUnload]
     public static void UnloadHooks()
     {
-        LeniencyHelperModule.BeforePlayerUpdate -= AttractUpdate;
+        Everest.Events.Player.OnBeforeUpdate -= AttractUpdate;
     }
 
     private static readonly int[] noGrabStates = { 2, 4, 5, 7, 10, 11, 16, 17, 18, 20, 21, 22, 23, 24, 25 };
 
+    private static float GetApproachDistance(Player player)
+    {
+        if(!GetSetting<bool>("useDynamicApproachDistance")) {
+            return (float)GetSetting<int>("staticApproachDistance");
+        }
+
+        return GetTime("wallApproachTime") * Math.Abs(player.Speed.X);
+    }
     private static void AttractUpdate(Player player)
     {
         if (!Enabled)
-        {
             return;
-        }
+       
 
         if (Input.GrabCheck && !player.IsTired && !noGrabStates.Contains(player.StateMachine.State) && player.CanUnDuck &&
             Math.Sign(player.Speed.X) != -(int)player.Facing && player.Holding == null && player.Speed.Y >= 0)
         {
-            float distance = GetSetting<float>("wallApproachTime") * (Math.Abs(player.Speed.X) /
-                (GetSetting<bool>("countWallApproachTimeInFrames") ? Engine.FPS : 1f));
+            float distance = GetApproachDistance(player);
+            Log(distance);
 
             Vector2 origPos = player.Position;
             for (int c = 0; c < (int)distance; c++)

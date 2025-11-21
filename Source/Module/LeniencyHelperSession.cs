@@ -11,6 +11,8 @@ public class LeniencyHelperSession : EverestModuleSession
     public Dictionary<string, bool> TriggerTweaks { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
     public Dictionary<string, bool> ControllerTweaks { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
     public Dictionary<string, bool> UseController { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
+    public Dictionary<string, bool?> OverrideTweaks { get; set; } = LeniencyHelperSettings.NulledTweaks();
+    public bool OverridePlayerSettings { get; set; } = false;
 
     public SettingList TriggerSettings { get; set; } = new SettingList();
     public SettingList ControllerSettings { get; set; } = new SettingList();
@@ -19,6 +21,10 @@ public class LeniencyHelperSession : EverestModuleSession
     
     public int wjDistR { get; set; } = 3;
     public int wjDistL { get; set; } = 3;
+
+    //AutoSlowfall
+    public float jumpReleaseTimer = 0f;
+    public bool inTechState = false;
     
     //BackboostProtection
     public Facings lastFacing { get; set; } = Facings.Right;
@@ -56,6 +62,7 @@ public class LeniencyHelperSession : EverestModuleSession
 
     // GultraCancel
     public Vector2? savedSpeed { get; set; } = null;
+    public float cancelTimer = 0f;
 
     //InstantClimbHop
     public bool movedDown { get; set; } = false;

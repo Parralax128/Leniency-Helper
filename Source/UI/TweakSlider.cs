@@ -152,6 +152,7 @@ public class TweakSlider : Option<int>
             case "wallCoyoteTime": return 0.25f;
         }
         if (name.Contains("Timing")) return 0.25f;
+        if (name.ToLower().Contains("distance")) return 8;
 
         return 0.5f;
     }
@@ -162,7 +163,8 @@ public class TweakSlider : Option<int>
     }
     private bool IsTimer(string paramName)
     {
-        return paramName.ToLower().Contains("time") || paramName.ToLower().Contains("timing");
+        return paramName.ToLower().Contains("time") || paramName.ToLower().Contains("timing")
+            || paramName.ToLower().Contains("delay");
     }
     public void UpdateSubsettings()
     {

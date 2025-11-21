@@ -7,6 +7,8 @@ controller.placements = {
     {
         name = "Gultra Cancel Controller",
         data = {
+            CancelTime = 0.07,
+            CountTimeInFrames = false,
             StopFlag = "",
             Persistent = true
         }

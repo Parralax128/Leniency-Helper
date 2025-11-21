@@ -35,7 +35,7 @@ public static class SessionSerializer
 
         StreamWriter writer = new StreamWriter(path);
 
-        writer.Write("v1.2.1");
+        writer.Write("v1.2.2");
         string controllerTweaks = "\n[break]\nControllerTweaks", useController = "\n[break]\nUseController";
         foreach (string tweak in TweakList)
         {

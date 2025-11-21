@@ -1,6 +1,6 @@
 - DLL: bin/LeniencyHelper.dll
   Name: LeniencyHelper
-  Version: 1.2.1
+  Version: 1.2.2
   Dependencies:
     - Name: Everest
       Version: 1.5935.0
