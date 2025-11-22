@@ -22,7 +22,7 @@ public class AutoSlowfall : AbstractTweak<AutoSlowfall>
         Everest.Events.Player.OnBeforeUpdate -= CheckTechSpeed;
     }
 
-
+    private static bool ManualSlowfall = false;
     private static void CheckTechSpeed(Player player)
     {
         var s = Module.LeniencyHelperModule.Session;
@@ -32,7 +32,6 @@ public class AutoSlowfall : AbstractTweak<AutoSlowfall>
             if (s.jumpReleaseTimer > 0f) s.jumpReleaseTimer -= Engine.DeltaTime;
             else s.inTechState = false;
         }
-        
     }
 
     private static void TechStateBegin(ILContext il)
@@ -59,7 +58,16 @@ public class AutoSlowfall : AbstractTweak<AutoSlowfall>
     }
     private static int AutoSlowfallOnUpdate(On.Celeste.Player.orig_NormalUpdate orig, Player self)
     {
-        if (Enabled) self.AutoJump =  Slowfall;
-        return orig(self);
+        ManualSlowfall = Slowfall;
+        if (Enabled) self.AutoJump = (self.AutoJump && !ManualSlowfall) || ManualSlowfall;
+        Log(ManualSlowfall);
+        int newState = orig(self);
+        if(newState != 0)
+        {
+            ManualSlowfall = false;
+            Module.LeniencyHelperModule.Session.jumpReleaseTimer = 0f;
+            Module.LeniencyHelperModule.Session.inTechState = false;
+        }
+        return newState;
     }
 }   

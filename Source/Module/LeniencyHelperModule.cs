@@ -2,21 +2,13 @@
 using Celeste.Mod.LeniencyHelper.CrossModSupport;
 using Celeste.Mod.LeniencyHelper.Tweaks;
 using Celeste.Mod.LeniencyHelper.UI;
-using IL.Monocle;
 using Microsoft.Xna.Framework;
-using Monocle;
 using MonoMod.Cil;
 using MonoMod.ModInterop;
-using MonoMod.RuntimeDetour;
-using MonoMod.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Web;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
 public class LeniencyHelperModule : EverestModule
