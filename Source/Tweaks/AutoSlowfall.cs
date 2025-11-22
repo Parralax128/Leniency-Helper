@@ -52,7 +52,6 @@ public class AutoSlowfall : AbstractTweak<AutoSlowfall>
                 if (Module.LeniencyHelperModule.Session.jumpReleaseTimer <= 0f)
                     return false;
             }
-
             return GetSetting<bool>("techOnly") ? Module.LeniencyHelperModule.Session.inTechState : true;
         }
     }
