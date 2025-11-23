@@ -39,7 +39,6 @@ public class WallAttraction : AbstractTweak<WallAttraction>
             Math.Sign(player.Speed.X) != -(int)player.Facing && player.Holding == null && player.Speed.Y >= 0)
         {
             float distance = GetApproachDistance(player);
-            Log(distance);
 
             Vector2 origPos = player.Position;
             for (int c = 0; c < (int)distance; c++)

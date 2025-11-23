@@ -2,28 +2,32 @@
 using System.Collections.Generic;
 using System.Linq;
 using Celeste.Mod.LeniencyHelper.Module;
-using Celeste.Mod.LeniencyHelper.Tweaks;
 using Microsoft.Xna.Framework;
 using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using static Celeste.TextMenu;
+using System.Net.Http;
+using System.Threading;
+using FMOD;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
 
 public class TweakSlider : Option<int>
 {
-    public TextMenu menu;
+    private TextMenu menu;
 
     public List<Item> subOptions = new List<Item>();
     public bool addedSubsettings = false;
 
-    private SubOptionsOffset beforeSubOptions;
-    private SubOptionsOffset afterSubOptions;
+    private SubOptionsOffset beforeSubOptionsSpacing;
+    private SubOptionsOffset afterSubOptionsSpacing;
 
     public string tweakName;
+    private Description description;
 
-    private static Color PlayerValueColor = new Color(218, 165, 32);
-    private static Color MapValueColor = new Color(0, 191, 255);
-    private static Color BothInactiveColor = Color.White;
+    private static readonly Color PlayerValueColor = new Color(218, 165, 32);
+    private static readonly Color MapValueColor = new Color(0, 191, 255);
+    private static readonly Color BothInactiveColor = Color.White;
     public enum SliderValues
     {
         Map,
@@ -38,23 +42,33 @@ public class TweakSlider : Option<int>
             return LeniencyHelperModule.Settings.PlayerTweaks[tweakName] == true ? 1 : 2;
         else return 0;
     }
-    public TweakSlider(string label, string tweakName, int defaultIndex) : base(label)
+    public TweakSlider(string label, string tweakName, int defaultIndex, TextMenu addedTo) : base(label)
     {
         this.tweakName = tweakName;
+
+        if (WebScrapper.TweaksInfo.ContainsKey(tweakName))
+            description = new Description(addedTo, WebScrapper.TweaksInfo[tweakName]);
+        else description = null;
+
+        menu = addedTo;
 
         Add(GetDialogEnumValue(SliderValues.Map), 0);
         Add(GetDialogEnumValue(SliderValues.On), 1);
         Add(GetDialogEnumValue(SliderValues.Off), 2);
 
         Index = PreviousIndex = defaultIndex;
+    }
+    public override void Added()
+    {
+        base.Added();
 
         if (SettingMaster.AssociatedSettings[tweakName] != null)
             AddSubOptions();
 
         if (subOptions.Count > 0)
         {
-            beforeSubOptions = new SubOptionsOffset(8);
-            afterSubOptions = new SubOptionsOffset(16);
+            beforeSubOptionsSpacing = new SubOptionsOffset(8);
+            afterSubOptionsSpacing = new SubOptionsOffset(16);
         }
 
         OnLeave += () =>
@@ -74,7 +88,7 @@ public class TweakSlider : Option<int>
             SetupSubOption(setting, DefaultSettings[setting].GetType());
         }
 
-        CustomOnOff toggler = subOptions.Find(i => i.GetType() == typeof(CustomOnOff) && (i as CustomOnOff).framesModeToggler == true) as CustomOnOff;
+        BoolSlider toggler = subOptions.Find(i => i.GetType() == typeof(BoolSlider) && (i as BoolSlider).framesModeToggler == true) as BoolSlider;
         if (toggler == null) return;
 
         toggler.OnValueChange += (value) =>
@@ -95,22 +109,18 @@ public class TweakSlider : Option<int>
 
     private void SetupSubOption(string nameInSettings, Type type)
     {
-        string label = FromDialog(nameInSettings.ToLower().Contains("inframes") ? "CountInFrames" : nameInSettings);
         var settings = LeniencyHelperModule.Settings;
 
         Item newOption;
 
         if (type == typeof(bool))
         {
-            newOption = new CustomOnOff(label, SettingMaster.GetSetting<bool>(nameInSettings, tweakName),
-                nameInSettings.ToLower().Contains("inframes"), nameInSettings);
-
-            OnValueChange += (value) => (newOption as CustomOnOff).value = SettingMaster.GetSetting<bool>(nameInSettings, tweakName);
+            newOption = new BoolSlider(nameInSettings.ToLower().Contains("inframes"), tweakName, nameInSettings, menu);
+            OnValueChange += (value) => (newOption as BoolSlider).value = SettingMaster.GetSetting<bool>(nameInSettings, tweakName);
         }
         else if (type == typeof(float))
         {
-            newOption = new FloatSlider(label, 0f, GetMaxFromName(nameInSettings),
-                SettingMaster.GetSetting<float>(nameInSettings, tweakName), 2, nameInSettings);
+            newOption = new FloatSlider(0f, GetMaxFromName(nameInSettings), 2, tweakName, nameInSettings, menu);
 
             (newOption as FloatSlider).isTimer = IsTimer(nameInSettings);
 
@@ -118,22 +128,14 @@ public class TweakSlider : Option<int>
         }
         else if (type == typeof(int))
         {
-            newOption = new IntSlider(label, 0, (int)GetMaxFromName(nameInSettings),
-                SettingMaster.GetSetting<int>(nameInSettings, tweakName), nameInSettings);
+            newOption = new IntSlider(0, (int)GetMaxFromName(nameInSettings), tweakName, nameInSettings, menu);
 
-            OnValueChange += (value) =>
-            {
-                (newOption as IntSlider).value = SettingMaster.GetSetting<int>(nameInSettings, tweakName);
-            };
+            OnValueChange += (value) => (newOption as IntSlider).value = SettingMaster.GetSetting<int>(nameInSettings, tweakName);
         }
         else if (type == typeof(Dirs))
         {
-            newOption = new DirSlider(label, SettingMaster.GetSetting<Dirs>(nameInSettings, tweakName), nameInSettings);
-
-            OnValueChange += (value) =>
-            {
-                (newOption as DirSlider).value = SettingMaster.GetSetting<Dirs>(nameInSettings, tweakName);
-            };
+            newOption = new DirSlider(tweakName, nameInSettings, menu);
+            OnValueChange += (value) => (newOption as DirSlider).value = SettingMaster.GetSetting<Dirs>(nameInSettings, tweakName);
         }
         else return;
 
@@ -156,11 +158,6 @@ public class TweakSlider : Option<int>
 
         return 0.5f;
     }
-
-    public static string FromDialog(string str)
-    {
-        return "     " + Dialog.Clean("MODOPTIONS_LENIENCYHELPER_SETTINGS_" + str.ToUpper());
-    }
     private bool IsTimer(string paramName)
     {
         return paramName.ToLower().Contains("time") || paramName.ToLower().Contains("timing")
@@ -168,7 +165,7 @@ public class TweakSlider : Option<int>
     }
     public void UpdateSubsettings()
     {
-        foreach (CustomOnOff option in subOptions.FindAll(item => item is CustomOnOff))
+        foreach (BoolSlider option in subOptions.FindAll(item => item is BoolSlider))
             option.value = SettingMaster.GetSetting<bool>(option.settingName, tweakName);
 
         foreach (FloatSlider option in subOptions.FindAll(item => item is FloatSlider))
@@ -184,7 +181,7 @@ public class TweakSlider : Option<int>
 
     public override void ConfirmPressed()
     {
-        if (!MenuButtonManager.InSubsettingsMode)
+        if (!TweakMenuManager.InSubsettingsMode)
         {
             OpenSuboptions();
         }
@@ -200,17 +197,18 @@ public class TweakSlider : Option<int>
         int optionsIndex = menu.Items.FindIndex(item => item.GetType() == typeof(TweakSlider) && ((TweakSlider)item).Label == Label);
         optionsIndex++;
 
-        menu.Insert(optionsIndex - 1, beforeSubOptions);
+        menu.Insert(optionsIndex - 1, beforeSubOptionsSpacing);
 
+        int counter = 0;
         foreach (Item option in subOptions)
         {
             menu.Insert(optionsIndex + 1, option);
-            menu.Selection = optionsIndex + 1;
+            menu.Selection = optionsIndex + 1 + counter++;
 
-            if (subOptions.Count == 1) MenuButtonManager.InSingleSubsettingMenu = true;
+            if (subOptions.Count == 1) TweakMenuManager.InSingleSubsettingMenu = true;
             else
             {
-                MenuButtonManager.InSingleSubsettingMenu = false;
+                TweakMenuManager.InSingleSubsettingMenu = false;
                 option.OnLeave += () =>
                 {
                     LoopMenuOnLeave(optionsIndex + 1, optionsIndex + subOptions.Count);
@@ -219,9 +217,9 @@ public class TweakSlider : Option<int>
         }
         if (Index != 1) menu.Selection = optionsIndex;
 
-        menu.Insert(optionsIndex + 1 + subOptions.Count, afterSubOptions);
+        menu.Insert(optionsIndex + 1 + subOptions.Count, afterSubOptionsSpacing);
 
-        MenuButtonManager.InSubsettingsMode = true;
+        TweakMenuManager.InSubsettingsMode = true;
         addedSubsettings = true;
     }
     public void CloseSuboptions()
@@ -232,11 +230,11 @@ public class TweakSlider : Option<int>
         {
             menu.Remove(item);
         }
-        menu.Remove(beforeSubOptions);
-        menu.Remove(afterSubOptions);
+        menu.Remove(beforeSubOptionsSpacing);
+        menu.Remove(afterSubOptionsSpacing);
 
-        MenuButtonManager.InSubsettingsMode = false;
-        MenuButtonManager.InSingleSubsettingMenu = false;
+        TweakMenuManager.InSubsettingsMode = false;
+        TweakMenuManager.InSingleSubsettingMenu = false;
         addedSubsettings = false;
 
         menu.Selection = menu.Items.FindIndex(item => item.Equals(this));
@@ -281,14 +279,10 @@ public class TweakSlider : Option<int>
         if (!SettingMaster.GetTweakEnabled(tweakName)) CloseSuboptions();
     }
 
-
-    public void CopyWikiLinkToCliboard()
+    public static string TweakToUrl(string tweak)
     {
-        TextInput.SetClipboardText("https://github.com/Parralax128/Leniency-Helper/wiki/" +
-            ToWikiPageName(Dialog.Clean("LENIENCYTWEAKS_" + tweakName.ToUpper())));
-
-        SelectWiggler.Start();
-        Audio.Play("event:/ui/main/rollover_up");
+        return "https://github.com/Parralax128/Leniency-Helper/wiki/" +
+            ToWikiPageName(Dialog.Clean("LENIENCYTWEAKS_" + tweak.ToUpper(), Dialog.Languages["english"]));
     }
     private static string ToWikiPageName(string tweakNameUpper)
     {
@@ -305,6 +299,19 @@ public class TweakSlider : Option<int>
         return result;
     }
 
+    public void CopyWikiLinkToCliboard()
+    {
+        TextInput.SetClipboardText(TweakToUrl(tweakName));
+
+        SelectWiggler.Start();
+        Audio.Play("event:/ui/main/rollover_up");
+    }
+
+    public override float Height()
+    {
+        if (description == null || Container.Current != this) return base.Height();
+        return base.Height() + description.GetHeight();
+    }
     private Color GetColor()
     {
         if (LeniencyHelperModule.Settings.PlayerTweaks[tweakName].HasValue) return PlayerValueColor;
@@ -312,6 +319,10 @@ public class TweakSlider : Option<int>
     }
     public override void Render(Vector2 position, bool highlighted)
     {
+        position.X = TweakMenuManager.Layout.LeftOffset;
+        if (highlighted) description?.Render(position, Container.Width);
+
+        position.Y += Height() / 2f;
         float alpha = Container.Alpha;
         Color strokeColor = Color.Black * (alpha * alpha * alpha);
         Color color = Disabled ? Color.DarkSlateGray : (highlighted ? Container.HighlightColor : UnselectedColor) * alpha;
@@ -324,10 +335,10 @@ public class TweakSlider : Option<int>
         ActiveFont.DrawOutline(Label, position, new Vector2(0f, 0.5f), Vector2.One, color, 2f, strokeColor);
         if (Values.Count > 0)
         {
-            float num = RightWidth();
+            float width = RightWidth();
 
             ActiveFont.DrawOutline(Values[Index].Item1, position +
-                new Vector2(Container.Width - num * 0.5f + lastDir * ValueWiggler.Value * 8f, 0f),
+                new Vector2(Container.Width - width * 0.5f + lastDir * ValueWiggler.Value * 8f, 0f),
                 new Vector2(0.5f, 0.5f), Vector2.One * 0.8f, color, 2f, strokeColor);
 
             Vector2 vector = Vector2.UnitX * (highlighted ? (float)Math.Sin(sine * 4f) * 4f : 0f);
@@ -335,7 +346,7 @@ public class TweakSlider : Option<int>
             Color color2 = flag ? color : Color.DarkSlateGray * alpha;
 
             Vector2 position2 = position +
-                new Vector2(Container.Width - num + 40f + (lastDir < 0 ? (0f - ValueWiggler.Value) * 8f : 0f), 0f)
+                new Vector2(Container.Width - width + 40f + (lastDir < 0 ? (0f - ValueWiggler.Value) * 8f : 0f), 0f)
                 - (flag ? vector : Vector2.Zero);
 
             ActiveFont.DrawOutline("<", position2, new Vector2(0.5f, 0.5f), Vector2.One, color2, 2f, strokeColor);

@@ -1,25 +1,19 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using static Celeste.TextMenu;
 using static Celeste.Mod.LeniencyHelper.SettingMaster;
 using Monocle;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
 
-public class IntSlider : Option<int>
+public class IntSlider : TweakSetting<int>
 {
-    public int value = 0;
     private int min, max;
     private float len = 0f;
-    public string settingName;
-    public IntSlider(string label, int min, int max, int defaultValue, string sessionName)
-        : base(label)
+    public IntSlider(int min, int max, string tweak, string settingName, TextMenu addedTo)
+        : base(tweak, settingName, addedTo)
     {
-        value = defaultValue;
         this.max = max;
         this.min = min;
-
-        settingName = sessionName;
 
         float maxLen = 0;
 
@@ -28,7 +22,7 @@ public class IntSlider : Option<int>
             float currentLen = ActiveFont.Measure(c.ToString()).X;
             if (maxLen < currentLen) maxLen = currentLen;
         }
-        len = maxLen + 120f;
+        len = maxLen;
     }
     public override void LeftPressed()
     {
@@ -63,35 +57,21 @@ public class IntSlider : Option<int>
     {
         return len;
     }
-    public override float LeftWidth()
+
+    public override void Render(Vector2 position, bool selected)
     {
-        return len;
-    }
+        BeforeRender(ref position, selected);
 
-    public override void Render(Vector2 position, bool highlighted)
-    {
-        float alpha = Container.Alpha;
-        Color strokeColor = Color.Black * (alpha * alpha * alpha);
-        Color color = Disabled ? Color.DarkSlateGray : (highlighted ? Container.HighlightColor : UnselectedColor) * alpha;
-        ActiveFont.DrawOutline(Label, position, new Vector2(0f, 0.5f), Vector2.One, color, 2f, strokeColor);
+        DrawLabel();
 
-        float num = len;
-        ActiveFont.DrawOutline(value.ToString(), position + new Vector2(Container.Width - num * 0.5f + lastDir * ValueWiggler.Value * 8f, 0f),
-            new Vector2(0.5f, 0.5f), Vector2.One * 0.8f, color, 2f, strokeColor);
+        DrawRightText(value.ToString(), scale: 0.8f);
 
-        Vector2 vector = Vector2.UnitX * (highlighted ? (float)Math.Sin(sine * 4f) * 4f : 0f);
+        Vector2 sineShift = Vector2.UnitX * (selected ? (float)Math.Sin(sine * 4f) * 4f : 0f);
 
-        bool flag = value > min;
+        bool notMinimal = value > min;
+        DrawRightText("<", -40f * Engine.ScreenMatrix.M11 - (notMinimal ? sineShift : Vector2.Zero).X, inactiveColor: !notMinimal);
 
-        Color color2 = flag ? color : Color.DarkSlateGray * alpha;
-        Vector2 position2 = position + new Vector2(Container.Width - num + 40f + (lastDir < 0 ?
-            (0f - ValueWiggler.Value) * 8f : 0f), 0f) - (flag ? vector : Vector2.Zero);
-        ActiveFont.DrawOutline("<", position2, new Vector2(0.5f, 0.5f), Vector2.One, color2, 2f, strokeColor);
-
-        bool flag2 = value < max;
-
-        Color color3 = flag2 ? color : Color.DarkSlateGray * alpha;
-        Vector2 position3 = position + new Vector2(Container.Width - 40f + (lastDir > 0 ? ValueWiggler.Value * 8f : 0f), 0f) + (flag2 ? vector : Vector2.Zero);
-        ActiveFont.DrawOutline(">", position3, new Vector2(0.5f, 0.5f), Vector2.One, color3, 2f, strokeColor);
+        bool notMaximal = value < max;
+        DrawRightText(">", 40f * Engine.ScreenMatrix.M11 + (notMaximal ? sineShift : Vector2.Zero).X, inactiveColor: !notMaximal);
     }
 }

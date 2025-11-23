@@ -59,7 +59,6 @@ public class AutoSlowfall : AbstractTweak<AutoSlowfall>
     {
         ManualSlowfall = Slowfall;
         if (Enabled) self.AutoJump = (self.AutoJump && !ManualSlowfall) || ManualSlowfall;
-        Log(ManualSlowfall);
         int newState = orig(self);
         if(newState != 0)
         {

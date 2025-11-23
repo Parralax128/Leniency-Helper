@@ -102,10 +102,6 @@ public class LeniencyHelperModule : EverestModule
             SettingMaster.SettingListFields.Add(field.Name, field);
         }
     }
-    public static void Log(object input)
-    {
-        Logger.Log(LogLevel.Info, "LeniencyHelper", input.ToString() ?? "null");
-    }
     public static bool CollideOnWJdist<T>(Monocle.Entity entity, int dir, Vector2? at) where T : Monocle.Entity
     {
         Vector2 savePos = entity.Position;
@@ -138,6 +134,7 @@ public class LeniencyHelperModule : EverestModule
     public static event Action<Player> BeforePlayerUpdate;
     public static event Action<Player> OnPlayerUpdate;
     public static event Action OnUpdate;
+
 
     public override void Initialize()
     {
@@ -185,6 +182,8 @@ public class LeniencyHelperModule : EverestModule
         On.Celeste.Player.Update += OnPlayerUpdateEventHook;
         On.Celeste.Level.Update += OnUpdateEventHook;
 
+        Everest.Events.GameLoader.OnLoadThread += WebScrapper.LoadInfo;
+
         typeof(GravityHelperImports).ModInterop();
         typeof(ExtendedVariantImports).ModInterop();
 
@@ -220,6 +219,8 @@ public class LeniencyHelperModule : EverestModule
 
         On.Celeste.Player.Update -= OnPlayerUpdateEventHook;
         On.Celeste.Level.Update -= OnUpdateEventHook;
+
+        Everest.Events.GameLoader.OnLoadThread -= WebScrapper.LoadInfo;
     }
 
     #region settings && session
@@ -270,7 +271,7 @@ public class LeniencyHelperModule : EverestModule
 
         if (optionsIndex == -1) return;
 
-        TextMenu.Button button = MenuButtonManager.BuildMenuButton(menu);
+        TextMenu.Button button = TweakMenuManager.BuildMenuButton(menu);
         menu.Insert(optionsIndex, button);
     }
 

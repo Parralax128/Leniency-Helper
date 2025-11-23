@@ -1,23 +1,16 @@
-﻿using Celeste.Mod.LeniencyHelper.Tweaks;
-using IL.MonoMod;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 using Microsoft.Xna.Framework;
 using static Celeste.Mod.LeniencyHelper.SettingMaster;
-using Monocle;
 using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
 
-public class DirSlider : TextMenu.Option<Dirs>
+public class DirSlider : TweakSetting<Dirs>
 {
-    public Dirs value;
-    public string settingName;
-    private float len;
+    private float? len = null;
+
+    public DirSlider(string tweak, string settingName, TextMenu addedTo) : base(tweak, settingName, addedTo) { }
+
     private float CalcLen()
     {
         float maxLen = 0f;
@@ -40,12 +33,7 @@ public class DirSlider : TextMenu.Option<Dirs>
         }
         return maxLen + 120f;
     }
-    public DirSlider(string label, Dirs defaultValue, string settingName) : base(label)
-    {
-        this.settingName = settingName;
-        value = defaultValue;
-        len = CalcLen();
-    }
+    
 
     private Dirs GetDir(bool prev)
     {
@@ -111,38 +99,23 @@ public class DirSlider : TextMenu.Option<Dirs>
     }
     public override float RightWidth()
     {
-        return len;
+        return len.HasValue ? len.Value : (len = CalcLen()).Value;
     }
-    public override float LeftWidth()
+
+    public override void Render(Vector2 position, bool selected)
     {
-        return len;
+        BeforeRender(ref position, selected);
+
+        DrawLabel();
+
+        DrawRightText(value.ToString(), scale: 0.8f);
+
+        Vector2 sineShift = Vector2.UnitX * (selected ? (float)Math.Sin(sine * 4f) * 4f : 0f);
+
+        bool notMinimal = value != Dirs.Up;
+        DrawRightText("<", -40f * Monocle.Engine.ScreenMatrix.M11 - (notMinimal ? sineShift : Vector2.Zero).X, inactiveColor: !notMinimal);
+
+        bool notMaximal = value != Dirs.None;
+        DrawRightText(">", 40f * Monocle.Engine.ScreenMatrix.M11 + (notMaximal ? sineShift : Vector2.Zero).X, inactiveColor: !notMaximal);
     }
-
-    public override void Render(Vector2 position, bool highlighted)
-    {
-        float alpha = Container.Alpha;
-        Color strokeColor = Color.Black * (alpha * alpha * alpha);
-        Color color = Disabled ? Color.DarkSlateGray : (highlighted ? Container.HighlightColor : UnselectedColor) * alpha;
-        ActiveFont.DrawOutline(Label, position, new Vector2(0f, 0.5f), Vector2.One, color, 2f, strokeColor);
-
-        float num = RightWidth();
-        ActiveFont.DrawOutline(Dialog.Clean(value.ToString()), position + new Vector2(Container.Width - num * 0.5f + lastDir * ValueWiggler.Value * 8f, 0f),
-            new Vector2(0.5f, 0.5f), Vector2.One * 0.8f, color, 2f, strokeColor);
-
-        Vector2 vector = Vector2.UnitX * (highlighted ? (float)Math.Sin(sine * 4f) * 4f : 0f);
-
-        bool flag = value != Dirs.Up;
-
-        Color color2 = flag ? color : Color.DarkSlateGray * alpha;
-        Vector2 position2 = position + new Vector2(Container.Width - num + 40f + (lastDir < 0 ?
-            (0f - ValueWiggler.Value) * 8f : 0f), 0f) - (flag ? vector : Vector2.Zero);
-        ActiveFont.DrawOutline("<", position2, new Vector2(0.5f, 0.5f), Vector2.One, color2, 2f, strokeColor);
-
-        bool flag2 = value != Dirs.None;
-
-        Color color3 = flag2 ? color : Color.DarkSlateGray * alpha;
-        Vector2 position3 = position + new Vector2(Container.Width - 40f + (lastDir > 0 ? ValueWiggler.Value * 8f : 0f), 0f) + (flag2 ? vector : Vector2.Zero);
-        ActiveFont.DrawOutline(">", position3, new Vector2(0.5f, 0.5f), Vector2.One, color3, 2f, strokeColor);
-    }
-
 }
