@@ -9,7 +9,7 @@ public class DirSlider : TweakSetting<Dirs>
 {
     private float? len = null;
 
-    public DirSlider(string tweak, string settingName, TextMenu addedTo) : base(tweak, settingName, addedTo) { }
+    public DirSlider(string tweak, string settingName) : base(tweak, settingName) { }
 
     private float CalcLen()
     {
@@ -104,18 +104,6 @@ public class DirSlider : TweakSetting<Dirs>
 
     public override void Render(Vector2 position, bool selected)
     {
-        BeforeRender(ref position, selected);
-
-        DrawLabel();
-
-        DrawRightText(value.ToString(), scale: 0.8f);
-
-        Vector2 sineShift = Vector2.UnitX * (selected ? (float)Math.Sin(sine * 4f) * 4f : 0f);
-
-        bool notMinimal = value != Dirs.Up;
-        DrawRightText("<", -40f * Monocle.Engine.ScreenMatrix.M11 - (notMinimal ? sineShift : Vector2.Zero).X, inactiveColor: !notMinimal);
-
-        bool notMaximal = value != Dirs.None;
-        DrawRightText(">", 40f * Monocle.Engine.ScreenMatrix.M11 + (notMaximal ? sineShift : Vector2.Zero).X, inactiveColor: !notMaximal);
+        BaseRender(value.ToString(), position, selected, value != Dirs.Up, value != Dirs.None);
     }
 }

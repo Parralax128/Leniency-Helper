@@ -57,6 +57,7 @@ public static class SettingMaster
     #endregion
 
     #region tweaks
+
     public static bool GetTweakEnabled(string tweak, bool ignoreOverride = false)
     {
         var session = LeniencyHelperModule.Session;

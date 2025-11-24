@@ -15,8 +15,8 @@ namespace Celeste.Mod.LeniencyHelper.UI
         }
 
         public bool framesModeToggler;
-        public BoolSlider(bool framesToggler, string tweak, string settingName, TextMenu addedTo)
-            : base(tweak, settingName, addedTo)
+        public BoolSlider(bool framesToggler, string tweak, string settingName)
+            : base(tweak, settingName)
         {
             framesModeToggler = framesToggler;
             len = 120f + Math.Max(Measure(true), Measure(false));
@@ -75,19 +75,7 @@ namespace Celeste.Mod.LeniencyHelper.UI
 
         public override void Render(Vector2 position, bool selected)
         {
-            BeforeRender(ref position, selected);
-
-            DrawLabel();
-
-            DrawRightText(text, scale: 0.8f);
-
-            Vector2 sineShift = Vector2.UnitX * (selected ? (float)Math.Sin(sine * 4f) * 4f : 0f);
-
-            bool notMinimal = value == true;
-            DrawRightText("<", -40f * Monocle.Engine.ScreenMatrix.M11 - (notMinimal ? sineShift : Vector2.Zero).X, inactiveColor: !notMinimal);
-
-            bool notMaximal = !notMinimal;
-            DrawRightText(">", 40f * Monocle.Engine.ScreenMatrix.M11 + (notMaximal ? sineShift : Vector2.Zero).X, inactiveColor: !notMaximal);
+            BaseRender(text, position, selected, value == true, value == false);
         }
     }
 }

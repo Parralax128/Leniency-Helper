@@ -9,8 +9,8 @@ public class IntSlider : TweakSetting<int>
 {
     private int min, max;
     private float len = 0f;
-    public IntSlider(int min, int max, string tweak, string settingName, TextMenu addedTo)
-        : base(tweak, settingName, addedTo)
+    public IntSlider(int min, int max, string tweak, string settingName)
+        : base(tweak, settingName)
     {
         this.max = max;
         this.min = min;
@@ -60,18 +60,6 @@ public class IntSlider : TweakSetting<int>
 
     public override void Render(Vector2 position, bool selected)
     {
-        BeforeRender(ref position, selected);
-
-        DrawLabel();
-
-        DrawRightText(value.ToString(), scale: 0.8f);
-
-        Vector2 sineShift = Vector2.UnitX * (selected ? (float)Math.Sin(sine * 4f) * 4f : 0f);
-
-        bool notMinimal = value > min;
-        DrawRightText("<", -40f * Engine.ScreenMatrix.M11 - (notMinimal ? sineShift : Vector2.Zero).X, inactiveColor: !notMinimal);
-
-        bool notMaximal = value < max;
-        DrawRightText(">", 40f * Engine.ScreenMatrix.M11 + (notMaximal ? sineShift : Vector2.Zero).X, inactiveColor: !notMaximal);
+        BaseRender(value.ToString(), position, selected, value > min, value < max);
     }
 }

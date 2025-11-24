@@ -12,7 +12,7 @@ namespace Celeste.Mod.LeniencyHelper.UI
         private static HttpClient sharedClient = new HttpClient();
         public struct TweakInfo
         {
-            public string description = "";
+            public string tweakDescription = "";
             public Dictionary<string, string> settingDescs = new();
 
             public TweakInfo() { }
@@ -63,7 +63,7 @@ namespace Celeste.Mod.LeniencyHelper.UI
                 startIndex = contents.IndexOf("<p>") + 3;
                 endIndex = contents.IndexOf("</p>");
 
-                info.description = contents[startIndex..endIndex];
+                info.tweakDescription = contents[startIndex..endIndex];
             }
 
             

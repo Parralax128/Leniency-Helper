@@ -1,8 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.XPath;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
 
@@ -10,17 +7,16 @@ public class Description
 {
     private static readonly Color Color = Color.DarkSlateGray;
 
-    private TextMenu Container;
-    public string text = "";
+    private Func<float> AlphaGetter;
+    private string text = "";
     private const float Scale = 0.7f;
-    
-    public Description(TextMenu container, WebScrapper.TweakInfo info, string settingName = null)
-    {
-        Container = container;
 
+
+    public Description(Func<float> getAlpha, WebScrapper.TweakInfo info, string settingName = null)
+    {
         if (settingName == null)
         {
-            text = info.description;
+            text = info.tweakDescription;
         }
         else
         {
@@ -34,7 +30,7 @@ public class Description
 
                 if(info.settingDescs != null && info.settingDescs.Count > 0)
                 {
-                    Logging.Warn("exisiting settings:");
+                    Logging.Warn("existing settings:");
                     foreach (var desc in info.settingDescs)
                     {
                         Logging.Log($"\"{desc.Key}\" - \"{desc.Value}\"");
@@ -43,7 +39,9 @@ public class Description
             }
         }
 
-        if(text != null) text = SplitText(container.Left);
+        AlphaGetter = getAlpha;
+        var layout = TweakMenuManager.Layout;
+        if(text != null) text = SplitText((Monocle.Engine.Width - layout.LeftOffset - layout.RightOffset) * 0.7f);
     }
     private string SplitText(float maxLineLen)
     {
@@ -72,14 +70,13 @@ public class Description
     }
     public void Render(Vector2 position, float textWidth)
     {
-        float alpha = (float)Math.Pow(Container.Alpha, 3f);
-        alpha = 1f;
+        float alpha = AlphaGetter.Invoke();
 
         ActiveFont.DrawOutline(text, 
             position,
             new Vector2(0f, 0.5f), 
-            Vector2.One * Scale,
+            new Vector2(Scale),
             Color * alpha, 
-            2f, Color.Black * alpha);
+            2f, Color.Black * alpha * alpha * alpha);
     }
 }

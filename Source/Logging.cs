@@ -24,7 +24,7 @@ public class Logging
 
     public static void Log(WebScrapper.TweakInfo info)
     {
-        Warn(info.description);
+        Warn(info.tweakDescription);
         if (info.settingDescs == null) return;
         foreach (string key in info.settingDescs.Keys)
         {

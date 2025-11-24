@@ -42,9 +42,11 @@ public static class TweakMenuManager
         TextMenu menu = new TextMenu();
 
         Layout = new MenuLayout();
-        Layout.LeftOffset = Engine.ViewWidth * 0.05f;
-        Layout.RightOffset = Engine.ViewWidth * 0.4f;
-        
+        Layout.LeftOffset = 0.05f;
+        Layout.RightOffset = 0.4f;
+        Layout.SubSettingOffset = 0.03f;
+
+
         Logging.Log($"menu size: {new Vector2(menu.Width, menu.Height)}");
         
 
@@ -80,10 +82,10 @@ public static class TweakMenuManager
         foreach (string tweak in LeniencyHelperModule.TweakList)
         {
             TweakSlider newTweak = new TweakSlider(Dialog.Clean($"LENIENCYTWEAKS_{tweak.ToUpper()}"),
-                tweak, TweakSlider.GetIndexFromTweakName(tweak), menu);
+                tweak, TweakSlider.GetIndexFromTweakName(tweak));
 
             resetTweaksButton.OnPressed += () => { while (newTweak.Index > 0) newTweak.ChangeValue(-1); };
-            resetSettingsButton.OnPressed += () => newTweak.UpdateSubsettings();
+            resetSettingsButton.OnPressed += newTweak.UpdateSubsettings;
 
             menu.Add(newTweak);
         }
@@ -101,7 +103,7 @@ public static class TweakMenuManager
 
             if (selectedItem is TweakSlider tweakSlider)
             {
-                tweakSlider.CopyWikiLinkToCliboard();
+                tweakSlider.TweakInfoFromLink();
             }
             else
             {
@@ -109,7 +111,7 @@ public static class TweakMenuManager
                 {
                     if (slider.subOptions.Contains(selectedItem))
                     {
-                        slider.CopyWikiLinkToCliboard();
+                        slider.TweakInfoFromLink();
                         break;
                     }
                 }

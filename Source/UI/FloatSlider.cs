@@ -17,8 +17,8 @@ public class FloatSlider : TweakSetting<float>
     public bool transitionIntoFrames = false;
 
     private float rightLen = 0f;
-    public FloatSlider(float min, float max, int digits,
-        string tweak, string settingName, TextMenu addedTo) : base(tweak, settingName, addedTo, true)
+    public FloatSlider(float min, float max, int digits, string tweak, string settingName)
+        : base(tweak, settingName, true)
     {
         value = (float)Math.Round(GetSetting<float>(settingName, tweak), digits);
 
@@ -92,19 +92,8 @@ public class FloatSlider : TweakSetting<float>
 
     public override void Render(Vector2 position, bool selected)
     {
-        BeforeRender(ref position, selected);
-
-
-        DrawLabel();
-
-        DrawRightText(value.ToString(), scale: 0.8f);
-
-        Vector2 sineShift = Vector2.UnitX * (selected ? (float)Math.Sin(sine * 4f) * 4f : 0f);
-
-        bool notMinimal = transitionIntoFrames ? value > framesMin : value > min;
-        DrawRightText("<", -40f*Engine.ScreenMatrix.M11 - (notMinimal ? sineShift : Vector2.Zero).X, inactiveColor: !notMinimal);
-
-        bool notMaximal = transitionIntoFrames ? value < framesMax: value < max;
-        DrawRightText(">", 40f*Engine.ScreenMatrix.M11 + (notMaximal ? sineShift : Vector2.Zero).X, inactiveColor: !notMaximal);
+        BaseRender(value.ToString(), position, selected,
+            transitionIntoFrames ? value > framesMin : value > min,
+            transitionIntoFrames ? value < framesMax : value < max);
     }
 }
