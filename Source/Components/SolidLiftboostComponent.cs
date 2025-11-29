@@ -10,9 +10,9 @@ public class SolidLiftboostComponent : Component
     {
         get
         {
-            return SettingMaster.GetSetting<bool>("countSolidBoostSaveTimeInFrames", "SolidBlockboostProtection") ?
-                SettingMaster.GetSetting<float>("bboostSaveTime", "SolidBlockboostProtection") / Engine.FPS :
-                SettingMaster.GetSetting<float>("bboostSaveTime", "SolidBlockboostProtection");
+            return SettingMaster.GetSetting<bool>("countSolidBoostSaveTimeInFrames", Tweak.SolidBlockboostProtection) ?
+                SettingMaster.GetSetting<float>("bboostSaveTime", Tweak.SolidBlockboostProtection) / Engine.FPS :
+                SettingMaster.GetSetting<float>("bboostSaveTime", Tweak.SolidBlockboostProtection);
         }
     }
     public float boostSaveTimer = 0f;

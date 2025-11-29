@@ -37,7 +37,7 @@ public static class SessionSerializer
 
         writer.Write("v1.2.2");
         string controllerTweaks = "\n[break]\nControllerTweaks", useController = "\n[break]\nUseController";
-        foreach (string tweak in TweakList)
+        foreach (Tweak tweak in TweakList)
         {
             controllerTweaks += $"\n{tweak}: {session.ControllerTweaks[tweak]}";
             useController += $"\n{tweak}: {session.UseController[tweak]}";
@@ -91,7 +91,7 @@ public static class SessionSerializer
 
             if (mode == "ControllerTweaks" || mode == "UseController")
             {
-                ParseTweak(line, out string tweak, out bool enabled);
+                ParseTweak(line, out Tweak tweak, out bool enabled);
 
                 if (TweakList.Contains(tweak))
                 {
@@ -113,7 +113,7 @@ public static class SessionSerializer
         return result;
     }
 
-    private static void ParseTweak(string line, out string tweak, out bool value)
+    private static void ParseTweak(string line, out Tweak tweak, out bool value)
     {
         int index = 0;
 
@@ -124,7 +124,7 @@ public static class SessionSerializer
             index++;
         }
 
-        tweak = currentWord;
+        Enum.TryParse<Tweak>(currentWord, out tweak);
         currentWord = "";
         index += 2;
 

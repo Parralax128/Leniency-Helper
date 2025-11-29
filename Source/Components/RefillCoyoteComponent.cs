@@ -6,11 +6,12 @@ namespace Celeste.Mod.LeniencyHelper.Components;
 
 public class RefillCoyoteComponent : PlayerComponent
 {
-    public static float RefillCoyoteTime => GetSetting<bool>("CountRefillCoyoteTimeInFrames", "RefillDashInCoyote") ?
-        GetSetting<float>("RefillCoyoteTime", "RefillDashInCoyote") * Engine.DeltaTime : GetSetting<float>("RefillCoyoteTime", "RefillDashInCoyote");
+    public static float RefillCoyoteTime => GetSetting<bool>("CountRefillCoyoteTimeInFrames", Tweak.RefillDashInCoyote) ?
+        GetSetting<float>("RefillCoyoteTime", Tweak.RefillDashInCoyote) * Engine.DeltaTime
+        : GetSetting<float>("RefillCoyoteTime", Tweak.RefillDashInCoyote);
 
     public float refillCoyoteTimer;
-    public RefillCoyoteComponent() : base("RefillDashInCoyote") 
+    public RefillCoyoteComponent() : base(Tweak.RefillDashInCoyote) 
     {
         refillCoyoteTimer = 0f;
     }

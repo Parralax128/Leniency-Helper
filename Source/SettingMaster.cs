@@ -44,7 +44,7 @@ public static class SettingMaster
     {
         var s = LeniencyHelperModule.Session;
 
-        foreach (string tweak in LeniencyHelperModule.TweakList)
+        foreach (Tweak tweak in LeniencyHelperModule.TweakList)
         {
             SetTriggerTweak(tweak, false);
         }
@@ -58,7 +58,7 @@ public static class SettingMaster
 
     #region tweaks
 
-    public static bool GetTweakEnabled(string tweak, bool ignoreOverride = false)
+    public static bool GetTweakEnabled(Tweak tweak, bool ignoreOverride = false)
     {
         var session = LeniencyHelperModule.Session;
 
@@ -75,10 +75,10 @@ public static class SettingMaster
         return session.UseController[tweak] ?
             session.ControllerTweaks[tweak] : session.TriggerTweaks[tweak];
     }
-    public static void SetPlayerTweak(string tweak, bool? newValue) => LeniencyHelperModule.Settings.PlayerTweaks[tweak] = newValue;
-    public static void SetTriggerTweak(string tweak, bool newValue) => LeniencyHelperModule.Session.TriggerTweaks[tweak] = newValue;
-    public static void SetControllerTweak(string tweak, bool newValue) => LeniencyHelperModule.Session.ControllerTweaks[tweak] = newValue;
-    public static void SetUseController(string tweak, bool useController) => LeniencyHelperModule.Session.UseController[tweak] = useController;
+    public static void SetPlayerTweak(Tweak tweak, bool? newValue) => LeniencyHelperModule.Settings.PlayerTweaks[tweak] = newValue;
+    public static void SetTriggerTweak(Tweak tweak, bool newValue) => LeniencyHelperModule.Session.TriggerTweaks[tweak] = newValue;
+    public static void SetControllerTweak(Tweak tweak, bool newValue) => LeniencyHelperModule.Session.ControllerTweaks[tweak] = newValue;
+    public static void SetUseController(Tweak tweak, bool useController) => LeniencyHelperModule.Session.UseController[tweak] = useController;
 
     public static void ResetPlayerSettings()
     {
@@ -99,13 +99,13 @@ public static class SettingMaster
 
     #region subsettings
 
-    public static float GetTime(string setting, string tweakName)
+    public static float GetTime(string setting, Tweak tweakName)
     {
         string modeName = $"count{char.ToUpper(setting[0])}{setting.Substring(1)}InFrames";
         return GetSetting<float>(setting, tweakName) * (GetSetting<bool>(modeName, tweakName) ? 
             Monocle.Engine.DeltaTime : 1f);
     }
-    public static T GetSetting<T>(string name, string tweakName)
+    public static T GetSetting<T>(string name, Tweak tweakName)
     {
         if (LeniencyHelperModule.Settings.PlayerTweaks[tweakName] == true)
         {
@@ -131,8 +131,8 @@ public static class SettingMaster
     public static void SetControllerSetting(string name, object value) => LeniencyHelperModule.Session.ControllerSettings[name] = value;
 
     #endregion
-
-    public static Dictionary<string, object> GetSettingsFromData(EntityData data, string tweakName)
+    
+    public static Dictionary<string, object> GetSettingsFromData(EntityData data, Tweak tweakName)
     {
         Dictionary<string, object> result = null;
 
@@ -169,48 +169,47 @@ public static class SettingMaster
         return result;
     }
 
-    public static Dictionary<string, List<string>> AssociatedSettings = new Dictionary<string, List<string>>
+    public static Dictionary<Tweak, List<string>> AssociatedSettings = new Dictionary<Tweak, List<string>>
     {
-        { "AutoSlowfall", new List<string> {"techOnly", "delayedJumpRelease", "releaseDelay", "countReleaseDelayInFrames"} },
-        { "BackboostProtection", new List<string>{ "earlyBackboostTiming", "lateBackboostTiming", "countBackboostTimingInFrames" } },
-        { "BackwardsRetention", null },
-        { "BufferableClimbtrigger", new List<string>{ "onNormalUpdate", "onDash" } },
-        { "BufferableExtends", new List<string>{ "forceWaitForRefill", "extendsTiming", "countExtendsTimingInFrames" } },
-        { "ConsistentDashOnDBlockExit", new List<string>{ "resetDashCDonLeave" } },
-        { "ConsistentWallboosters", new List<string>{ "instantWallboosterAcceleration", "newWallboosterAcceleration",
+        { Tweak.AutoSlowfall, new List<string> {"techOnly", "delayedJumpRelease", "releaseDelay", "countReleaseDelayInFrames"} },
+        { Tweak.BackboostProtection, new List<string>{ "earlyBackboostTiming", "lateBackboostTiming", "countBackboostTimingInFrames" } },
+        { Tweak.BackwardsRetention, null },
+        { Tweak.BufferableClimbtrigger, new List<string>{ "onNormalUpdate", "onDash" } },
+        { Tweak.BufferableExtends, new List<string>{ "forceWaitForRefill", "extendsTiming", "countExtendsTimingInFrames" } },
+        { Tweak.ConsistentDashOnDBlockExit, new List<string>{ "resetDashCDonLeave" } },
+        { Tweak.ConsistentWallboosters, new List<string>{ "instantWallboosterAcceleration", "newWallboosterAcceleration",
             "consistentWallboosterBlockboost", "bufferableWallboosterMaxjumps" } },
-        { "CornerWaveLeniency", null },
-        { "CrouchOnBonk", null },
-        { "CustomBufferTime", new List<string>{ "countBufferTimeInFrames", "JumpBufferTime", "DashBufferTime", "DemoBufferTime" } },
-        { "CustomDashbounceTiming", new List<string>{ "dashbounceTiming", "countDashbounceTimingInFrames" } },
-        { "CustomSnapDownDistance", new List<string>{ "staticSnapdownDistance", "snapdownTiming", "dynamicSnapdownDistance", "countSnapdownTimingInFrames" } },
-        { "DashCDIgnoreFFrames", null },
-        { "DelayedClimbtrigger", new List<string>{ "triggerDelay", "countTriggerDelayInFrames" } },
-        { "DirectionalReleaseProtection", new List<string>{ "DirectionalBufferTime", "CountProtectionTimeInFrames", "dashDir", "jumpDir",
+        { Tweak.CornerWaveLeniency, null },
+        { Tweak.CrouchOnBonk, null },
+        { Tweak.CustomBufferTime, new List<string>{ "countBufferTimeInFrames", "JumpBufferTime", "DashBufferTime", "DemoBufferTime" } },
+        { Tweak.CustomDashbounceTiming, new List<string>{ "dashbounceTiming", "countDashbounceTimingInFrames" } },
+        { Tweak.CustomSnapDownDistance, new List<string>{ "staticSnapdownDistance", "snapdownTiming", "dynamicSnapdownDistance", "countSnapdownTimingInFrames" } },
+        { Tweak.DashCDIgnoreFFrames, null },
+        { Tweak.DelayedClimbtrigger, new List<string>{ "triggerDelay", "countTriggerDelayInFrames" } },
+        { Tweak.DirectionalReleaseProtection, new List<string>{ "DirectionalBufferTime", "CountProtectionTimeInFrames", "dashDir", "jumpDir",
         "affectFeathers", "affectSuperdashes" } },
-        { "DisableBackboost", null },
-        { "DisableForcemovedTech", null },
-        { "DynamicCornerCorrection", new List<string>{ "FloorCorrectionTiming", "WallCorrectionTiming", "ccorectionTimingInFrames" } },
-        { "DynamicWallLeniency", new List<string>{ "wallLeniencyTiming", "countWallLeniencyTimingInFrames" } },
-        { "ExtendBufferOnFreezeAndPickup", new List<string>{ "ExtendBufferOnPickup", "ExtendBufferOnFreeze" } },
-        { "ExtendDashAttackOnPickup", new List<string>{ "attackExtendTime", "countAttackExtendTimeInFrames" } },
-        { "ForceCrouchDemodash", null },
-        { "GultraCancel", new List<string> { "cancelTime", "countCancelTimeInFrames" } },
-        { "IceWallIncreaseWallLeniency", new List<string>{ "iceWJLeniency" } },
-        { "InstantAcceleratedJumps", null },
-        { "InstantClimbHop", null },
-        { "NoFailedTech", new List<string>{ "protectedTechTime", "countProtectedTechTimeInFrames" } },        
-        { "ManualDreamhyperLeniency", null },
-        { "RefillDashInCoyote", new List<string>{ "RefillCoyoteTime", "CountRefillCoyoteTimeInFrames" } },
-        { "RemoveDBlockCCorection", null },
-        { "RespectInputOrder", new List<string> { "affectGrab" } },
-        { "RetainSpeedCornerboost", new List<string>{ "RetainCbSpeedTime", "countRetainTimeInFrames" } },
-        { "LateReverses", new List<string>{ "redirectTime", "countRedirectTimeInFrames" } },
-        { "SolidBlockboostProtection", new List<string>{ "bboostSaveTime", "countSolidBoostSaveTimeInFrames" } },
-        { "SuperdashSteeringProtection", null },
-        { "SuperOverWalljump", null },
-        { "WallAttraction", new List<string>{ "wallApproachTime", "countWallApproachTimeInFrames", "staticApproachDistance", "useDynamicApproachDistance" } },
-        { "WallCoyoteFrames", new List<string>{ "wallCoyoteTime", "countWallCoyoteTimeInFrames" } },
+        { Tweak.DisableBackboost, null },
+        { Tweak.DisableForcemovedTech, null },
+        { Tweak.DynamicCornerCorrection, new List<string>{ "FloorCorrectionTiming", "WallCorrectionTiming", "ccorectionTimingInFrames" } },
+        { Tweak.DynamicWallLeniency, new List<string>{ "wallLeniencyTiming", "countWallLeniencyTimingInFrames" } },
+        { Tweak.ExtendBufferOnFreezeAndPickup, new List<string>{ "ExtendBufferOnPickup", "ExtendBufferOnFreeze" } },
+        { Tweak.ExtendDashAttackOnPickup, new List<string>{ "attackExtendTime", "countAttackExtendTimeInFrames" } },
+        { Tweak.ForceCrouchDemodash, null },
+        { Tweak.GultraCancel, new List<string> { "cancelTime", "countCancelTimeInFrames" } },
+        { Tweak.IceWallIncreaseWallLeniency, new List<string>{ "iceWJLeniency" } },
+        { Tweak.InstantAcceleratedJumps, null },
+        { Tweak.NoFailedTech, new List<string>{ "protectedTechTime", "countProtectedTechTimeInFrames" } },        
+        { Tweak.ManualDreamhyperLeniency, null },
+        { Tweak.RefillDashInCoyote, new List<string>{ "RefillCoyoteTime", "CountRefillCoyoteTimeInFrames" } },
+        { Tweak.RemoveDBlockCCorection, null },
+        { Tweak.RespectInputOrder, new List<string> { "affectGrab" } },
+        { Tweak.RetainSpeedCornerboost, new List<string>{ "RetainCbSpeedTime", "countRetainTimeInFrames" } },
+        { Tweak.LateReverses, new List<string>{ "redirectTime", "countRedirectTimeInFrames" } },
+        { Tweak.SolidBlockboostProtection, new List<string>{ "bboostSaveTime", "countSolidBoostSaveTimeInFrames" } },
+        { Tweak.SuperdashSteeringProtection, null },
+        { Tweak.SuperOverWalljump, null },
+        { Tweak.WallAttraction, new List<string>{ "wallApproachTime", "countWallApproachTimeInFrames", "staticApproachDistance", "useDynamicApproachDistance" } },
+        { Tweak.WallCoyoteFrames, new List<string>{ "wallCoyoteTime", "countWallCoyoteTimeInFrames" } },
     };
 
     public static Dictionary<string, FieldInfo> SettingListFields { get; set; } = new Dictionary<string, FieldInfo>();

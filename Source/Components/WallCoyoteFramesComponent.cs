@@ -6,13 +6,14 @@ namespace Celeste.Mod.LeniencyHelper.Components;
 
 public class WallCoyoteFramesComponent : PlayerComponent
 {
-    private float WallCoyoteTime => SettingMaster.GetSetting<bool>("countWallCoyoteTimeInFrames", "WallCoyoteFrames") ?
-        SettingMaster.GetSetting<float>("wallCoyoteTime", "WallCoyoteFrames") / Engine.FPS : SettingMaster.GetSetting<float>("wallCoyoteTime", "WallCoyoteFrames");
+    private float WallCoyoteTime => SettingMaster.GetSetting<bool>("countWallCoyoteTimeInFrames", Tweak.WallCoyoteFrames) ?
+        SettingMaster.GetSetting<float>("wallCoyoteTime", Tweak.WallCoyoteFrames) / Engine.FPS
+        : SettingMaster.GetSetting<float>("wallCoyoteTime", Tweak.WallCoyoteFrames);
     
     public float wallCoyoteTimer;
     public WallCoyoteFrames.WallCoyoteTypes currentWallCoyoteType;
 
-    public WallCoyoteFramesComponent() : base("WallCoyoteFrames")
+    public WallCoyoteFramesComponent() : base(Tweak.WallCoyoteFrames)
     {
         if (Entity is not Player) RemoveSelf();
         wallCoyoteTimer = 0f;
@@ -22,7 +23,7 @@ public class WallCoyoteFramesComponent : PlayerComponent
     public override void Update()
     {
         base.Update();
-        if (!SettingMaster.GetTweakEnabled("WallCoyoteFrames") || LeniencyHelperModule.Session == null) return;
+        if (!SettingMaster.GetTweakEnabled(Tweak.WallCoyoteFrames) || LeniencyHelperModule.Session == null) return;
 
         if (wallCoyoteTimer > 0f) wallCoyoteTimer -= Engine.DeltaTime;
         else wallCoyoteTimer = 0f;

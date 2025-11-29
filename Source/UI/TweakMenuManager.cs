@@ -47,6 +47,11 @@ public static class TweakMenuManager
         Layout.SubSettingOffset = 0.03f;
 
 
+        Layout.VideoSize = new Microsoft.Xna.Framework.Vector2(0.4f);
+        Layout.VideoOffsetX = 0.1f;
+        Layout.VideoPosY = 0.4f;
+
+
         Logging.Log($"menu size: {new Vector2(menu.Width, menu.Height)}");
         
 
@@ -79,9 +84,10 @@ public static class TweakMenuManager
         menu.Add(new SubOptionsOffset(32));
         menu.Add(new OptionsHint());
 
-        foreach (string tweak in LeniencyHelperModule.TweakList)
+        foreach (Tweak tweak in LeniencyHelperModule.TweakList)
         {
-            TweakSlider newTweak = new TweakSlider(Dialog.Clean($"LENIENCYTWEAKS_{tweak.ToUpper()}"),
+            string tweakName = tweak.ToString();
+            TweakSlider newTweak = new TweakSlider(Dialog.Clean($"LENIENCYTWEAKS_{tweakName.ToUpper()}"),
                 tweak, TweakSlider.GetIndexFromTweakName(tweak));
 
             resetTweaksButton.OnPressed += () => { while (newTweak.Index > 0) newTweak.ChangeValue(-1); };
@@ -92,6 +98,10 @@ public static class TweakMenuManager
         menu.Insert(1, resetTweaksButton);
         menu.Insert(2, resetSettingsButton);
         menu.Selection = 1;
+
+        TutorialPlayer.LoadVideo("vid");
+        TutorialPlayer.PlayTutorial();
+        
     }
     private static void OnUpdate(TextMenu menu)
     {

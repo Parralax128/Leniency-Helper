@@ -49,47 +49,8 @@ public class LeniencyHelperModule : EverestModule
         All, None
     }
 
-    public static readonly string[] TweakList =
-    {
-        "AutoSlowfall",
-        "BackboostProtection",
-        "BackwardsRetention",
-        "BufferableClimbtrigger",
-        "BufferableExtends",
-        "ConsistentDashOnDBlockExit",
-        "ConsistentWallboosters",
-        "CornerWaveLeniency",
-        "CrouchOnBonk",
-        "CustomBufferTime",
-        "CustomDashbounceTiming",
-        "CustomSnapDownDistance",
-        "DashCDIgnoreFFrames",
-        "DelayedClimbtrigger",
-        "DirectionalReleaseProtection",
-        "DisableBackboost",
-        "DisableForcemovedTech",
-        "DynamicCornerCorrection",
-        "DynamicWallLeniency",
-        "ExtendBufferOnFreezeAndPickup",
-        "ExtendDashAttackOnPickup",
-        "ForceCrouchDemodash",
-        "GultraCancel",
-        "IceWallIncreaseWallLeniency",
-        "InstantAcceleratedJumps",
-        "LateReverses",
-        "ManualDreamhyperLeniency",
-        "NoFailedTech",
-        "RefillDashInCoyote",
-        "RemoveDBlockCCorection",
-        "RespectInputOrder",
-        "RetainSpeedCornerboost",
-        "SolidBlockboostProtection",
-        "SuperdashSteeringProtection",
-        "SuperOverWalljump",
-        "WallAttraction",
-        "WallCoyoteFrames",    
-
-    };
+    public static readonly Tweak[] TweakList = Enum.GetValues<Tweak>();
+    
     public static SettingList DefaultSettings = new SettingList();
     public static Player GetPlayer(Monocle.Scene scene) => scene.Tracker.GetEntity<Player>();
 
@@ -134,7 +95,6 @@ public class LeniencyHelperModule : EverestModule
     public static event Action<Player> BeforePlayerUpdate;
     public static event Action<Player> OnPlayerUpdate;
     public static event Action OnUpdate;
-
 
     public override void Initialize()
     {
@@ -251,7 +211,7 @@ public class LeniencyHelperModule : EverestModule
     {
         base.LoadSettings();
 
-        foreach(string tweak in TweakList)
+        foreach(Tweak tweak in TweakList)
         {
             if (!Settings.PlayerTweaks.ContainsKey(tweak))
             {
@@ -282,7 +242,7 @@ public class LeniencyHelperModule : EverestModule
 
         if (Settings == null || Session == null || scene is not Level) return;
 
-        foreach (string tweak in TweakList)
+        foreach (Tweak tweak in TweakList)
         {
             if (Settings.PlayerTweaks[tweak] == true)
             {

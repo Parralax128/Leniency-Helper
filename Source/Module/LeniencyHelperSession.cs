@@ -3,21 +3,23 @@ using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using static Celeste.Mod.LeniencyHelper.Triggers.InputRequiresBlockboostTrigger;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
 
 public class LeniencyHelperSession : EverestModuleSession
 {
-    public Dictionary<string, bool> TriggerTweaks { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
-    public Dictionary<string, bool> ControllerTweaks { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
-    public Dictionary<string, bool> UseController { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
-    public Dictionary<string, bool?> OverrideTweaks { get; set; } = LeniencyHelperSettings.NulledTweaks();
+    public Dictionary<Tweak, bool> TriggerTweaks { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
+    public Dictionary<Tweak, bool> ControllerTweaks { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
+    public Dictionary<Tweak, bool> UseController { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
+    public Dictionary<Tweak, bool?> OverrideTweaks { get; set; } = LeniencyHelperSettings.NulledTweaks();
     public bool OverridePlayerSettings { get; set; } = false;
 
     public SettingList TriggerSettings { get; set; } = new SettingList();
     public SettingList ControllerSettings { get; set; } = new SettingList();
 
     #region temp vars
+
     
     public int wjDistR { get; set; } = 3;
     public int wjDistL { get; set; } = 3;

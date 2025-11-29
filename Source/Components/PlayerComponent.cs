@@ -4,15 +4,15 @@ namespace Celeste.Mod.LeniencyHelper.Components;
 
 public class PlayerComponent : Component
 {
-    private string tweakName;
-    public PlayerComponent(string tweakName) : base(true, true)
+    private Tweak tweak;
+    public PlayerComponent(Tweak tweak) : base(true, true)
     {
         if (Entity is not Player) RemoveSelf();
-        this.tweakName = tweakName;
+        this.tweak = tweak;
     }
     public override void Update()
     {
         base.Update();
-        Visible = SettingMaster.GetTweakEnabled(tweakName);
+        Visible = SettingMaster.GetTweakEnabled(tweak);
     }
 }

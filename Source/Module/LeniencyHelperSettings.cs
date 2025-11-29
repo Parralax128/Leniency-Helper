@@ -1,19 +1,20 @@
-using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using System.Collections.Generic;
+using System.Linq;
+using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
 
 public class LeniencyHelperSettings : EverestModuleSettings
 {
-    public static Dictionary<string, bool?> NulledTweaks()
+    public static Dictionary<Tweak, bool?> NulledTweaks()
     {
-        Dictionary<string, bool?> result = new Dictionary<string, bool?>();
-        foreach (string tweak in TweakList)
+        Dictionary<Tweak, bool?> result = new Dictionary<Tweak, bool?>();
+        foreach (Tweak tweak in TweakList)
             result.Add(tweak, null);
         return result;
     }
 
-    public Dictionary<string, bool?> PlayerTweaks { get; set; } = NulledTweaks();
+    public Dictionary<Tweak, bool?> PlayerTweaks { get; set; } = NulledTweaks();
     public SettingList PlayerSettings { get; set; } = new SettingList();
 
 
