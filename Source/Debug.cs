@@ -2,7 +2,7 @@
 
 namespace Celeste.Mod.LeniencyHelper;
 
-public class Logging
+public static class Debug
 {
     public static void Log(object o)
     {

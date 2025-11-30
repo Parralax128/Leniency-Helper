@@ -1,5 +1,4 @@
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
-
 public class DisableBackboost : AbstractTweak<DisableBackboost>
 {
     [OnLoad]

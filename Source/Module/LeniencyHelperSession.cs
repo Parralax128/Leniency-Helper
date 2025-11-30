@@ -9,15 +9,6 @@ namespace Celeste.Mod.LeniencyHelper.Module;
 
 public class LeniencyHelperSession : EverestModuleSession
 {
-    public Dictionary<Tweak, bool> TriggerTweaks { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
-    public Dictionary<Tweak, bool> ControllerTweaks { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
-    public Dictionary<Tweak, bool> UseController { get; set; } = TweakList.ToDictionary(tweak => tweak, tweak => false);
-    public Dictionary<Tweak, bool?> OverrideTweaks { get; set; } = LeniencyHelperSettings.NulledTweaks();
-    public bool OverridePlayerSettings { get; set; } = false;
-
-    public SettingList TriggerSettings { get; set; } = new SettingList();
-    public SettingList ControllerSettings { get; set; } = new SettingList();
-
     #region temp vars
 
     

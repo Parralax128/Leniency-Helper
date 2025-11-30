@@ -28,12 +28,12 @@ public static class TutorialPlayer
     }
     public static void PlayTutorial()
     {
-        player.Play(CurrentVideo);
+        //player.Play(CurrentVideo);
     }
 
 
     public static void Render(Vector2 position, bool highlighted)
     {
-        Draw.SpriteBatch.Draw(player.GetTexture(), Vector2.Zero, Color.White);
+        //Draw.SpriteBatch.Draw(player.GetTexture(), Vector2.Zero, Color.White);
     }
 }

@@ -21,7 +21,9 @@ public class WebScrapper
     {
         foreach(Tweak tweak in Module.LeniencyHelperModule.TweakList)
         {
-            Thread temp = new Thread(() => ExtractTweakInfo(TweakSlider.TweakToUrl(tweak), tweak));
+            Debug.Log($"Webscrapping {tweak}");
+            Debug.Log($"link: {DialogUtils.TweakToUrl(tweak)}");
+            Thread temp = new Thread(() => ExtractTweakInfo(DialogUtils.TweakToUrl(tweak), tweak));
             temp.Start();
         }
     }
@@ -103,8 +105,8 @@ public class WebScrapper
             }
             while (contents.Contains("<ins>") && contents.IndexOf("<ins>") < 100);
         }
-            
 
         TweaksInfo.TryAdd(tweak, info);
+        Debug.Log($"Webscrapper loaded {tweak}");
     }
 }

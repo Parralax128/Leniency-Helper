@@ -19,7 +19,7 @@ public class CrouchOnBonk : AbstractTweak<CrouchOnBonk>
 
     public static void CrouchOnCollide(On.Celeste.Player.orig_OnCollideV orig, Player self, CollisionData data)
     {
-        if (Enabled && !self.Ducking && (Math.Sign(self.Speed.Y) == -GravityHelperImports.currentGravity))
+        if (Enabled && !self.Ducking && Math.Sign(self.Speed.Y) == -GravityHelperImports.currentGravity)
         {
             self.Ducking = true;
         }

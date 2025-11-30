@@ -16,7 +16,7 @@ public class CustomDashbounceTiming : AbstractTweak<CustomDashbounceTiming>
     {
         On.Celeste.Player.SuperWallJump += SetCustomTiming;
         On.Celeste.Player.DashEnd += ConsumeDashbounce;
-        LeniencyHelperModule.OnUpdate += UpdateTimer;
+        Everest.Events.Level.OnAfterUpdate += UpdateTimer;
         On.Celeste.Player.DashBegin += TimerCheck;
         
         dashCoroutineHook = new ILHook(typeof(Player).GetMethod("DashCoroutine", System.Reflection.BindingFlags.NonPublic
@@ -27,7 +27,7 @@ public class CustomDashbounceTiming : AbstractTweak<CustomDashbounceTiming>
     {
         On.Celeste.Player.SuperWallJump -= SetCustomTiming;
         On.Celeste.Player.DashEnd -= ConsumeDashbounce;
-        LeniencyHelperModule.OnUpdate -= UpdateTimer;
+        Everest.Events.Level.OnAfterUpdate -= UpdateTimer;
         On.Celeste.Player.DashBegin -= TimerCheck;
 
         dashCoroutineHook.Dispose();
@@ -41,10 +41,10 @@ public class CustomDashbounceTiming : AbstractTweak<CustomDashbounceTiming>
 
         if (Enabled)
         {
-            LeniencyHelperModule.Session.dashbounceTimer = GetTime("dashbounceTiming");
+            LeniencyHelperModule.Session.dashbounceTimer = GetSetting<Time>("dashbounceTiming");
         }
     }
-    private static void UpdateTimer()
+    private static void UpdateTimer(Level level)
     {
         if (LeniencyHelperModule.Session.dashbounceTimer.HasValue
             && LeniencyHelperModule.Session.dashbounceTimer > 0f)

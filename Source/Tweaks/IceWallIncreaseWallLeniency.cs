@@ -32,7 +32,7 @@ public class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeni
 
         int newValue = defaultValue;
 
-        if (DynamicWallLeniency.Enabled && (Math.Sign(player.Speed.X) != dir || (player.DashAttacking && player.SuperWallJumpAngleCheck)))
+        if (DynamicWallLeniency.Enabled && (Math.Sign(player.Speed.X) != dir || player.DashAttacking && player.SuperWallJumpAngleCheck))
         {
             newValue = DynamicWallLeniency.GetDynamicLeniency(player, defaultValue);
         }
@@ -42,7 +42,7 @@ public class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeni
         if (!Enabled)
             return newValue;
 
-        int iceLeni = GetSetting<int>("iceWJLeniency");
+        int iceLeni = GetSetting<int>("ExtraWalljumpDistance");
         for (int c = 0; c < newValue + iceLeni + 1; c++)
         {
             Vector2 at = player.Position + Vector2.UnitX * dir * c;
@@ -69,8 +69,8 @@ public class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeni
     {
         if (!LeniencyHelperModule.ModLoaded("ShroomHelper")) return false;
 
-        return (player.CollideCheck<AttachedIceWall>(at) &&
-            (int)player.CollideFirst<AttachedIceWall>(player.Position + Vector2.UnitX * dir * c).Facing == dir);
+        return player.CollideCheck<AttachedIceWall>(at) &&
+            (int)player.CollideFirst<AttachedIceWall>(player.Position + Vector2.UnitX * dir * c).Facing == dir;
     }
     private static void SetWjDist(int value, int dir)
     {
@@ -168,7 +168,7 @@ public class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeni
     }
     private static bool BothDisabled()
     {
-        return (!Enabled && !DynamicWallLeniency.Enabled);
+        return !Enabled && !DynamicWallLeniency.Enabled;
     }
     private static void ReturnOrigPos(Player player, Vector2 pos)
     {
@@ -194,12 +194,12 @@ public class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeni
 
                 if (dir>0 && leftDist > 0 && leftDist < newWjDist)
                 {
-                    player.Position.X += (leftDist - origWjDist);
+                    player.Position.X += leftDist - origWjDist;
                     break;
                 }
                 else if (dir<0 && rightDist > 0 && rightDist < newWjDist)
                 {
-                    player.Position.X -= (rightDist - origWjDist);
+                    player.Position.X -= rightDist - origWjDist;
                     break;
                 }
             }
@@ -208,7 +208,7 @@ public class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeni
                 Rectangle rect = new Rectangle(
                     (int)player.Collider.AbsoluteLeft - (dir<0? newWjDist : 0),
                     (int)player.Collider.AbsoluteTop,
-                    ((int)player.Collider.Width + newWjDist),
+                    (int)player.Collider.Width + newWjDist,
                     (int)player.Collider.Height);
 
 

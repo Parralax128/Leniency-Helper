@@ -8,18 +8,17 @@ public class CustomBufferTime : AbstractTweak<CustomBufferTime>
     [OnLoad]
     public static void LoadHooks()
     {
-        LeniencyHelperModule.OnUpdate += ApplyCustomBuffers;
+        Everest.Events.Level.OnAfterUpdate += ApplyCustomBuffers;
     }
     [OnUnload]
     public static void UnloadHooks() 
     {
-        LeniencyHelperModule.OnUpdate -= ApplyCustomBuffers;
+        Everest.Events.Level.OnAfterUpdate -= ApplyCustomBuffers;
     }
-    public static void ApplyCustomBuffers()
+    public static void ApplyCustomBuffers(Level level)
     {
-        float mult = GetSetting<bool>("countBufferTimeInFrames") ? Engine.DeltaTime : 1f;
-        Input.Jump.BufferTime = GetSetting<float>("JumpBufferTime") * mult;
-        Input.Dash.BufferTime = GetSetting<float>("DashBufferTime") * mult;
-        Input.CrouchDash.BufferTime = GetSetting<float>("DemoBufferTime") * mult;
+        Input.Jump.BufferTime = GetSetting<Time>("JumpBufferTime");
+        Input.Dash.BufferTime = GetSetting<Time>("DashBufferTime");
+        Input.CrouchDash.BufferTime = GetSetting<Time>("DemoDashBufferTime");
     }
 }

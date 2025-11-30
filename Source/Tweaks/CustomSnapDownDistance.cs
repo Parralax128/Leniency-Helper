@@ -27,7 +27,7 @@ public class CustomSnapDownDistance : AbstractTweak<CustomSnapDownDistance>
         if (GetSetting<bool>("dynamicSnapdownDistance"))
         {
             return (int)Math.Max(defaultValue, Math.Max(Math.Abs(player.beforeDashSpeed.Y),
-                Math.Abs(player.Speed.Y)) * GetTime("snapdownTiming"));
+                Math.Abs(player.Speed.Y)) * GetSetting<Time>("snapdownTiming"));
         }
         else
         {

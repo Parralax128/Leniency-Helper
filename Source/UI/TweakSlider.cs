@@ -6,13 +6,15 @@ using Microsoft.Xna.Framework;
 using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using static Celeste.TextMenu;
 using System.Diagnostics;
-using Celeste.Mod.LeniencyHelper.UI.CustomOptions;
+using Celeste.Mod.LeniencyHelper.TweakSettings;
+using static Celeste.Mod.LeniencyHelper.TweakExtension;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
 
-public class TweakSlider : TweakSetting<int>
+public class TweakSlider : AbstractTweakItem
 {
     public List<Item> subOptions = new List<Item>();
+
     public bool addedSubsettings = false;
 
     private float maxValueWidth = 0f;
@@ -20,162 +22,51 @@ public class TweakSlider : TweakSetting<int>
     private SubOptionsOffset beforeSubOptionsSpacing;
     private SubOptionsOffset afterSubOptionsSpacing;
 
-    public Tweak tweak;
-
     private static readonly Color PlayerValueColor = new Color(218, 165, 32);
     private static readonly Color MapValueColor = new Color(0, 191, 255);
     public enum SliderValues
     {
-        Map,
-        On,
-        Off
+        Map = 0, On = 1, Off = 2
     }
-    private static string GetDialogEnumValue(SliderValues enumValue) =>
-        Dialog.Clean($"MODOPTIONS_LENIENCYHELPER_ENUMVALUES_{enumValue.ToString().ToUpper()}");
+
+    public SliderValues Value;
+
+
+    private bool? GetPlayerState => Value == SliderValues.Map ? null : Value == SliderValues.On;
     public static int GetIndexFromTweakName(Tweak tweak)
     {
-        if (LeniencyHelperModule.Settings.PlayerTweaks[tweak] is not null)
-            return LeniencyHelperModule.Settings.PlayerTweaks[tweak] == true ? 1 : 2;
+        if (tweak.Get(TweakSettings.SettingSource.Player) != null)
+            return tweak.Get(TweakSettings.SettingSource.Player) == true ? 1 : 2;
         else return 0;
     }
-    public TweakSlider(string label, Tweak tweak, int defaultIndex)
-        : base(tweak, null, true, true)
+    public TweakSlider(Tweak tweak) : base(tweak)
     {
         this.tweak = tweak;
-        
-        Add(GetDialogEnumValue(SliderValues.Map), 0);
-        Add(GetDialogEnumValue(SliderValues.On), 1);
-        Add(GetDialogEnumValue(SliderValues.Off), 2);
 
-        foreach (Tuple<string, int> value in Values)
+        foreach(string str in Enum.GetValues<SliderValues>().Select(s => DialogUtils.Lookup((object)s)))
         {
-            maxValueWidth = Math.Max(ActiveFont.Measure(value.Item1).X, maxValueWidth);
+            maxValueWidth = Math.Max(maxValueWidth, ActiveFont.Measure(str).X);
         }
-
-
-        Index = PreviousIndex = defaultIndex;
     }
     public override void Added()
     {
         base.Added();
 
-        if (SettingMaster.AssociatedSettings[tweak] != null)
-            AddSubOptions();
-
-        if (subOptions.Count > 0)
+        if (tweak.HasSettings())
         {
+            AddSubOptions();
             beforeSubOptionsSpacing = new SubOptionsOffset(8);
             afterSubOptionsSpacing = new SubOptionsOffset(16);
-        }
 
-        OnLeave += () =>
-        {
-            if (addedSubsettings)
-            {
-                CloseSuboptions();
-            }
-        };
+            OnLeave += () => { if (addedSubsettings) CloseSuboptions(); };
+        }
     }
 
     #region SubOptions
     private void AddSubOptions()
     {
-        foreach (string setting in SettingMaster.AssociatedSettings[tweak])
-        {
-            SetupSubOption(setting, DefaultSettings[setting].GetType());
-        }
-
-        BoolSlider toggler = subOptions.Find(i => i.GetType() == typeof(BoolSlider) && (i as BoolSlider).framesModeToggler == true) as BoolSlider;
-        if (toggler == null) return;
-
-        toggler.OnValueChange += (value) =>
-        {
-            foreach (FloatSlider slider in subOptions.FindAll(slider => slider.GetType() == typeof(FloatSlider) && (slider as FloatSlider).isTimer).ToList())
-            {
-                slider.SwapMode(value);
-                slider.ChangedValue();
-            }
-        };
-
-        foreach (FloatSlider slider in subOptions.FindAll(slider =>
-            slider.GetType() == typeof(FloatSlider)).ToList())
-        {
-            slider.transitionIntoFrames = toggler.value;
-        }
+        subOptions = TweakData.Tweaks[tweak].CreateMenuEntry();
     }
-
-    private void SetupSubOption(string nameInSettings, Type type)
-    {
-        var settings = LeniencyHelperModule.Settings;
-
-        Item newOption;
-
-        if (type == typeof(bool))
-        {
-            newOption = new BoolSlider(nameInSettings.ToLower().Contains("inframes"), tweak, nameInSettings);
-            OnValueChange += (value) => (newOption as BoolSlider).value = SettingMaster.GetSetting<bool>(nameInSettings, tweak);
-        }
-        else if (type == typeof(float))
-        {
-            newOption = new FloatSlider(0f, GetMaxFromName(nameInSettings), 2, tweak, nameInSettings);
-
-            (newOption as FloatSlider).isTimer = IsTimer(nameInSettings);
-
-            OnValueChange += (value) => (newOption as FloatSlider).value = SettingMaster.GetSetting<float>(nameInSettings, tweak);
-        }
-        else if (type == typeof(int))
-        {
-            newOption = new IntSlider(0, (int)GetMaxFromName(nameInSettings), tweak, nameInSettings);
-
-            OnValueChange += (value) => (newOption as IntSlider).value = SettingMaster.GetSetting<int>(nameInSettings, tweak);
-        }
-        else if (type == typeof(Dirs))
-        {
-            newOption = new DirSlider(tweak, nameInSettings);
-            OnValueChange += (value) => (newOption as DirSlider).value = SettingMaster.GetSetting<Dirs>(nameInSettings, tweak);
-        }
-        else return;
-
-        subOptions.Add(newOption);
-    }
-    public float GetMaxFromName(string name)
-    {
-        switch (name)
-        {
-            case "DirectionalBufferTime": return 0.5f;
-            case "staticSnapdownDistance": return 32f;
-            case "iceWJLeniency": return 16f;
-            case "newWallboosterAcceleration": return 100f;
-            case "RefillCoyoteTime": return 0.085f;
-            case "wallApproachTime": return 0.25f;
-            case "wallCoyoteTime": return 0.25f;
-        }
-        if (name.Contains("Timing")) return 0.25f;
-        if (name.ToLower().Contains("distance")) return 8;
-
-        return 0.5f;
-    }
-    private bool IsTimer(string paramName)
-    {
-        return paramName.ToLower().Contains("time") || paramName.ToLower().Contains("timing")
-            || paramName.ToLower().Contains("delay");
-    }
-    public void UpdateSubsettings()
-    {
-        foreach (BoolSlider option in subOptions.FindAll(item => item is BoolSlider))
-            option.value = SettingMaster.GetSetting<bool>(option.settingName, tweak);
-
-        foreach (FloatSlider option in subOptions.FindAll(item => item is FloatSlider))
-            option.value = SettingMaster.GetSetting<float>(option.settingName, tweak);
-
-        foreach (IntSlider option in subOptions.FindAll(item => item is IntSlider))
-            option.value = SettingMaster.GetSetting<int>(option.settingName, tweak);
-
-        foreach (DirSlider option in subOptions.FindAll(item => item is DirSlider))
-            option.value = SettingMaster.GetSetting<Dirs>(option.settingName, tweak);
-    }
-
-
     public override void ConfirmPressed()
     {
         if (!TweakMenuManager.InSubsettingsMode)
@@ -187,8 +78,8 @@ public class TweakSlider : TweakSetting<int>
     {
         if (addedSubsettings || subOptions.Count <= 0) return;
 
-        //not allowed to change options if "Map" is selected
-        if (Index != 1) foreach (Item item in subOptions) item.Disabled = true;
+        //not allowed to change options if not ON
+        if (Value != SliderValues.On) foreach (Item item in subOptions) item.Disabled = true;
         else foreach (Item item in subOptions) item.Disabled = false;
 
         int optionsIndex = Container.Items.FindIndex(item => item.GetType() == typeof(TweakSlider) && ((TweakSlider)item).Label == Label);
@@ -212,7 +103,7 @@ public class TweakSlider : TweakSetting<int>
                 };
             }
         }
-        if (Index != 1) Container.Selection = optionsIndex;
+        if (Value != SliderValues.On) Container.Selection = optionsIndex;
 
         Container.Insert(optionsIndex + 1 + subOptions.Count, afterSubOptionsSpacing);
 
@@ -247,24 +138,20 @@ public class TweakSlider : TweakSetting<int>
     public override void LeftPressed()
     {
         Audio.Play("event:/ui/main/button_toggle_off");
-        ChangeValue(-1);
+        base.LeftPressed();
     }
     public override void RightPressed()
     {
         Audio.Play("event:/ui/main/button_toggle_on");
-        ChangeValue(1);
+        base.RightPressed();
     }
-    public void ChangeValue(int dir)
-    {
-        if (dir == -1 && Index > 0 || dir == 1 && Index < Values.Count - 1)
-        {
-            PreviousIndex = Index;
-            Index += dir;
-            lastDir = dir;
 
-            SettingMaster.SetPlayerTweak(tweak, Index == 0 ? null : Index == 1 ? true : false);
-            if (OnValueChange != null) OnValueChange(Index);
-        }
+
+    public override void ChangeValue(int dir)
+    {
+        Value = Value.Advance(dir);
+        TweakData.Tweaks[tweak].Set(GetPlayerState, SettingSource.Player);
+
         ValueWiggler.Start();
 
         if (addedSubsettings) //if switched from "Map" to "ON" - updating suboptions via reopening
@@ -273,32 +160,16 @@ public class TweakSlider : TweakSetting<int>
             OpenSuboptions();
         }
 
-        if (!SettingMaster.GetTweakEnabled(tweak)) CloseSuboptions();
+        if (!tweak.Enabled()) CloseSuboptions();
     }
-
-    public static string TweakToUrl(Tweak tweak)
+    public override bool TryChangeValue(int dir)
     {
-        return "https://github.com/Parralax128/Leniency-Helper/wiki/" +
-            ToWikiPageName(Dialog.Clean("LENIENCYTWEAKS_" + tweak.ToString().ToUpper(), Dialog.Languages["english"]));
-    }
-    private static string ToWikiPageName(string tweakNameUpper)
-    {
-        string result = "";
-
-        for (int c = 0; c < tweakNameUpper.Length; c++)
-        {
-            if (tweakNameUpper[c] == ' ') result += '-';
-            else if (tweakNameUpper[c] == '-') result += "%E2%80%90";
-            else if (c >= 1 && tweakNameUpper[c - 1] != ' ') result += tweakNameUpper[c].ToString().ToLower();
-            else result += tweakNameUpper[c];
-        }
-
-        return result;
+        return Value.CheckRange(dir);
     }
 
     public void TweakInfoFromLink()
     {
-        string url = TweakToUrl(tweak);
+        string url = DialogUtils.TweakToUrl(tweak);
         
         if(LeniencyHelperModule.Settings.LinkOpeningMode 
             == LeniencyHelperSettings.UrlActions.OpenInBrowser)
@@ -317,12 +188,12 @@ public class TweakSlider : TweakSetting<int>
     {
         if (selected) return Container.HighlightColor;
 
-        if (LeniencyHelperModule.Settings.PlayerTweaks[tweak].HasValue) return PlayerValueColor;
-        return SettingMaster.GetTweakEnabled(tweak) ? MapValueColor : UnselectedColor;
+        if (tweak.Get(TweakSettings.SettingSource.Player).HasValue) return PlayerValueColor;
+        return tweak.Enabled() ? MapValueColor : UnselectedColor;
     }
+
     public override void Render(Vector2 position, bool selected)
     {
-        OverrideMainColor = GetColor(selected);
-        BaseRender(Values[Index].Item1, position, selected, Index > 0, Index < Values.Count - 1);
+        base.Render(position, selected, DialogUtils.Lookup(Value), (int)Value > 0, (int)Value < 3);
     }
 }

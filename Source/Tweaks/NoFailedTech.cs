@@ -15,7 +15,7 @@ public class NoFailedTech : AbstractTweak<NoFailedTech>
     public static void LoadHooks()
     {
         On.Celeste.Player.Jump += JumpToTech;
-        LeniencyHelperModule.OnUpdate += RunTimer;
+        Everest.Events.Level.OnAfterUpdate += RunTimer;
         On.Celeste.Player.DashEnd += StartProtectionTimer;
         dashCoroutineHook = new ILHook(typeof(Player).GetMethod("DashCoroutine",
             System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).GetStateMachineTarget(), GetDashDir);
@@ -24,7 +24,7 @@ public class NoFailedTech : AbstractTweak<NoFailedTech>
     public static void UnloadHooks()
     {
         On.Celeste.Player.Jump -= JumpToTech;
-        LeniencyHelperModule.OnUpdate -= RunTimer;
+        Everest.Events.Level.OnAfterUpdate -= RunTimer;
         On.Celeste.Player.DashEnd -= StartProtectionTimer;
         dashCoroutineHook.Dispose();
     }
@@ -61,10 +61,10 @@ public class NoFailedTech : AbstractTweak<NoFailedTech>
     {
         orig(self);
 
-        LeniencyHelperModule.Session.protectedDashAttackTimer = GetTime("protectedTechTime");
+        LeniencyHelperModule.Session.protectedDashAttackTimer = GetSetting<Time>("ProtectedTechTime");
         LeniencyHelperModule.Session.dashCrouched = self.Ducking;
     }
-    private static void RunTimer()
+    private static void RunTimer(Level level)
     {
         var s = LeniencyHelperModule.Session;
 

@@ -13,6 +13,6 @@ public class PlayerComponent : Component
     public override void Update()
     {
         base.Update();
-        Visible = SettingMaster.GetTweakEnabled(tweak);
+        Visible = tweak.Enabled();
     }
 }

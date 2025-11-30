@@ -14,6 +14,6 @@ public class DynamicWallLeniency : AbstractTweak<DynamicWallLeniency>
         float biggestSpeed = Math.Abs(player.Speed.X);
         if (player.DashAttacking) biggestSpeed = Math.Max(Math.Abs(player.Speed.X), Math.Abs(player.beforeDashSpeed.X));
 
-        return Math.Max((int)(biggestSpeed * GetTime("wallLeniencyTiming")), @default);
+        return Math.Max((int)(biggestSpeed * GetSetting<Time>("wallLeniencyTiming")), @default);
     }
 }

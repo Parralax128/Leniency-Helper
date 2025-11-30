@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Celeste.Mod.LeniencyHelper.Module;
 using Celeste.Mod.LeniencyHelper.Tweaks;
+using Celeste.Mod.LeniencyHelper.Module;
 using Microsoft.Xna.Framework;
 using Monocle;
 
@@ -10,7 +10,7 @@ namespace Celeste.Mod.LeniencyHelper.Components;
 
 public  class DelayedClimbtriggerComponent : Component
 {
-    private static float Delay => DelayedClimbtrigger.GetTime("triggerDelay");
+    private static float Delay => DelayedClimbtrigger.GetSetting<Time>("MaxDelay");
     public float climbtriggerTimer;
     private Solid Solid => (Solid) Entity;
     public DelayedClimbtriggerComponent() : base(true, false) { }

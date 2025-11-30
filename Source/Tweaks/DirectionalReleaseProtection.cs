@@ -8,8 +8,6 @@ using MonoMod.Utils;
 using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using Celeste.Mod.Helpers;
 using Celeste.Mod.LeniencyHelper.Module;
-using YamlDotNet.Core.Tokens;
-using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
@@ -78,13 +76,9 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
             c.EmitDelegate(UpdateDirectionalBuffers);
         }
     }
-
-    private static float ActualBufferTime => GetSetting<bool>("CountProtectionTimeInFrames") ? 
-        GetSetting<float>("DirectionalBufferTime") / Engine.FPS : GetSetting<float>("DirectionalBufferTime");
-
     private static void UpdateDirectionalBuffers()
     {
-        if (LeniencyHelperModule.Session == null || !Enabled) return;
+        if (Engine.Scene is not Level || LeniencyHelperModule.Session == null || !Enabled) return;
 
         if (bufferAimTimer.X > 0f) bufferAimTimer.X -= Engine.RawDeltaTime;
         if (bufferAimTimer.Y > 0f) bufferAimTimer.Y -= Engine.RawDeltaTime;
@@ -93,13 +87,13 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
         if (featherAimTimer > 0f) featherAimTimer -= Engine.RawDeltaTime;
 
         Dirs dashDir = GetSetting<Dirs>("dashDir");
-        if (dashDir != Dirs.None || GetSetting<bool>("affectFeathers") || GetSetting<bool>("affectSuperdashes"))
+        if (dashDir != Dirs.None || GetSetting<bool>("AffectFeathers") || GetSetting<bool>("AffectSuperdashes"))
         {
             //X
             if (Input.Aim.Value.X > 0f && (dashDir == Dirs.Right || dashDir == Dirs.All)
                 || Input.Aim.Value.X < 0f && (dashDir == Dirs.Left || dashDir == Dirs.All))
             {
-                bufferAimTimer.X = ActualBufferTime;
+                bufferAimTimer.X = GetSetting<Time>("ProtectionTime");
                 savedAimValue.X = Input.Aim.Value.X;
             }
 
@@ -107,7 +101,7 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
             if (Input.Aim.Value.Y > 0f && (dashDir == Dirs.Down || dashDir == Dirs.All)
                 || Input.Aim.Value.Y < 0f && (dashDir == Dirs.Up || dashDir == Dirs.All))
             {
-                bufferAimTimer.Y = ActualBufferTime;
+                bufferAimTimer.Y = GetSetting<Time>("ProtectionTime");
                 savedAimValue.Y = Input.Aim.Value.Y;
             }
         }
@@ -123,13 +117,13 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
 
         if (posX && (jumpDir == Dirs.Right || jumpDir == Dirs.All) || negX && (jumpDir == Dirs.Left || jumpDir == Dirs.All))
         {
-            bufferMoveTimer.X = ActualBufferTime;
+            bufferMoveTimer.X = GetSetting<Time>("ProtectionTime");
             savedMoveValue.X = Input.MoveX.Value;
         }
 
         if (posY && (jumpDir == Dirs.Down || jumpDir == Dirs.All) || negY && (jumpDir == Dirs.Up || jumpDir == Dirs.All))
         {
-            bufferMoveTimer.Y = ActualBufferTime;
+            bufferMoveTimer.Y = GetSetting<Time>("ProtectionTime");
             savedMoveValue.Y = Input.MoveY.Value;
         }
     }
@@ -240,9 +234,9 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
 
     private static int AffectSavedFeatherDir(On.Celeste.Player.orig_StarFlyUpdate orig, Player self)
     {
-        if (Enabled && GetSetting<bool>("affectFeathers"))
+        if (Enabled && GetSetting<bool>("AffectFeathers"))
         {
-            if (Input.Feather.Value != Vector2.Zero) featherAimTimer = ActualBufferTime;
+            if (Input.Feather.Value != Vector2.Zero) featherAimTimer = GetSetting<Time>("ProtectionTime");
             if(featherAimTimer > 0f)
             self.starFlyLastDir = SnapAim(self.starFlyLastDir);
         }
@@ -291,15 +285,15 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
             }
         }
     }
-    private static bool OrSuperdashesAffected(bool orig) => Enabled && GetSetting<bool>("affectSuperdashes") ? true : orig;
+    private static bool OrSuperdashesAffected(bool orig) => Enabled && GetSetting<bool>("AffectSuperdashes") ? true : orig;
     private static Vector2 ModifySuperdashTarget(Vector2 orig, Vector2 speed)
-        => Enabled && GetSetting<bool>("affectSuperdashes") && Input.Aim.Value == Vector2.Zero ? SnapAim(speed) : orig;
+        => Enabled && GetSetting<bool>("AffectSuperdashes") && Input.Aim.Value == Vector2.Zero ? SnapAim(speed) : orig;
     
     private static Vector2 SnapAim(Vector2 aim)
     {
         float num = aim.Angle();
-        int num2 = ((num < 0f) ? 1 : 0);
-        float num3 = MathF.PI / 8f - (float)num2 * ((float)Math.PI / 36f);
+        int num2 = num < 0f ? 1 : 0;
+        float num3 = MathF.PI / 8f - num2 * ((float)Math.PI / 36f);
         if (Calc.AbsAngleDiff(num, 0f) < num3) return new Vector2(1f, 0f);
         if (Calc.AbsAngleDiff(num, MathF.PI) < num3) return new Vector2(-1f, 0f);
         if (Calc.AbsAngleDiff(num, -MathF.PI / 2f) < num3) return new Vector2(0f, -1f);

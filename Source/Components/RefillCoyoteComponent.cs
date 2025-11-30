@@ -1,15 +1,10 @@
-﻿using Celeste.Mod.LeniencyHelper.Tweaks;
-using Monocle;
+﻿using Monocle;
 using static Celeste.Mod.LeniencyHelper.SettingMaster;
 
 namespace Celeste.Mod.LeniencyHelper.Components;
 
 public class RefillCoyoteComponent : PlayerComponent
 {
-    public static float RefillCoyoteTime => GetSetting<bool>("CountRefillCoyoteTimeInFrames", Tweak.RefillDashInCoyote) ?
-        GetSetting<float>("RefillCoyoteTime", Tweak.RefillDashInCoyote) * Engine.DeltaTime
-        : GetSetting<float>("RefillCoyoteTime", Tweak.RefillDashInCoyote);
-
     public float refillCoyoteTimer;
     public RefillCoyoteComponent() : base(Tweak.RefillDashInCoyote) 
     {
@@ -18,7 +13,7 @@ public class RefillCoyoteComponent : PlayerComponent
     public override void Update()
     {
         base.Update();
-        if (!RefillDashInCoyote.Enabled) return;
+        if (!Tweaks.RefillDashInCoyote.Enabled) return;
 
         Player player = Entity as Player;
         if (refillCoyoteTimer > 0f)
@@ -33,7 +28,7 @@ public class RefillCoyoteComponent : PlayerComponent
     }
     public void ResetTimer()
     {
-        refillCoyoteTimer = RefillCoyoteTime;
+        refillCoyoteTimer = Tweak.RefillDashInCoyote.GetSetting<Time>("RefillCoyoteTime");
     }
 
     public void Cancel()

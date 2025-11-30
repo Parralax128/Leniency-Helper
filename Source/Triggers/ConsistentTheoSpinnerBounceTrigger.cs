@@ -14,20 +14,20 @@ public class ConsistentTheoSpinnerBounceTrigger : GenericTrigger
     [OnLoad]
     public static void LoadHooks()
     {
-        LeniencyHelperModule.OnUpdate += LoadSpinners;
+        Everest.Events.Level.OnAfterUpdate += ForceLoadSpinners;
     }
     [OnUnload]
     public static void UnloadHooks()
     {
-        LeniencyHelperModule.OnUpdate -= LoadSpinners;
+        Everest.Events.Level.OnAfterUpdate -= ForceLoadSpinners;
     }
 
-    private static void LoadSpinners()
+    private static void ForceLoadSpinners(Level level)
     {
         foreach (Entity spinner in Engine.Scene.Entities.ToList().FindAll(e =>
         e.GetType().Name.ToLower().Contains("spinner") && !e.GetType().Name.Contains("controller")))
         {
-            var trigger = spinner.CollideFirst<ConsistentTheoSpinnerBounceTrigger>();
+            ConsistentTheoSpinnerBounceTrigger trigger = spinner.CollideFirst<ConsistentTheoSpinnerBounceTrigger>();
 
             if (trigger != null && trigger.forceLoadSpinners)
             {   

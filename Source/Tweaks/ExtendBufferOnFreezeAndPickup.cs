@@ -14,7 +14,7 @@ public class ExtendBufferOnFreezeAndPickup : AbstractTweak<ExtendBufferOnFreezeA
     public static void LoadHooks()
     {
         On.Celeste.Celeste.Freeze += ExtendBufferTimer;
-        LeniencyHelperModule.BeforePlayerUpdate += ExtendBufferOnPickup;
+        Everest.Events.Player.OnBeforeUpdate += ExtendBufferOnPickup;
 
         customPickupDelayHook = new ILHook(typeof(Player).GetMethod("PickupCoroutine",
             BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(), GetCustomPickupDelayHook);
@@ -23,7 +23,7 @@ public class ExtendBufferOnFreezeAndPickup : AbstractTweak<ExtendBufferOnFreezeA
     public static void UnloadHooks()
     {
         On.Celeste.Celeste.Freeze -= ExtendBufferTimer;
-        LeniencyHelperModule.BeforePlayerUpdate -= ExtendBufferOnPickup;
+        Everest.Events.Player.OnBeforeUpdate -= ExtendBufferOnPickup;
         customPickupDelayHook.Dispose();
     }
     private static void ExtendBufferOnPickup(Player player)
@@ -35,7 +35,7 @@ public class ExtendBufferOnFreezeAndPickup : AbstractTweak<ExtendBufferOnFreezeA
         {
             if (s.prevFrameState != 8) s.pickupTimeLeft = s.pickupDelay;
 
-            if(s.pickupTimeLeft > 0f && Enabled && GetSetting<bool>("ExtendBufferOnPickup"))
+            if(s.pickupTimeLeft > 0f && Enabled && GetSetting<bool>("OnPickup"))
             {
                 if (Input.Dash.Pressed && !s.dashExtended)
                 {
@@ -82,7 +82,7 @@ public class ExtendBufferOnFreezeAndPickup : AbstractTweak<ExtendBufferOnFreezeA
     {
         orig(time);
         
-        if (!(Enabled && GetSetting<bool>("ExtendBufferOnFreeze"))) return;
+        if (!(Enabled && GetSetting<bool>("OnFreeze"))) return;
 
         if(Input.Dash.bufferCounter > 0f) Input.Dash.bufferCounter += time;
         if(Input.CrouchDash.bufferCounter > 0f) Input.CrouchDash.bufferCounter += time;

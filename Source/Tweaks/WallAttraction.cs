@@ -24,10 +24,10 @@ public class WallAttraction : AbstractTweak<WallAttraction>
     private static float GetApproachDistance(Player player)
     {
         if(!GetSetting<bool>("useDynamicApproachDistance")) {
-            return (float)GetSetting<int>("staticApproachDistance");
+            return GetSetting<int>("staticApproachDistance");
         }
 
-        return GetTime("wallApproachTime") * Math.Abs(player.Speed.X);
+        return GetSetting<Time>("wallApproachTime") * Math.Abs(player.Speed.X);
     }
     private static void AttractUpdate(Player player)
     {
@@ -52,7 +52,7 @@ public class WallAttraction : AbstractTweak<WallAttraction>
                     break;
                 }
                 else if (player.ClimbBoundsCheck((int)player.Facing) && player.CollideCheck<Solid>(solidCheckPos) 
-                    || (LeniencyHelperModule.ModLoaded("MaxHelpingHand") && CollidingWithSideways(player, solidCheckPos)))
+                    || LeniencyHelperModule.ModLoaded("MaxHelpingHand") && CollidingWithSideways(player, solidCheckPos))
                 {
                     break;
                 }
@@ -64,7 +64,7 @@ public class WallAttraction : AbstractTweak<WallAttraction>
     private static bool CollidingWithSideways(Player player, Vector2 at)
     {
         SidewaysJumpThru jt = player.CollideFirstOutside<SidewaysJumpThru>(at);
-        return jt != null && (jt.AllowLeftToRight == (player.Position.X > at.X))
+        return jt != null && jt.AllowLeftToRight == player.Position.X > at.X
             && jt.Bottom >= player.Top + at.Y - player.Position.Y + 3;
     }
 }

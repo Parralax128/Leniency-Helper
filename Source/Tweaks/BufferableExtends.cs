@@ -12,26 +12,26 @@ public class BufferableExtends : AbstractTweak<BufferableExtends>
     public static void LoadHooks()
     {
         IL.Celeste.Player.DashUpdate += AddSuperjumpCheckOnUpdate;
-        LeniencyHelperModule.OnPlayerUpdate += CheckForDashStart;
+        Everest.Events.Player.OnAfterUpdate += CheckForDashStart;
     }
     [OnUnload]
     public static void UnloadHooks()
     {
         IL.Celeste.Player.DashUpdate -= AddSuperjumpCheckOnUpdate;
-        LeniencyHelperModule.OnPlayerUpdate -= CheckForDashStart;
+        Everest.Events.Player.OnAfterUpdate -= CheckForDashStart;
     }
 
     public static bool CanSuperjump(Player player)
     {
         if (player.Dashes >= player.MaxDashes || !Enabled) return true;
-        if (GetSetting<bool>("forceWaitForRefill")) return false;
+        if (GetSetting<bool>("ForceWaitForRefill")) return false;
 
         if (RefillDashInCoyote.Enabled)
         {
             float refillTimer = player.Get<Components.RefillCoyoteComponent>().refillCoyoteTimer;
 
             if (refillTimer > player.dashRefillCooldownTimer
-                && GetTime("extendsTiming") > player.dashRefillCooldownTimer
+                && GetSetting<Time>("ExtendTiming") > player.dashRefillCooldownTimer
                 && Input.Jump.bufferCounter > player.dashRefillCooldownTimer)
             {
                 return false;
@@ -47,7 +47,7 @@ public class BufferableExtends : AbstractTweak<BufferableExtends>
         player.Dashes = saveDashes;
 
         if (!player.Inventory.NoRefills
-            && GetTime("extendsTiming") - Engine.DeltaTime > player.dashRefillCooldownTimer
+            && GetSetting<Time>("ExtendTiming") - Engine.DeltaTime > player.dashRefillCooldownTimer
             && Input.Jump.bufferCounter - Engine.DeltaTime > player.dashRefillCooldownTimer
             && LeniencyHelperModule.Session.dashTimer <= 0f)
         {
@@ -61,7 +61,7 @@ public class BufferableExtends : AbstractTweak<BufferableExtends>
     {
         if (!Enabled) return;
 
-        var s = Module.LeniencyHelperModule.Session;
+        var s = LeniencyHelperModule.Session;
         if (s.dashTimer > 0f) s.dashTimer -= Engine.DeltaTime;
 
         if (player.StateMachine.State != s.prevFrameState && (new int[] { 2, 4, 5 }).Contains(player.StateMachine.State))

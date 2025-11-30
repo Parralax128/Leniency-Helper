@@ -51,7 +51,7 @@ public class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
             if (cursor.TryGotoNext(MoveType.After, i => i.MatchLdfld<Player>("onGround")))
             {
                 cursor.EmitLdarg0();
-                cursor.EmitDelegate((bool orig, Player player) => orig || (player.OnGround() && groundChecking));
+                cursor.EmitDelegate((bool orig, Player player) => orig || player.OnGround() && groundChecking);
             }
 
             if(cursor.TryGotoNext(i => i.MatchLdfld<Assists>("Invincible"), i => i.MatchBrfalse(out varJumpTimerLabel)))

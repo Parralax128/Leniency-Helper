@@ -38,12 +38,15 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
         public bool oneUse;
         public bool revertOnLeave;
 
-        public GenericTrigger(EntityData data, Vector2 offset) : base(data, offset)
+        private bool applyOnStay;
+
+        public GenericTrigger(EntityData data, Vector2 offset, bool applyOnStay = false) : base(data, offset)
         {
             enabled = data.Bool("Enabled", true);
             revertOnLeave = data.Bool("RevertOnLeave", true);
             flag = data.Attr("Flag", "");
             oneUse = data.Bool("OneUse", false);
+            this.applyOnStay = applyOnStay;
         }
         public bool GetFlagActive()
         {
@@ -68,7 +71,7 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
         {
             base.OnStay(player);
 
-            if (!oneUse) ApplySettings();
+            if (!oneUse && applyOnStay) ApplySettings();
         }
         public override void OnLeave(Player player)
         {

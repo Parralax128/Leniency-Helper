@@ -1,0 +1,137 @@
+LANGUAGE=settingLookup,SettingLookup
+ICON=Icons/canadian-english.png
+ORDER=100
+FONT=Renogare,64
+BEGIN=false
+
+
+
+
+leniencyhelper_testmap= LH testmap
+
+LENIENCYHELPER_SETTINGS_SHOWSETTINGS= Settings entry in pause menu
+
+
+MODOPTIONS_LENIENCYHELPER_MENUBUTTON= Leniency tweaks
+MODOPTIONS_LENIENCYHELPER_MENU= Leniency tweaks
+
+LeniencyHelper_Enums_SliderValues.Map= Map
+LeniencyHelper_Enums_SliderValues.On= ON
+LeniencyHelper_Enums_SliderValues.Off= OFF	
+
+MODOPTIONS_LENIENCYHELPER_MENU_RESETTWEAKS= Reset tweaks
+MODOPTIONS_LENIENCYHELPER_MENU_RESETSETTINGS= Reset settings
+
+LENIENCYHELPER_OPTIONS_CONFIRMHINT= - show tweak sub-settings
+LENIENCYHELPER_OPTIONS_GRABHINT= - copy wiki link
+
+LeniencyHelper_Tweaks_AutoSlowfall= Auto Slowfall
+LeniencyHelper_Tweaks_BackboostProtection= Backboost Protection
+LeniencyHelper_Tweaks_BackwardsRetention= Backwards speed retention
+LeniencyHelper_Tweaks_BufferableClimbtrigger= Bufferable Climbtrigger
+LeniencyHelper_Tweaks_BufferableExtends= Bufferable Extends
+LeniencyHelper_Tweaks_ConsistentDashOnDblockExit= Consistent dash on Dreamblock exit
+LeniencyHelper_Tweaks_ConsistentWallboosters= Consistent Wallboosters
+LeniencyHelper_Tweaks_CornerWaveLeniency= Corner Wave leniency
+LeniencyHelper_Tweaks_CrouchOnBonk= Crouch on Bonk
+LeniencyHelper_Tweaks_CustomBufferTime= Custom Buffer time
+LeniencyHelper_Tweaks_CustomDashbounceTiming= Custom Dashbounce timing
+LeniencyHelper_Tweaks_CustomSnapDownDistance= Custom Snap down distance
+LeniencyHelper_Tweaks_DashCDIgnoreFframes= Dash Cooldown ignores Freezeframes
+LeniencyHelper_Tweaks_DelayedClimbtrigger= Delayed Climbtrigger
+LeniencyHelper_Tweaks_DirectionalReleaseProtection= Directional release Protection
+LeniencyHelper_Tweaks_DisableBackboost= Disable Backboost
+LeniencyHelper_Tweaks_DisableForcemovedTech= Disable forcemoved tech
+LeniencyHelper_Tweaks_DynamicCornerCorrection= Dynamic Corner correction
+LeniencyHelper_Tweaks_DynamicWallLeniency= Dynamic wall leniency
+LeniencyHelper_Tweaks_ExtendDashAttackOnPickup= Extend Dash Attack on Pickup
+LeniencyHelper_Tweaks_ExtendBufferOnFreezeAndPickup= Extend Buffer on Freeze and Pickup
+LeniencyHelper_Tweaks_ForceCrouchDemodash= Force crouch demodash
+LeniencyHelper_Tweaks_GultraCancel= Gultra Cancel
+LeniencyHelper_Tweaks_IcewallIncreaseWallLeniency= Ice wall increase wall leniency
+LeniencyHelper_Tweaks_InstantAcceleratedJumps= Instant accelerated Jumps
+LeniencyHelper_Tweaks_LateReverses= Late Reverses
+LeniencyHelper_Tweaks_ManualDreamhyperLeniency= Manual Dreamhyper leniency
+LeniencyHelper_Tweaks_NoFailedTech= No failed tech
+LeniencyHelper_Tweaks_RefillDashInCoyote= Refill dash in-coyote
+LeniencyHelper_Tweaks_RemoveDBlockCCorrection= Remove Dreamblock Corner correction
+LeniencyHelper_Tweaks_RespectInputOrder= Respect Input Order
+LeniencyHelper_Tweaks_RetainSpeedCornerboost= Retain speed Cornerboost
+LeniencyHelper_Tweaks_SolidBlockboostProtection= Solid Blockboost protection
+LeniencyHelper_Tweaks_SuperdashSteeringProtection= Superdash Steering protection
+LeniencyHelper_Tweaks_SuperOverWalljump= Super over Walljump
+LeniencyHelper_Tweaks_WallAttraction= Wall Attraction
+LeniencyHelper_Tweaks_WallCoyoteFrames= Wall Coyote time
+
+LeniencyHelper_Settings_AutoSlowfall.TechOnly= Tech Only
+LeniencyHelper_Settings_AutoSlowfall.DelayedJumpRelease= Delayed jump Release
+LeniencyHelper_Settings_AutoSlowfall.ReleaseDelay= Release Delay
+
+LeniencyHelper_Settings_BackboostProtection.EarlyBackboostTiming= Early backboost timing
+LeniencyHelper_Settings_BackboostProtection.LateBackboostTiming= Late backboost timing
+
+LeniencyHelper_Settings_BufferableClimbtrigger.OnNormalUpdate= Instant upward Climbtrigger
+LeniencyHelper_Settings_BufferableClimbtrigger.OnDash= Climbtrigger on Dash
+
+LeniencyHelper_Settings_BufferableExtends.ForceWaitForRefill= Force wait for refill
+LeniencyHelper_Settings_BufferableExtends.ExtendTiming= Buffer timing
+
+LeniencyHelper_Settings_ConsistentDashOnDblockExit.ResetDashCdOnLeave= Reset dash cooldown
+
+LeniencyHelper_Settings_ConsistentWallboosters.InstantAcceleration= Instant acceleration
+LeniencyHelper_Settings_ConsistentWallboosters.CustomAcceleration= Custom acceleration
+LeniencyHelper_Settings_ConsistentWallboosters.ConsistentBlockboost= Consistent blockboost
+LeniencyHelper_Settings_ConsistentWallboosters.BufferableMaxJumps= Bufferable max-jumps
+
+LeniencyHelper_Settings_CustomBufferTime.JumpBufferTime= Jump buffer time
+LeniencyHelper_Settings_CustomBufferTime.DashBufferTime= Dash buffer time
+LeniencyHelper_Settings_CustomBufferTime.DemoDashBufferTime= Demodash buffer time
+LeniencyHelper_Settings_CustomBufferTime.CountInFrames= Count time in frames
+
+LeniencyHelper_Settings_CustomDashbounceTiming.Timing= Timing
+
+LeniencyHelper_Settings_CustomSnapDownDistance.StaticSnapDownDistance= Static snap down distance
+LeniencyHelper_Settings_CustomSnapDownDistance.SnapDownTiming= Snap down timing
+LeniencyHelper_Settings_CustomSnapDownDistance.DynamicSnapDownDistance= Dynamic snap down distance
+
+LeniencyHelper_Settings_DelayedClimbtrigger.TriggerDelay= Trigger Delay
+
+LeniencyHelper_Settings_DirectionalReleaseProtection.JumpDir= Protected jump direction
+LeniencyHelper_Settings_DirectionalReleaseProtection.DashDir= Protected dash direction
+LeniencyHelper_Settings_DirectionalReleaseProtection.DirectionalBufferTime= Protection time
+LeniencyHelper_Settings_DirectionalReleaseProtection.AffectFeathers= Affect Feathers
+LeniencyHelper_Settings_DirectionalReleaseProtection.AffectSuperdashes= Affect Superdashes
+Up= Up
+Down= Down
+Left= Left
+Right= Right
+All= All
+None= None
+
+LeniencyHelper_Settings_DynamicCornerCorrection.WallCorrectionTiming= Wall correction timing
+LeniencyHelper_Settings_DynamicCornerCorrection.FloorCorrectionTiming= Floor correction timing
+
+LeniencyHelper_Settings_DynamicWallLeniency.WallLeniencyTiming= Wall leniency timing
+
+LeniencyHelper_Settings_ExtendDashAttackOnPickup.AttackExtendTime= Extend time
+
+LeniencyHelper_Settings_ExtendBufferOnFreezeAndPickup.ExtendBufferOnPickup= Extend buffers on pickup
+LeniencyHelper_Settings_ExtendBufferOnFreezeAndPickup.ExtendBufferOnFreeze= Extend buffers on freeze frames
+
+LeniencyHelper_Settings_IcewallIncreaseWallLeniency.IceWjLeniency= Additional leniency
+
+LeniencyHelper_Settings_NoFailedTech.ProtectedTechTime= Protected tech time
+
+LeniencyHelper_Settings_RefillDashInCoyote.RefillCoyoteTime= Refill time
+
+LeniencyHelper_Settings_RespectInputOrder.AffectGrab= Affect Grab
+
+LeniencyHelper_Settings_RetainSpeedCornerboost.RetainCbSpeedTime= Retain time
+
+LeniencyHelper_Settings_SolidBlockboostProtection.BboostSaveTime= Protection time
+
+LeniencyHelper_Settings_WallAttraction.WallApproachTime= Approach time
+LeniencyHelper_Settings_WallAttraction.StaticApproachDistance= Static approach distance
+LeniencyHelper_Settings_WallAttraction.UseDynamicApproachDistance= Use Dynamic distance
+
+LeniencyHelper_Settings_WallCoyoteFrames.WallCoyoteTime= Wall coyote time

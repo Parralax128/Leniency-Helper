@@ -12,8 +12,8 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 public class GultraCancel : AbstractTweak<GultraCancel>
 {
     private static ILHook modifyDashCoroutine;
-    private static ILContext.Manipulator onCollideVHook = (ILContext il) => AddSpeedPreservation(il, false);
-    private static ILContext.Manipulator dashCoroutineHook = (ILContext il) => AddSpeedPreservation(il, true);
+    private static ILContext.Manipulator onCollideVHook = (il) => AddSpeedPreservation(il, false);
+    private static ILContext.Manipulator dashCoroutineHook = (il) => AddSpeedPreservation(il, true);
 
     [OnLoad]
     public static void LoadHooks()
@@ -65,7 +65,7 @@ public class GultraCancel : AbstractTweak<GultraCancel>
     private static void SaveSpeedY(Player player)
     {
         LeniencyHelperModule.Session.savedSpeed = player.Speed;
-        LeniencyHelperModule.Session.cancelTimer = GetTime("cancelTime");
+        LeniencyHelperModule.Session.cancelTimer = GetSetting<Time>("cancelTime");
     }
 
     private static int CancelGultraOnMidAir(On.Celeste.Player.orig_DashUpdate orig, Player self)

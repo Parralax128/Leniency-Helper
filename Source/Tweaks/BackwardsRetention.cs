@@ -22,7 +22,7 @@ class BackwardsRetention : AbstractTweak<BackwardsRetention>
     
     private static bool CanSkipCancel(Player player)
     {
-        return Enabled ? (Math.Abs(player.Speed.X) < 40f) : false; 
+        return Enabled ? Math.Abs(player.Speed.X) < 40f : false; 
         // ~40 is speed player can reach in their wallRetainTime from zero via air-movement
     }
     private static void HookedUpdate(ILContext il)

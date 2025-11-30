@@ -67,13 +67,13 @@ public class WallCoyoteFrames : AbstractTweak<WallCoyoteFrames>
         switch (dir)
         {
             case -1:
-                return orig(self, -1) || (component.wallCoyoteTimer > 0 &&
+                return orig(self, -1) || component.wallCoyoteTimer > 0 &&
                     (component.currentWallCoyoteType == WallCoyoteTypes.Right ||
-                    component.currentWallCoyoteType == WallCoyoteTypes.Both));
+                    component.currentWallCoyoteType == WallCoyoteTypes.Both);
             case 1:
-                return orig(self, 1) || (component.wallCoyoteTimer > 0 &&
+                return orig(self, 1) || component.wallCoyoteTimer > 0 &&
                     (component.currentWallCoyoteType == WallCoyoteTypes.Left ||
-                    component.currentWallCoyoteType == WallCoyoteTypes.Both));
+                    component.currentWallCoyoteType == WallCoyoteTypes.Both);
         }
         return false;
     }

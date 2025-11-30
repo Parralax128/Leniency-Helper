@@ -26,8 +26,8 @@ public class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
     }
     public static int GetDynamicCorrection(int defaultValue, Player player, bool vertical)
     {
-        defaultValue = (int)Math.Abs(defaultValue);
-        if (!Enabled || (Math.Abs(player.DashDir.X) > 0.2f && Math.Abs(player.DashDir.Y) > 0.2f))
+        defaultValue = Math.Abs(defaultValue);
+        if (!Enabled || Math.Abs(player.DashDir.X) > 0.2f && Math.Abs(player.DashDir.Y) > 0.2f)
         {
             LeniencyHelperModule.Session.cornerCorrection = vertical ?
                 LeniencyHelperModule.Session.cornerCorrection with { Y = defaultValue } :
@@ -36,8 +36,7 @@ public class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
             return defaultValue;
         }
 
-        float resultingTime = GetSetting<float>(vertical ? "FloorCorrectionTiming" : "WallCorrectionTiming") *
-                (GetSetting<bool>("ccorectionTimingInFrames") ? Engine.DeltaTime : 1f);
+        float resultingTime = GetSetting<Time>(vertical ? "FloorCorrectionTiming" : "WallCorrectionTiming");
 
         float maxSpeed = Math.Abs(vertical ? player.Speed.Y : player.Speed.X);
         if ((new int[] { 2, 4, 5 }).Contains(player.StateMachine.State))
@@ -117,7 +116,7 @@ public class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
             }
         }
     }
-    private static float DoubleAbs(float orig) => Enabled ? (orig < 0f ? orig * -2f : orig) : orig;
+    private static float DoubleAbs(float orig) => Enabled ? orig < 0f ? orig * -2f : orig : orig;
     private static void CustomJumpThruCorrection(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
@@ -159,6 +158,6 @@ public class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
     }
     private static bool InBounds(Entity entity, Player player)
     {
-        return (player.Right >= entity.Left && player.Left <= entity.Right);
+        return player.Right >= entity.Left && player.Left <= entity.Right;
     }
 }

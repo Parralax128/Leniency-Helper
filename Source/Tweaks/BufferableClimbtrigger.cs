@@ -19,7 +19,7 @@ public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
         IL.Celeste.Player.NormalUpdate += ClimbTriggerOnFlyingUp;
 
         On.Celeste.Player.ClimbTrigger += GetDefaultDir;
-        LeniencyHelperModule.OnUpdate += ClearSafeClimbTrigger;
+        Everest.Events.Level.OnAfterUpdate += ClearSafeClimbTrigger;
 
         On.Celeste.Player.IsRiding_Solid += ForceRideSolid;
         On.Celeste.Solid.GetPlayerClimbing += ForceClimbSolid;
@@ -41,7 +41,7 @@ public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
         On.Celeste.Player.DashUpdate -= ClimbTriggerDuringDash;
         IL.Celeste.Player.NormalUpdate -= ClimbTriggerOnFlyingUp;
 
-        LeniencyHelperModule.OnUpdate -= ClearSafeClimbTrigger;
+        Everest.Events.Level.OnAfterUpdate -= ClearSafeClimbTrigger;
 
         On.Celeste.Player.IsRiding_Solid -= ForceRideSolid;
         On.Celeste.Solid.GetPlayerClimbing -= ForceClimbSolid;
@@ -73,7 +73,7 @@ public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
     }
     private static int ClimbTriggerDuringDash(On.Celeste.Player.orig_DashUpdate orig, Player self)
     {
-        if (Enabled && GetSetting<bool>("onDash"))
+        if (Enabled && GetSetting<bool>("OnDash"))
         {
             if (self.Holding == null && Math.Sign(self.Speed.X) != 0 - self.Facing && self.ClimbBoundsCheck((int)self.Facing)
                 && Input.GrabCheck && !self.IsTired && !self.Ducking)
@@ -110,7 +110,7 @@ public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
     }
 
 
-    private static void ClearSafeClimbTrigger()
+    private static void ClearSafeClimbTrigger(Level level)
     {
         safeClimbtriggerDir = 0;
     }
@@ -122,8 +122,8 @@ public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
 
     private static bool ForceRideSolid(On.Celeste.Player.orig_IsRiding_Solid orig, Player self, Solid solid)
     {
-        return (!useOrigCheck && GetClimbTriggeringPlayer(solid, self) != null)
-            || (!DelayedClimbtrigger.useOrigCheck && DelayedClimbtrigger.GetClimbtriggeringPlayer(solid, self) != null)
+        return !useOrigCheck && GetClimbTriggeringPlayer(solid, self) != null
+            || !DelayedClimbtrigger.useOrigCheck && DelayedClimbtrigger.GetClimbtriggeringPlayer(solid, self) != null
             || orig(self, solid);
     }
     private static Player ForceClimbSolid(On.Celeste.Solid.orig_GetPlayerClimbing orig, Solid self)
@@ -175,6 +175,6 @@ public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
     
     private static bool CheckEnabled(Player player)
     {
-        return Enabled && GetSetting<bool>("onNormalUpdate");
+        return Enabled && GetSetting<bool>("OnNormalUpdate");
     }    
 }

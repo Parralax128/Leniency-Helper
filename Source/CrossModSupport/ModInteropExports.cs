@@ -1,34 +1,46 @@
 ﻿using Celeste.Mod.LeniencyHelper.Module;
+using Celeste.Mod.LeniencyHelper.TweakSettings;
 using MonoMod.ModInterop;
-using static System.Enum;
+using System;
 
 namespace Celeste.Mod.LeniencyHelper.CrossModSupport;
 
 [ModExportName("LeniencyHelper")]
 public static class ModInteropExports
 {
+    private static TweakState Parse(string tweakName) => TweakData.Tweaks[Enum.Parse<Tweak>(tweakName)];
     public static bool GetTweakEnabled(string tweakName, bool ignoreOverride = false)
-        => SettingMaster.GetTweakEnabled(Parse<Tweak>(tweakName), ignoreOverride);
+    {
+        TweakState tweakState = Parse(tweakName);
+        if(ignoreOverride)
+        {
+            bool? savedValue = tweakState.Get(SettingSource.API);
+            tweakState.Set(null, SettingSource.API);
+            bool result = tweakState.Enabled;
+
+            tweakState.Set(savedValue, SettingSource.API);
+            return result;
+        }
+
+        return tweakState.Enabled;
+    }
 
     public static bool GetTweakEnabledByMap(string tweakName)
     {
-        Tweak tweak = Parse<Tweak>(tweakName);
-        return LeniencyHelperModule.Session.UseController[tweak]
-        ? LeniencyHelperModule.Session.ControllerTweaks[tweak]
-        : LeniencyHelperModule.Session.TriggerTweaks[tweak];
+        TweakState tweakState = Parse(tweakName);
+        return tweakState.Get(SettingSource.Trigger) ?? tweakState.Get(SettingSource.Controller) == true;
     }
-        
 
     public static bool GetTweakEnabledByPlayer(string tweakName)
-        => LeniencyHelperModule.Settings.PlayerTweaks[Parse<Tweak>(tweakName)] == true;
+        => Parse(tweakName).Get(SettingSource.Player) == true;
 
     public static bool GetTweakDisabledByPlayer(string tweakName)
-        => LeniencyHelperModule.Settings.PlayerTweaks[Parse<Tweak>(tweakName)] == false;
-
+        => Parse(tweakName).Get(SettingSource.Player) == false;
 
     public static void SetTweak(string tweakName, bool? state, bool overridePlayerSettings)
     {
-        LeniencyHelperModule.Session.OverrideTweaks[Parse<Tweak>(tweakName)] = state;
-        LeniencyHelperModule.Session.OverridePlayerSettings = overridePlayerSettings;
-    }   
+        TweakState tweakState = Parse(tweakName);
+
+        tweakState.Set(state, SettingSource.API);
+    }
 }

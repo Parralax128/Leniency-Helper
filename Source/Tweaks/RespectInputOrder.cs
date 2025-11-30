@@ -31,7 +31,7 @@ public class RespectInputOrder : AbstractTweak<RespectInputOrder>
         if(BindPressed(Input.Jump)) pressed.Add(Inputs.Jump);
         if(BindPressed(Input.Dash)) pressed.Add(Inputs.Dash);
         if(BindPressed(Input.CrouchDash)) pressed.Add(Inputs.Demo);
-        if(BindPressed(Input.Grab) && GetSetting<bool>("affectGrab")) pressed.Add(Inputs.Grab);
+        if(BindPressed(Input.Grab) && GetSetting<bool>("AffectGrab")) pressed.Add(Inputs.Grab);
         
         if(pressed.Count > 0) Queue.Enqueue(pressed);
 
@@ -42,7 +42,7 @@ public class RespectInputOrder : AbstractTweak<RespectInputOrder>
         Input.Jump.consumed = !current.Contains(Inputs.Jump);
         Input.Dash.consumed = !current.Contains(Inputs.Dash);
         Input.CrouchDash.consumed = !current.Contains(Inputs.Demo);
-        if (GetSetting<bool>("affectGrab")) Input.Grab.consumed = !current.Contains(Inputs.Grab);
+        if (GetSetting<bool>("AffectGrab")) Input.Grab.consumed = !current.Contains(Inputs.Grab);
     }
 
     public static bool BindPressed(VirtualButton button)

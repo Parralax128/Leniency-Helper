@@ -54,7 +54,7 @@ public class ConsistentWallboosters : AbstractTweak<ConsistentWallboosters>
                 cursor.GotoNext(MoveType.Before, instr => instr.MatchCall(typeof(Engine).GetMethod("get_DeltaTime")));
                 cursor.EmitDelegate(GetNewAcceleration);
 
-                cursor.GotoNext(MoveType.After, instr => instr.MatchStfld<Microsoft.Xna.Framework.Vector2>("Y"));
+                cursor.GotoNext(MoveType.After, instr => instr.MatchStfld<Vector2>("Y"));
                 
                 cursor.EmitDelegate(InstantAccelerationEnabled);
                 cursor.EmitBrfalse(skipInstantAcc);
@@ -62,7 +62,7 @@ public class ConsistentWallboosters : AbstractTweak<ConsistentWallboosters>
                     cursor.EmitLdarg0();
                     cursor.EmitLdflda(typeof(Player).GetField("Speed"));
                     cursor.EmitLdloc(targetSpeed);
-                    cursor.EmitStfld(typeof(Microsoft.Xna.Framework.Vector2).GetField("Y"));
+                    cursor.EmitStfld(typeof(Vector2).GetField("Y"));
                 }
                 cursor.MarkLabel(skipInstantAcc);
 
@@ -84,7 +84,7 @@ public class ConsistentWallboosters : AbstractTweak<ConsistentWallboosters>
 
     private static bool EdgeJumpCheck(Player player)
     {
-        if (!Enabled || !GetSetting<bool>("bufferableWallboosterMaxjumps")) return true;
+        if (!Enabled || !GetSetting<bool>("BufferableMaxjumps")) return true;
         
         Vector2 savedPos = player.Position;
         player.Position += player.Speed * Input.Jump.bufferCounter;
@@ -105,16 +105,16 @@ public class ConsistentWallboosters : AbstractTweak<ConsistentWallboosters>
     }
 
     private static bool InstantAccelerationEnabled() =>
-         Enabled && GetSetting<bool>("instantWallboosterAcceleration");
+         Enabled && GetSetting<bool>("InstantAcceleration");
 
     private static float GetNewAcceleration(float orig)
     {
-        if (!Enabled || GetSetting<bool>("instantWallboosterAcceleration"))
+        if (!Enabled || GetSetting<bool>("InstantAcceleration"))
             return orig;
 
-        return GetSetting<int>("newWallboosterAcceleration") * 60f;
+        return GetSetting<int>("CustomAcceleration") * 60f;
     }
 
     private static float GetConsistentBlockboost(float orig, float target) => 
-        Enabled && GetSetting<bool>("consistentWallboosterBlockboost") ? target : orig;         
+        Enabled && GetSetting<bool>("ConsistentBlockboost") ? target : orig;         
 }

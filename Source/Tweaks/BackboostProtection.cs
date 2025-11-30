@@ -9,16 +9,16 @@ public class BackboostProtection : AbstractTweak<BackboostProtection>
     [OnLoad]
     public static void LoadHooks()
     {
-        LeniencyHelperModule.OnUpdate += UpdateTimer;
-        LeniencyHelperModule.OnPlayerUpdate += CheckDir;
+        Everest.Events.Level.OnAfterUpdate += UpdateTimer;
+        Everest.Events.Player.OnAfterUpdate += CheckDir;
         On.Celeste.Player.Throw += ConsumeBackboostFacing;
     }
 
     [OnUnload]
     public static void UnloadHooks()
     {
-        LeniencyHelperModule.OnUpdate -= UpdateTimer;
-        LeniencyHelperModule.OnPlayerUpdate -= CheckDir;
+        Everest.Events.Level.OnAfterUpdate -= UpdateTimer;
+        Everest.Events.Player.OnAfterUpdate -= CheckDir;
         On.Celeste.Player.Throw -= ConsumeBackboostFacing;
     }
 
@@ -30,14 +30,11 @@ public class BackboostProtection : AbstractTweak<BackboostProtection>
 
         if(s.pickupTimeLeft > 0f || player.minHoldTimer > 0f)
         {
-            saveDuration = Math.Min(
-                GetSetting<float>("earlyBackboostTiming") * (GetSetting<bool>("countBackboostTimingInFrames") ? Engine.DeltaTime : 1f),
-                Player.HoldMinTime + s.pickupTimeLeft);
+            saveDuration = Math.Min(GetSetting<Time>("EarlyBackboostTiming"), Player.HoldMinTime + s.pickupTimeLeft);
         }
         else
         {
-            saveDuration = GetSetting<float>("lateBackboostTiming")
-                * (GetSetting<bool>("countBackboostTimingInFrames") ? Engine.DeltaTime : 1f);
+            saveDuration = GetSetting<Time>("LateBackboostTiming");
         }
 
         if (player.moveX == 1) s.rightTimer = saveDuration;
@@ -46,7 +43,7 @@ public class BackboostProtection : AbstractTweak<BackboostProtection>
         s.lastFacing = (Facings)Input.MoveX.Value;
     }
 
-    private static void UpdateTimer()
+    private static void UpdateTimer(Level level)
     {
         var s = LeniencyHelperModule.Session;
 

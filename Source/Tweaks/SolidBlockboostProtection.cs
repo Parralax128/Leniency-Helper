@@ -72,7 +72,7 @@ public class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection
                 actor.Collidable = true;
 
 
-                if ((self is JumpThru jt && actor.IsRiding(jt)) || (self is Solid solid && actor.IsRiding(solid)))
+                if (self is JumpThru jt && actor.IsRiding(jt) || self is Solid solid && actor.IsRiding(solid))
                 {
                     actor.LiftSpeed = component.savedLiftSpeed;
                 }
@@ -137,7 +137,7 @@ public class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection
     {
         orig(platform, playerInteractingSolid, left, move);
 
-        if(Enabled && LeniencyHelperModule.ModLoaded("MaxHelpingHand") && (platform is AttachedSidewaysJumpThru))
+        if(Enabled && LeniencyHelperModule.ModLoaded("MaxHelpingHand") && platform is AttachedSidewaysJumpThru)
         {
             platform.Get<SolidLiftboostComponent>()?.OnSidewaysMove(playerInteractingSolid.LiftSpeed);
         }

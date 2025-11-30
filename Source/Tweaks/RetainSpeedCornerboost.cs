@@ -2,7 +2,6 @@ using Celeste.Mod.LeniencyHelper.Module;
 using IL.Celeste;
 using Monocle;
 using System;
-using static Celeste.Mod.LeniencyHelper.SettingMaster;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
@@ -12,14 +11,14 @@ public class RetainSpeedCornerboost : AbstractTweak<RetainSpeedCornerboost>
     public static void LoadHooks()
     {
         On.Celeste.Player.ClimbJump += RetainSpeedOnClimbJump;
-        LeniencyHelperModule.OnPlayerUpdate += RetainTimerUpdate;
+        Everest.Events.Player.OnAfterUpdate += RetainTimerUpdate;
         On.Celeste.Player.OnCollideH += SaveCbSpeed;
     }
     [OnUnload]
     public static void UnloadHooks()
     {
         On.Celeste.Player.ClimbJump -= RetainSpeedOnClimbJump;
-        LeniencyHelperModule.OnPlayerUpdate -= RetainTimerUpdate;
+        Everest.Events.Player.OnAfterUpdate -= RetainTimerUpdate;
         On.Celeste.Player.OnCollideH -= SaveCbSpeed;
     }
 
@@ -39,8 +38,7 @@ public class RetainSpeedCornerboost : AbstractTweak<RetainSpeedCornerboost>
         if (s.retainCbSpeedTimer <= 0f && Math.Abs(savePlayerSpeed) > 0.1f)
         {
             s.retainCbSpeed = savePlayerSpeed;
-            s.retainCbSpeedTimer = GetSetting<bool>("countRetainTimeInFrames") ?
-                GetSetting<float>("RetainCbSpeedTime") / Engine.DeltaTime : GetSetting<float>("RetainCbSpeedTime");
+            s.retainCbSpeedTimer = GetSetting<Time>("MaxRetainTime");
         }
     }
     

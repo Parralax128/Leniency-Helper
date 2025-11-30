@@ -16,14 +16,14 @@ public class ConsistentDashOnDBlockExit : AbstractTweak<ConsistentDashOnDBlockEx
     {
         IL.Celeste.Player.DreamDashUpdate += InstantDBlockExit;
         On.Celeste.Player.DreamDashEnd += DetectDreamDashEnd;
-        LeniencyHelperModule.OnPlayerUpdate += MoveToDBlock;
+        Everest.Events.Player.OnAfterUpdate += MoveToDBlock;
     }
     [OnUnload]
     public static void UnloadHooks()
     {
         IL.Celeste.Player.DreamDashUpdate -= InstantDBlockExit;
         On.Celeste.Player.DreamDashEnd -= DetectDreamDashEnd;
-        LeniencyHelperModule.OnPlayerUpdate -= MoveToDBlock;
+        Everest.Events.Player.OnAfterUpdate -= MoveToDBlock;
     }
 
     private static void DetectDreamDashEnd(On.Celeste.Player.orig_DreamDashEnd orig, Player self)
@@ -58,7 +58,7 @@ public class ConsistentDashOnDBlockExit : AbstractTweak<ConsistentDashOnDBlockEx
 
     private static void ResetDashCDifEnabled(Player player)
     {
-        if(Enabled && GetSetting<bool>("resetDashCDonLeave"))
+        if(Enabled && GetSetting<bool>("ResetDashCDonLeave"))
         {
             player.dashCooldownTimer = 0f;
         }

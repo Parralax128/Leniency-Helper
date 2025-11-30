@@ -1,9 +1,7 @@
 ﻿using Monocle;
 using Microsoft.Xna.Framework;
 using Celeste.Mod.Entities;
-using MonoMod.Utils;
 using Celeste.Mod.LeniencyHelper.Module;
-using Celeste.Mod.LeniencyHelper.Tweaks;
 
 namespace Celeste.Mod.LeniencyHelper.Triggers;
 
@@ -14,11 +12,11 @@ public class ClearBlockBoostTrigger : GenericTrigger
     [OnLoad]
     public static void AddEvent()
     {
-        LeniencyHelperModule.BeforePlayerUpdate += ClearBB;
+        Everest.Events.Player.OnBeforeUpdate += ClearBB;
     }
     public static void RemoveEvent()
     {
-        LeniencyHelperModule.BeforePlayerUpdate -= ClearBB;
+        Everest.Events.Player.OnBeforeUpdate -= ClearBB;
     }
 
     private static readonly Vector2 FakeZero = new Vector2(0f, 0.0001f);

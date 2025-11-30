@@ -1,9 +1,9 @@
 ﻿using Celeste.Mod.LeniencyHelper.Controllers;
 using Celeste.Mod.LeniencyHelper.CrossModSupport;
-using Celeste.Mod.LeniencyHelper.Tweaks;
+using Celeste.Mod.LeniencyHelper.TweakSettings;
 using Celeste.Mod.LeniencyHelper.UI;
+using Microsoft.Build.Utilities;
 using Microsoft.Xna.Framework;
-using MonoMod.Cil;
 using MonoMod.ModInterop;
 using System;
 using System.Collections.Generic;
@@ -27,6 +27,7 @@ public class LeniencyHelperModule : EverestModule
     public static LeniencyHelperSaveData SaveData => (LeniencyHelperSaveData)Instance._SaveData;
     #endregion
 
+    #region loaded mods handling
     private static Dictionary<string, (Version, bool)> ModsLoaded = new Dictionary<string, (Version, bool)>
     {
         { "MaxHelpingHand", (new Version(1,30,0), false) },
@@ -48,20 +49,17 @@ public class LeniencyHelperModule : EverestModule
         Left, Right,
         All, None
     }
+    #endregion
+
+    public static string Name => Instance.Metadata.Name;
 
     public static readonly Tweak[] TweakList = Enum.GetValues<Tweak>();
-    
-    public static SettingList DefaultSettings = new SettingList();
     public static Player GetPlayer(Monocle.Scene scene) => scene.Tracker.GetEntity<Player>();
 
     public LeniencyHelperModule()
     {        
         Instance = this;
         Logger.SetLogLevel(nameof(LeniencyHelperModule), LogLevel.Verbose);
-        foreach (FieldInfo field in typeof(SettingList).GetFields())
-        {
-            SettingMaster.SettingListFields.Add(field.Name, field);
-        }
     }
     public static bool CollideOnWJdist<T>(Monocle.Entity entity, int dir, Vector2? at) where T : Monocle.Entity
     {
@@ -77,7 +75,6 @@ public class LeniencyHelperModule : EverestModule
 
         return entity.Scene.CollideCheck<T>(checkRect);
     }
-
     public static bool CollideOnWJdist(Monocle.Entity entity, Monocle.Entity with, int dir, Vector2? at = null)
     {
         Vector2 savePos = entity.Position;
@@ -91,11 +88,7 @@ public class LeniencyHelperModule : EverestModule
 
         return entity.Scene.CollideCheck(checkRect, with);
     }
-
-    public static event Action<Player> BeforePlayerUpdate;
-    public static event Action<Player> OnPlayerUpdate;
-    public static event Action OnUpdate;
-
+    
     public override void Initialize()
     {
         base.Initialize();
@@ -110,11 +103,11 @@ public class LeniencyHelperModule : EverestModule
         
         if (ModLoaded("MaxHelpingHand"))
         {
-            SolidBlockboostProtection.LoadSidewaysHook();
+            Tweaks.SolidBlockboostProtection.LoadSidewaysHook();
         }
         if (ModLoaded("VivHelper"))
         {
-            BufferableClimbtrigger.LoadVivHelperHooks();
+            Tweaks.BufferableClimbtrigger.LoadVivHelperHooks();
             ConsistentCoreboostDirectionController.LoadVivHelperHooks();
         }
 
@@ -135,30 +128,12 @@ public class LeniencyHelperModule : EverestModule
 
         Everest.Events.Level.OnCreatePauseMenuButtons += AddTweaksMenuButton;
         On.Celeste.HudRenderer.RenderContent += RenderWatermark;
-        Everest.Events.Level.OnEnter += ClearSessionOnEnter;
-
-        IL.Celeste.Level.GiveUp += InsertSessionClear;
-
-        On.Celeste.Player.Update += OnPlayerUpdateEventHook;
-        On.Celeste.Level.Update += OnUpdateEventHook;
 
         Everest.Events.GameLoader.OnLoadThread += WebScrapper.LoadInfo;
 
         typeof(GravityHelperImports).ModInterop();
         typeof(ExtendedVariantImports).ModInterop();
-
         typeof(ModInteropExports).ModInterop();
-    }
-    private static void OnPlayerUpdateEventHook(On.Celeste.Player.orig_Update orig, Player self)
-    {
-        BeforePlayerUpdate(self);
-        orig(self);
-        OnPlayerUpdate(self);
-    }
-    private static void OnUpdateEventHook(On.Celeste.Level.orig_Update orig, Level self)
-    {
-        orig(self);
-        OnUpdate();
     }
 
     public override void Unload()
@@ -173,53 +148,8 @@ public class LeniencyHelperModule : EverestModule
 
         Everest.Events.Level.OnCreatePauseMenuButtons -= AddTweaksMenuButton;
         On.Celeste.HudRenderer.RenderContent -= RenderWatermark;
-        Everest.Events.Level.OnEnter -= ClearSessionOnEnter;
-
-        IL.Celeste.Level.GiveUp -= InsertSessionClear;
-
-        On.Celeste.Player.Update -= OnPlayerUpdateEventHook;
-        On.Celeste.Level.Update -= OnUpdateEventHook;
-
         Everest.Events.GameLoader.OnLoadThread -= WebScrapper.LoadInfo;
     }
-
-    #region settings && session
-    
-    private static void ClearSessionOnEnter(Session session, bool justEntered)
-    {
-        if (!justEntered)
-        {
-            SessionSerializer.ClearSessionFile(global::Celeste.SaveData.LoadedModSaveDataIndex);
-        }
-    }
-    public override byte[] SerializeSession(int index) => null;
-    public override void WriteSession(int index, byte[] data) => SessionSerializer.SaveSession(index, Session);
-    public override byte[] ReadSession(int index) => null;
-    public override void DeserializeSession(int index, byte[] data) =>_Session = SessionSerializer.LoadSession(index);
-    private static void InsertSessionClear(ILContext il)
-    {
-        ILCursor cursor = new ILCursor(il);
-
-        if(cursor.TryGotoNext(MoveType.Before, instr => instr.MatchCallvirt<TextMenu.Item>("Pressed")))
-        {
-            cursor.EmitDelegate(ClearSessionOnButtonPress);
-        }
-    }
-    private static Action ClearSessionOnButtonPress(Action orig) 
-        => (() => SessionSerializer.ClearSessionFile(global::Celeste.SaveData.LoadedModSaveDataIndex)) + orig;
-    public override void LoadSettings()
-    {
-        base.LoadSettings();
-
-        foreach(Tweak tweak in TweakList)
-        {
-            if (!Settings.PlayerTweaks.ContainsKey(tweak))
-            {
-                Settings.PlayerTweaks.Add(tweak, null);
-            }
-        }
-    }
-    #endregion
 
     private void AddTweaksMenuButton(Level level, TextMenu menu, bool minimal)
     {
@@ -242,9 +172,15 @@ public class LeniencyHelperModule : EverestModule
 
         if (Settings == null || Session == null || scene is not Level) return;
 
-        foreach (Tweak tweak in TweakList)
+        if(TweakData.Tweaks == null)
         {
-            if (Settings.PlayerTweaks[tweak] == true)
+            Debug.Warn($"Tweaks are null!");
+            return;
+        }
+
+        foreach (TweakState tweakState in TweakData.Tweaks) 
+        {
+            if (tweakState.Get(SettingSource.Player) == true)
             {
                 Monocle.Draw.SpriteBatch.Begin();
                 Watermark.Draw(new Vector2(27, 285), Vector2.Zero, Color.White * 0.15f, 0.5f);

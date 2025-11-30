@@ -13,14 +13,14 @@ public class LateReverses : AbstractTweak<LateReverses>
     public static void LoadHooks()
     {
         IL.Celeste.Player.SuperJump += LaunchRedirectTimer;
-        LeniencyHelperModule.OnPlayerUpdate += UpdateRedirectTimer;
+        Everest.Events.Player.OnAfterUpdate += UpdateRedirectTimer;
     }
 
     [OnUnload]
     public static void UnloadHooks()
     {
         IL.Celeste.Player.SuperJump -= LaunchRedirectTimer;
-        LeniencyHelperModule.OnPlayerUpdate -= UpdateRedirectTimer;
+        Everest.Events.Player.OnAfterUpdate -= UpdateRedirectTimer;
     }
 
     private static void LaunchRedirectTimer(ILContext il)
@@ -53,14 +53,14 @@ public class LateReverses : AbstractTweak<LateReverses>
     {   
         var s = LeniencyHelperModule.Session;
 
-        if(s.redirectTimer <= GetTime("redirectTime"))
+        if(s.redirectTimer <= GetSetting<Time>("ReverseTiming"))
         {
             s.redirectTimer += Engine.DeltaTime;
             if (Enabled && s.prevFrameFacing != player.Facing)
             {
                 player.Speed.X = s.redirectSpeed;
                 s.redirectTimer = 0f;
-            }            
+            }
         }
 
         s.prevFrameFacing = player.Facing;

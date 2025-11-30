@@ -10,9 +10,9 @@ public class Description
     private Func<float> AlphaGetter;
     private string text = "";
     private const float Scale = 0.7f;
+    public float TextWidth;
 
-
-    public Description(Func<float> getAlpha, WebScrapper.TweakInfo info, string settingName = null)
+    public Description(Func<float> getAlpha, WebScrapper.TweakInfo info, string settingName = null, float? textWidth = null)
     {
         if (settingName == null)
         {
@@ -20,20 +20,16 @@ public class Description
         }
         else
         {
-            try
-            {
-                text = info.settingDescs[settingName];
-            }
-            catch
-            {
-                Logging.Warn($"failed loading {settingName}");
+            try { text = info.settingDescs[settingName]; }
+            catch {
+                Debug.Warn($"failed loading {settingName}");
 
                 if(info.settingDescs != null && info.settingDescs.Count > 0)
                 {
-                    Logging.Warn("existing settings:");
+                    Debug.Warn("existing settings:");
                     foreach (var desc in info.settingDescs)
                     {
-                        Logging.Log($"\"{desc.Key}\" - \"{desc.Value}\"");
+                        Debug.Log($"\"{desc.Key}\" - \"{desc.Value}\"");
                     }
                 }
             }
@@ -41,7 +37,7 @@ public class Description
 
         AlphaGetter = getAlpha;
         var layout = TweakMenuManager.Layout;
-        if(text != null) text = SplitText((Monocle.Engine.Width - layout.LeftOffset - layout.RightOffset) * 0.7f);
+        if(text != null) text = SplitText(textWidth ?? (Monocle.Engine.Width - layout.LeftOffset - layout.RightOffset) * 1.2f);
     }
     private string SplitText(float maxLineLen)
     {
@@ -64,11 +60,11 @@ public class Description
     }
 
 
-    public float GetHeight()
+    public float Height()
     {
         return text == "" ? 0f : ActiveFont.Measure(text).Y * Scale + 4f;
     }
-    public void Render(Vector2 position, float textWidth)
+    public void Render(Vector2 position)
     {
         float alpha = AlphaGetter.Invoke();
 

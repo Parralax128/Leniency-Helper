@@ -19,7 +19,7 @@ public class ExtendDashAttackOnPickup : AbstractTweak<ExtendDashAttackOnPickup>
         bool result = orig(self, holdable);
 
         if (Enabled && result && self.dashAttackTimer > 0f) 
-            self.dashAttackTimer += GetTime("attackExtendTime");
+            self.dashAttackTimer += GetSetting<Time>("attackExtendTime");
 
         return result;
     }

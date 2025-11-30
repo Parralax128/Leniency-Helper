@@ -16,13 +16,13 @@ public class InputRequiresBlockboostTrigger : Trigger
     [OnLoad]
     public static void LoadHooks()
     {
-        LeniencyHelperModule.BeforePlayerUpdate += GetLiftboost;
+        Everest.Events.Player.OnBeforeUpdate += GetLiftboost;
         pressedHook = new Hook(typeof(VirtualButton).GetProperty("Pressed").GetGetMethod(), HookedPressed);
     }
     [OnUnload]
     public static void UnloadHooks()
     {
-        LeniencyHelperModule.BeforePlayerUpdate -= GetLiftboost;
+        Everest.Events.Player.OnBeforeUpdate -= GetLiftboost;
 
         pressedHook.Dispose();
     }
