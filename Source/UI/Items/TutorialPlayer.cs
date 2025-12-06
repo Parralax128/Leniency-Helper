@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Media;
 
-namespace Celeste.Mod.LeniencyHelper.UI;
+namespace Celeste.Mod.LeniencyHelper.UI.Items;
 
 public static class TutorialPlayer
 {

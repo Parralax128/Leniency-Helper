@@ -18,4 +18,7 @@ public class LeniencyHelperSettings : EverestModuleSettings
 
     [SettingName("LENIENCYHELPER_SETTINGS_LINKOPENINGMODE")]
     public UrlActions LinkOpeningMode { get; set; } = UrlActions.OpenInBrowser;
+
+
+    //public Dictionary<string, Dictionary<TweakSettings.SettingSource, int>>
 }

@@ -1,7 +1,7 @@
 ﻿using Monocle;
 using Microsoft.Xna.Framework;
 
-namespace Celeste.Mod.LeniencyHelper.UI;
+namespace Celeste.Mod.LeniencyHelper.UI.Items;
 
 public class OptionsHint : TextMenu.Item
 {

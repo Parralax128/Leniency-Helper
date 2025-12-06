@@ -3,20 +3,20 @@ namespace Celeste.Mod.LeniencyHelper.TweakSettings;
 public class Bounds<T>
 {
     private bool hasMin = true;
-    private T Min;
+    public T Min { get; private set; }
     
     private bool hasMax = true;
-    private T Max;
+    public T Max {get; private set; }
 
     public bool Check(T value)
     {
-        return (hasMin ? (value as IComparable).CompareTo(Min) >= 0 : true)
-            && (hasMax ? (value as IComparable).CompareTo(Max) <= 0 : true);
+        return (hasMin ? (value as IComparable<T>).CompareTo(Min) >= 0 : true)
+            && (hasMax ? (value as IComparable<T>).CompareTo(Max) <= 0 : true);
     }
     public void Check(T value, out bool withMin, out bool withMax)
     {
-        withMin = hasMin ? (value as IComparable).CompareTo(Min) >= 0 : true;
-        withMax = hasMax ? (value as IComparable).CompareTo(Max) <= 0 : true;
+        withMin = hasMin ? (value as IComparable<T>).CompareTo(Min) >= 0 : true;
+        withMax = hasMax ? (value as IComparable<T>).CompareTo(Max) <= 0 : true;
     }
 
     public Bounds(T min, T max)

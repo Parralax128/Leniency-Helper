@@ -13,7 +13,7 @@ public class CompoundSetting<T> : AbstractSetting where T : class
     public T Get(SettingSource source)
     {
         valueUpdater.Invoke(cachedValue, subsettings, source);
-        return cachedValue;
+        return cachedValue; 
     }
     public CompoundSetting(string name, SettingContainer subsettings, Action<T, SettingContainer, SettingSource> updater)
     {
@@ -24,7 +24,7 @@ public class CompoundSetting<T> : AbstractSetting where T : class
 
     public override bool? Set(SettingSource source, object value)
     {
-        throw new InvalidOperationException("cannot directly set compound setting!");
+        throw new InvalidOperationException("Cannot directly set compound setting!");
     }
     public override bool? Reset(SettingSource source)
     {
@@ -50,7 +50,7 @@ public class CompoundSetting<T> : AbstractSetting where T : class
         return result;
     }
 
-    public override List<TextMenu.Item> MenuEntry(Tweak tweak)
+    public override List<UI.Items.AbstractTweakItem> MenuEntry(Tweak tweak)
     {
         return subsettings.SelectMany(setting => setting.MenuEntry(tweak)).ToList();
     }

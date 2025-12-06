@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.LeniencyHelper.Module;
+using Celeste.Mod.LeniencyHelper.UI.Items;
 using Celeste.Mod.UI;
 using Monocle;
 using System;
@@ -42,13 +43,16 @@ public static class TweakMenuManager
         TextMenu menu = new TextMenu();
 
         Layout = new MenuLayout();
-        Layout.LeftOffset = 0.05f;
-        Layout.RightOffset = 0.4f;
-        Layout.SubSettingOffset = 0.03f;
-
+        Layout.LeftOffset = 80f;
+        Layout.RightOffset = 960f;
+        Layout.SubSettingOffset = 100f;
+        
         Layout.VideoSize = new Microsoft.Xna.Framework.Vector2(0.4f);
         Layout.VideoOffsetX = 0.1f;
         Layout.VideoPosY = 0.4f;
+
+        Layout.TweakScale = 0.8f;
+        Layout.SubSettingScale = 0.7f;
 
         menu.OnUpdate += () => OnUpdate(menu);
         menu.Add(new TextMenu.Header(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENU")));
@@ -81,25 +85,19 @@ public static class TweakMenuManager
 
         foreach (Tweak tweak in LeniencyHelperModule.TweakList)
         {
-            Debug.Log($"creating new slider for {tweak}");
             TweakSlider newTweak = new TweakSlider(tweak);
-            
-            resetTweaksButton.OnPressed += () => { while ((int)newTweak.Value > 0) newTweak.ChangeValue(-1); };
+            if(newTweak.description != null) menu.Add(newTweak.description);
 
+            resetTweaksButton.OnPressed += () => { while ((int)newTweak.Value > 0) newTweak.ChangeValue(-1); };
             menu.Add(newTweak);
-            Debug.Log("Added to menu??");
         }
         menu.Insert(1, resetTweaksButton);
         menu.Insert(2, resetSettingsButton);
-        menu.Selection = 1;
-
-        TutorialPlayer.LoadVideo("vid");
-        TutorialPlayer.PlayTutorial();
-        
+        menu.Selection = 1;       
     }
     private static void OnUpdate(TextMenu menu)
     {
-        TextMenu.Item selectedItem = menu.Items[menu.Selection];
+        UI.Items.AbstractTweakItem selectedItem = menu.Items[menu.Selection] as AbstractTweakItem;
 
         if (Input.Grab.Pressed)
         {
@@ -113,7 +111,7 @@ public static class TweakMenuManager
             {
                 foreach (TweakSlider slider in menu.Items.FindAll(i => i is TweakSlider))
                 {
-                    if (slider.subOptions.Contains(selectedItem))
+                    if (slider.subSettings.Contains(selectedItem))
                     {
                         slider.TweakInfoFromLink();
                         break;

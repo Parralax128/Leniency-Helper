@@ -5,8 +5,13 @@ namespace Celeste.Mod.LeniencyHelper.TweakSettings;
 public class Setting<T> : AbstractSetting
 {
     public Dictionary<SettingSource, T> Values = new();
+    public T Player
+    {
+        get => Values[SettingSource.Player];
+        set => Values[SettingSource.Player] = value;
+    }
 
-    private Bounds<T> ValueBounds = null;
+    public Bounds<T> ValueBounds { get; private set; }
 
     private List<T> ValidLeniencyValues = null;
     private Bounds<T> ValidLeniencyBounds = null;
@@ -82,21 +87,21 @@ public class Setting<T> : AbstractSetting
         return null;
     }
 
-    public override List<TextMenu.Item> MenuEntry(Tweak tweak)
+    public override List<UI.Items.AbstractTweakItem> MenuEntry(Tweak tweak)
     {
-        return new List<TextMenu.Item>() { new UI.TweakSetting<T>(tweak, this) };
+        return new() { new UI.Items.TweakSetting<T>(tweak, this) };
     }
 
 
     public T GetMapValue(Tweak tweak) => Values[tweak.GetMapSource()];
     public void CheckBounds(T value, out bool withMin, out bool withMax)
     {
-        if(value is bool @bool)
-        {
-            withMin = @bool;
-            withMax = !@bool;
-            return;
-        }
         ValueBounds.Check(value, out withMin, out withMax);
+    }
+
+    public T this[SettingSource source]
+    {
+        get => Values[source];
+        set => Set(source, value);
     }
 }

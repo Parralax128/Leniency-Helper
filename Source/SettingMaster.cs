@@ -61,29 +61,30 @@ public static class SettingMaster
 
     #region tweaks
 
-    public static void SetPlayerTweak(Tweak tweak, bool? newValue) => TweakData.Tweaks[tweak].Set(newValue, SettingSource.Player);
     public static void SetTriggerTweak(Tweak tweak, bool? newValue)
     {
-        try
-        {
-            TweakData.Tweaks[tweak].Set(newValue, SettingSource.Trigger);
-        }
-        catch (Exception e)
-        {
-            Debug.Warn($"Failed to set trigger value of {tweak} tweak :[");
-            Debug.Log(TweakData.Tweaks);
-            Debug.Warn(e);
-        }
+
+        TweakData.Tweaks[tweak].Set(newValue, SettingSource.Trigger);
+
     }
     public static void SetControllerTweak(Tweak tweak, bool newValue) => TweakData.Tweaks[tweak].Set(newValue, SettingSource.Controller);
 
     public static void ResetPlayerSettings()
     {
-        foreach(Tweak tweak in LeniencyHelperModule.TweakList)
+        foreach(Tweak tweak in LeniencyHelperModule.TweakList.Where(t => TweakData.Tweaks[t].Settings != null))
         {
             foreach (AbstractSetting setting in TweakData.Tweaks[tweak].Settings)
             {
-                setting.Reset(SettingSource.Player);
+                try
+                {
+                    setting.Reset(SettingSource.Player);
+                }
+                catch (Exception e)
+                {
+                    Debug.Warn($"{tweak}/{setting.Name} failed resetting!");
+                    Debug.Warn(e);
+                }
+                
             }
         }
         
@@ -96,7 +97,7 @@ public static class SettingMaster
 
         Dictionary<string, object> result = new();
 
-        foreach (AbstractSetting setting in TweakData.Tweaks[tweak])
+        foreach (AbstractSetting setting in TweakData.Tweaks[tweak].Settings)
         {
             object parsed = setting.ParseFromData(data);
             if (parsed is Dictionary<string, object> dict)

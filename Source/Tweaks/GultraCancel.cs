@@ -65,7 +65,7 @@ public class GultraCancel : AbstractTweak<GultraCancel>
     private static void SaveSpeedY(Player player)
     {
         LeniencyHelperModule.Session.savedSpeed = player.Speed;
-        LeniencyHelperModule.Session.cancelTimer = GetSetting<Time>("cancelTime");
+        LeniencyHelperModule.Session.cancelTimer = GetSetting<Time>("MaxCancelDelay");
     }
 
     private static int CancelGultraOnMidAir(On.Celeste.Player.orig_DashUpdate orig, Player self)

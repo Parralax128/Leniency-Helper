@@ -5,11 +5,11 @@ namespace Celeste.Mod.LeniencyHelper;
 
 public static class DialogUtils
 {
-    public static Language LookupLang = /*Dialog.LoadLanguage("SettingLookup");*/Dialog.Languages["english"];
-    public static string Lookup(string key) => Dialog.Clean(key, LookupLang);
+    public static string Lookup(string key) => Dialog.Clean(key, Dialog.Languages["english"]);
     public static string Lookup(Tweak tweak) => Lookup($"{LeniencyHelperModule.Name}_Tweaks_{tweak}");
-    public static string Lookup(Tweak tweak, string setting) => Lookup($"{LeniencyHelperModule.Name}_Settings_{tweak}.{setting}");
-    public static string Lookup(object value) => Lookup($"{LeniencyHelperModule.Name}_Enums_{value.GetType().Name}.{value.ToString()}");
+    public static string Lookup(Tweak tweak, string setting) => Lookup($"{LeniencyHelperModule.Name}_Settings_{tweak}_{setting}");
+    public static string Lookup(object value) => Lookup($"{LeniencyHelperModule.Name}_Enums_{value.GetType().Name}_{value.ToString()}");
+    public static string Enum<T>(T value) => Dialog.Clean($"{LeniencyHelperModule.Name}_Enums_{typeof(T).Name}_{value}");
 
     public static string TweakToUrl(Tweak tweak)
     {
@@ -34,7 +34,7 @@ public static class DialogUtils
 
     public static Time Time(this EntityData data, string key, Time defaultValue)
     {
-        Debug.Warn($"trying to lookup for name \"{key}\" in dialog!");
+        //Debug.Warn($"trying to lookup for name \"{key}\" in dialog!");
         string str = data.String(/*DialogLookup(key)*/ key);
         if (string.IsNullOrEmpty(str)) return defaultValue;
 

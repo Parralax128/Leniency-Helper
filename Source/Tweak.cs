@@ -39,7 +39,7 @@ public enum Tweak
     ManualDreamhyperLeniency = 26,
     NoFailedTech = 27,
     RefillDashInCoyote = 28,
-    RemoveDBlockCCorection = 29,
+    RemoveDBlockCCorrection = 29,
     RespectInputOrder = 30,
     RetainSpeedCornerboost = 31,
     SolidBlockboostProtection = 32,

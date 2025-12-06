@@ -9,18 +9,24 @@ using static Celeste.TrackSpinner;
 namespace Celeste.Mod.LeniencyHelper;
 public class FlexDistance
 {
+    public enum Modes
+    { 
+        Static,
+        Dynamic
+    }
+
     public int StaticValue;
 
-    public bool Dynamic = false;
-    public Time Timer;
+    public Modes Mode;
+    public Time Time;
     public int Get(SettingSource source, float Speed)
-        =>  Dynamic ? StaticValue : (int)(Timer.Value * Speed);
+        =>  Mode == Modes.Dynamic ? StaticValue : (int)(Time.Value * Speed);
 
 
-    public FlexDistance(int staticValue, bool dynamic, Time timer)
+    public FlexDistance(int staticValue, Time timer, Modes mode)
     {
         StaticValue = staticValue;
-        Dynamic = dynamic;
-        Timer = timer;
+        Time = timer;
+        this.Mode = mode;
     }
 }

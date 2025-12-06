@@ -209,7 +209,7 @@ public class RefillDashInCoyoteController : GenericTweakController
 [CustomEntity("LeniencyHelper/Controllers/RemoveDBlockCCorection")]
 public class RemoveDBlockCCorectionController : GenericTweakController
 {
-    public RemoveDBlockCCorectionController(EntityData data, Vector2 offset) : base(data, offset, Tweak.RemoveDBlockCCorection) { }
+    public RemoveDBlockCCorectionController(EntityData data, Vector2 offset) : base(data, offset, Tweak.RemoveDBlockCCorrection) { }
 }
 
 

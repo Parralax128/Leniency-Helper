@@ -86,7 +86,7 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
         if (bufferMoveTimer.Y > 0f) bufferMoveTimer.Y -= Engine.RawDeltaTime;
         if (featherAimTimer > 0f) featherAimTimer -= Engine.RawDeltaTime;
 
-        Dirs dashDir = GetSetting<Dirs>("dashDir");
+        Dirs dashDir = GetSetting<Dirs>("DashDir");
         if (dashDir != Dirs.None || GetSetting<bool>("AffectFeathers") || GetSetting<bool>("AffectSuperdashes"))
         {
             //X
@@ -106,7 +106,7 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
             }
         }
 
-        Dirs jumpDir = GetSetting<Dirs>("jumpDir");
+        Dirs jumpDir = GetSetting<Dirs>("JumpDir");
         if (jumpDir == Dirs.None) return;
 
         bool posX, posY;

@@ -74,7 +74,7 @@ public class TweakState : IEnumerable<AbstractSetting>
     public IEnumerator<AbstractSetting> GetEnumerator() => Settings.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => Settings.GetEnumerator();
 
-    public List<TextMenu.Item> CreateMenuEntry()
+    public List<UI.Items.AbstractTweakItem> CreateMenuEntry()
     {
         if(Settings != null)
             return Settings.SelectMany(setting => setting.MenuEntry(Tweak)).ToList();

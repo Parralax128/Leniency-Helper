@@ -196,7 +196,7 @@ public class RefillDashInCoyoteTrigger : GenericTweakTrigger
 [CustomEntity("LeniencyHelper/Triggers/RemoveDBlockCCorection")]
 public class RemoveDBlockCCorectionTrigger : GenericTweakTrigger
 {
-    public RemoveDBlockCCorectionTrigger(EntityData data, Vector2 offset) : base(data, offset, Tweak.RemoveDBlockCCorection) { }
+    public RemoveDBlockCCorectionTrigger(EntityData data, Vector2 offset) : base(data, offset, Tweak.RemoveDBlockCCorrection) { }
 }
 
 

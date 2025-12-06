@@ -9,15 +9,14 @@ using System.Diagnostics;
 using Celeste.Mod.LeniencyHelper.TweakSettings;
 using static Celeste.Mod.LeniencyHelper.TweakExtension;
 
-namespace Celeste.Mod.LeniencyHelper.UI;
+namespace Celeste.Mod.LeniencyHelper.UI.Items;
 
 public class TweakSlider : AbstractTweakItem
 {
-    public List<Item> subOptions = new List<Item>();
+    public List<AbstractTweakItem> subSettings = new ();
 
     public bool addedSubsettings = false;
-
-    private float maxValueWidth = 0f;
+    private Action<bool> SetVisible;
     
     private SubOptionsOffset beforeSubOptionsSpacing;
     private SubOptionsOffset afterSubOptionsSpacing;
@@ -35,18 +34,28 @@ public class TweakSlider : AbstractTweakItem
     private bool? GetPlayerState => Value == SliderValues.Map ? null : Value == SliderValues.On;
     public static int GetIndexFromTweakName(Tweak tweak)
     {
-        if (tweak.Get(TweakSettings.SettingSource.Player) != null)
-            return tweak.Get(TweakSettings.SettingSource.Player) == true ? 1 : 2;
+        if (tweak.Get(SettingSource.Player) != null)
+            return tweak.Get(SettingSource.Player) == true ? 1 : 2;
         else return 0;
     }
     public TweakSlider(Tweak tweak) : base(tweak)
     {
         this.tweak = tweak;
 
-        foreach(string str in Enum.GetValues<SliderValues>().Select(s => DialogUtils.Lookup((object)s)))
+        cachedWidth = 0f;
+        foreach (string str in Enum.GetValues<SliderValues>().Select(s => DialogUtils.Lookup(s)))
         {
-            maxValueWidth = Math.Max(maxValueWidth, ActiveFont.Measure(str).X);
+            cachedWidth = Math.Max(cachedWidth, ActiveFont.Measure(str).X);
         }
+
+        Value = tweak.Get(SettingSource.Player) switch
+        {
+            true => SliderValues.On,
+            false => SliderValues.Off,
+            null => SliderValues.Map
+        };
+
+        TextScale = Layout.TweakScale;
     }
     public override void Added()
     {
@@ -54,19 +63,43 @@ public class TweakSlider : AbstractTweakItem
 
         if (tweak.HasSettings())
         {
-            AddSubOptions();
-            beforeSubOptionsSpacing = new SubOptionsOffset(8);
-            afterSubOptionsSpacing = new SubOptionsOffset(16);
-
+            subSettings = TweakData.Tweaks[tweak].CreateMenuEntry();
+            SetupSubItems();
             OnLeave += () => { if (addedSubsettings) CloseSuboptions(); };
         }
     }
+    private void SetupSubItems()
+    {
+        int baseindex = Container.IndexOf(this);
+
+        foreach (AbstractTweakItem setting in subSettings)
+        {
+            if(setting.description != null) Container.Add(setting.description);
+            Container.Add(setting);
+
+            SetVisible += (v) =>
+            {
+                if (setting.description != null) setting.description.Visible = v;
+                setting.Visible = v;
+            };
+
+            if(subSettings.Count != 1)
+            {
+                subSettings[0].OnLeave += () =>
+                {
+                    LoopMenuOnLeave(baseindex + 1, baseindex + subSettings.Count);
+                };
+            }
+        }
+
+        Container.Insert(baseindex + 1, new SubOptionsOffset(8));
+        Container.Insert(baseindex + subSettings.Count + 2, new SubOptionsOffset(16));
+
+        SetVisible(false);
+    }
+    
 
     #region SubOptions
-    private void AddSubOptions()
-    {
-        subOptions = TweakData.Tweaks[tweak].CreateMenuEntry();
-    }
     public override void ConfirmPressed()
     {
         if (!TweakMenuManager.InSubsettingsMode)
@@ -76,56 +109,29 @@ public class TweakSlider : AbstractTweakItem
     }
     public void OpenSuboptions()
     {
-        if (addedSubsettings || subOptions.Count <= 0) return;
+        if (addedSubsettings || subSettings.Count <= 0) return;
 
-        //not allowed to change options if not ON
-        if (Value != SliderValues.On) foreach (Item item in subOptions) item.Disabled = true;
-        else foreach (Item item in subOptions) item.Disabled = false;
+        bool disabled = Value != SliderValues.On;
+        foreach (Item item in subSettings) item.Disabled = disabled;
 
-        int optionsIndex = Container.Items.FindIndex(item => item.GetType() == typeof(TweakSlider) && ((TweakSlider)item).Label == Label);
-        optionsIndex++;
+        SetVisible(true);
 
-        Container.Insert(optionsIndex - 1, beforeSubOptionsSpacing);
-
-        int counter = 0;
-        foreach (Item option in subOptions)
-        {
-            Container.Insert(optionsIndex + 1 + counter, option);
-            Container.Selection = optionsIndex + 1 + counter++;
-
-            if (subOptions.Count == 1) TweakMenuManager.InSingleSubsettingMenu = true;
-            else
-            {
-                TweakMenuManager.InSingleSubsettingMenu = false;
-                option.OnLeave += () =>
-                {
-                    LoopMenuOnLeave(optionsIndex + 1, optionsIndex + subOptions.Count);
-                };
-            }
-        }
-        if (Value != SliderValues.On) Container.Selection = optionsIndex;
-
-        Container.Insert(optionsIndex + 1 + subOptions.Count, afterSubOptionsSpacing);
-
+        TweakMenuManager.InSingleSubsettingMenu = subSettings.Count == 1;
+        if (Value != SliderValues.On) Container.Selection = Container.IndexOf(this) + 1;
         TweakMenuManager.InSubsettingsMode = true;
         addedSubsettings = true;
     }
     public void CloseSuboptions()
     {
-        if (!addedSubsettings || subOptions.Count <= 0) return;
+        if (!addedSubsettings || subSettings.Count <= 0) return;
 
-        foreach (Item item in subOptions)
-        {
-            Container.Remove(item);
-        }
-        Container.Remove(beforeSubOptionsSpacing);
-        Container.Remove(afterSubOptionsSpacing);
+        SetVisible(false);
 
         TweakMenuManager.InSubsettingsMode = false;
         TweakMenuManager.InSingleSubsettingMenu = false;
         addedSubsettings = false;
 
-        Container.Selection = Container.Items.FindIndex(item => item.Equals(this));
+        Container.Selection = Container.IndexOf(this);
     }
 
     private void LoopMenuOnLeave(int minIndex, int maxIndex)
@@ -133,6 +139,17 @@ public class TweakSlider : AbstractTweakItem
         if (Container.Selection > maxIndex) Container.Selection = minIndex;
         else if (Container.Selection < minIndex) Container.Selection = maxIndex;
     }
+
+    protected bool SubSettingSelected
+    {
+        get
+        {
+            foreach (AbstractTweakItem item in subSettings)
+                if (item.Selected) return true;
+            return false;
+        }
+    }
+
     #endregion
 
     public override void LeftPressed()
@@ -179,21 +196,22 @@ public class TweakSlider : AbstractTweakItem
         SelectWiggler.Start();
         Audio.Play("event:/ui/main/rollover_up");
     }
+    public override float RightWidth() => cachedWidth;
+    public override float LeftWidth() => ActiveFont.Measure(Label).X * Layout.SubSettingScale;
 
-    public override float RightWidth()
-    {
-        return maxValueWidth;
-    }
     private Color GetColor(bool selected)
     {
         if (selected) return Container.HighlightColor;
 
-        if (tweak.Get(TweakSettings.SettingSource.Player).HasValue) return PlayerValueColor;
+        if (tweak.Get(SettingSource.Player).HasValue) return PlayerValueColor;
         return tweak.Enabled() ? MapValueColor : UnselectedColor;
     }
 
     public override void Render(Vector2 position, bool selected)
     {
-        base.Render(position, selected, DialogUtils.Lookup(Value), (int)Value > 0, (int)Value < 3);
+        position.X = Layout.LeftOffset;
+        base.Render(position, selected, DialogUtils.Lookup(Value),
+            (int)Value > 0, (int)Value < 3, GetColor(selected) * Container.Alpha);
+        RenderDescription = selected || (addedSubsettings && SubSettingSelected);
     }
 }

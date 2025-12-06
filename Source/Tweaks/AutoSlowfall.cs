@@ -41,7 +41,7 @@ public class AutoSlowfall : AbstractTweak<AutoSlowfall>
     private static void ToTechState()
     {
         Module.LeniencyHelperModule.Session.inTechState = true;
-        Module.LeniencyHelperModule.Session.jumpReleaseTimer = (float)GetSetting<Time>("ReleaseDelay");
+        Module.LeniencyHelperModule.Session.jumpReleaseTimer = GetSetting<Time>("ReleaseDelay");
     }
     private static bool Slowfall
     {
@@ -58,9 +58,9 @@ public class AutoSlowfall : AbstractTweak<AutoSlowfall>
     private static int AutoSlowfallOnUpdate(On.Celeste.Player.orig_NormalUpdate orig, Player self)
     {
         ManualSlowfall = Slowfall;
-        if (Enabled) self.AutoJump = self.AutoJump && !ManualSlowfall || ManualSlowfall;
+        if (Enabled) self.AutoJump = (self.AutoJump && !ManualSlowfall) || ManualSlowfall;
         int newState = orig(self);
-        if(newState != 0)
+        if(newState != Player.StNormal)
         {
             ManualSlowfall = false;
             Module.LeniencyHelperModule.Session.jumpReleaseTimer = 0f;

@@ -61,12 +61,7 @@ public class GenericTweakController : GenericController
         {
             foreach (string key in savedData.Keys)
             {
-                try { TweakData.Tweaks[tweak].Settings.Set(key, TweakSettings.SettingSource.Controller, savedData[key]); }
-                catch (Exception e)
-                {
-                    Debug.Warn($"Could not set {tweak}.{key} to {savedData[key] ?? "null"}!");
-                    Debug.Warn(e);
-                }
+                TweakData.Tweaks[tweak].Settings.Set(key, TweakSettings.SettingSource.Controller, savedData[key]);
             }
               
         }

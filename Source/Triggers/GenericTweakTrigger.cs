@@ -51,17 +51,9 @@ public class GenericTweakTrigger : GenericTrigger
 
         if (savedData.Count > 0)
         {
-            foreach (string setting in savedData.Keys)
+            foreach (string key in savedData.Keys)
             {
-                foreach (string key in savedData.Keys)
-                {
-                    try { TweakData.Tweaks[tweak].Settings.Set(key, TweakSettings.SettingSource.Trigger, savedData[key]); }
-                    catch (Exception e)
-                    {
-                        Debug.Warn($"Could not set {tweak}.{key} to {savedData[key] ?? "null"}!");
-                        Debug.Warn(e);
-                    }
-                }
+                TweakData.Tweaks[tweak].Settings.Set(key, TweakSettings.SettingSource.Trigger, savedData[key]);
             }
 
             savedData.Clear();

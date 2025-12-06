@@ -20,6 +20,8 @@ public class Time : IComparable<Time>, ICloneable
         Value = mode == Modes.Frames ? time / FPS : time;
         Mode = mode;
     }
+    public Time(int frames) : this((float)frames, Modes.Frames) { }
+
     public void Set(float time, Modes mode = Modes.Seconds)
     {
         Value = mode == Modes.Frames ? time / FPS : time;
@@ -33,7 +35,7 @@ public class Time : IComparable<Time>, ICloneable
 
     int IComparable<Time>.CompareTo(Time other)
     {
-        return other.Value > Value ? 1 : other.Value == Value ? 0 : -1;
+        return other.Value > Value ? -1 : Math.Abs(Value - other.Value) < 0.01f ? 0 : 1;
     }
 
     object ICloneable.Clone()
@@ -61,17 +63,25 @@ public class Time : IComparable<Time>, ICloneable
     }
 
 
-    public static explicit operator Time(float time)
+    public static implicit operator Time(float time)
     {
         return new Time(time, Modes.Seconds);
     }
-    public static explicit operator Time(int frames)
+    public static implicit operator Time(int frames)
     {
         return new Time(frames, Modes.Frames);
     }
 
+    public static Time operator +(Time left, Time right)
+        => new Time(left.Value + right.Value, left.Mode == Modes.Seconds ? Modes.Seconds : right.Mode);
+
+    public static Time operator +(Time timer, float seconds)
+       => new Time(timer.Value + seconds);
+    public static Time operator +(Time timer, int frames)
+        => new Time(timer.Get(Modes.Frames) + frames, Modes.Frames);
+
     public override string ToString()
     {
-        return Mode == Modes.Seconds ? Value.ToString() : $"{Get(Modes.Frames)}F";
+        return Mode == Modes.Seconds ? Value.ToString("F2")+'s' : ((int)Get(Modes.Frames)).ToString()+'f';
     }
 }

@@ -21,8 +21,6 @@ public class WebScrapper
     {
         foreach(Tweak tweak in Module.LeniencyHelperModule.TweakList)
         {
-            Debug.Log($"Webscrapping {tweak}");
-            Debug.Log($"link: {DialogUtils.TweakToUrl(tweak)}");
             Thread temp = new Thread(() => ExtractTweakInfo(DialogUtils.TweakToUrl(tweak), tweak));
             temp.Start();
         }
@@ -107,6 +105,5 @@ public class WebScrapper
         }
 
         TweaksInfo.TryAdd(tweak, info);
-        Debug.Log($"Webscrapper loaded {tweak}");
     }
 }

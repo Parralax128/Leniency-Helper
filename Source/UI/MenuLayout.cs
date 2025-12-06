@@ -11,48 +11,18 @@ public enum DescriptionPos
 
 public struct MenuLayout
 {
-    private float _leftOffset = 0f;
-    public float LeftOffset 
-    {
-        get => _leftOffset * Engine.ViewWidth;
-        set => _leftOffset = value;
-    }
+    public float LeftOffset;
 
-    private float _rightOffset = 0f;
-    public float RightOffset
-    {
-        get => _rightOffset * Engine.ViewWidth;
-        set => _rightOffset = value;
-    }
+    public float RightOffset;
+    public float SubSettingOffset;
 
-    private float _subSettingOffset = 0f;   
-    public float SubSettingOffset
-    {
-        get => _subSettingOffset * Engine.ViewWidth;
-        set => _subSettingOffset = value;
-    }
+    public Vector2 VideoSize;
+    public float VideoOffsetX;
+    public float VideoPosY;
 
-    private float _vidSize = 0.4f;
-    public Vector2 VideoSize
-    {
-        get => new Vector2(Engine.ViewWidth, Engine.ViewHeight) * _vidSize;
-        set => _vidSize = value.X;
-    }
-    private float _vidOffsetX;
-    public float VideoOffsetX
-    {
-        get => Engine.ViewWidth * _vidOffsetX;
-        set => _vidOffsetX = value;
-    }
+    public float TweakScale;
+    public float SubSettingScale; 
     
-    private float _vidPosY;
-    public float VideoPosY
-    {
-        get => Engine.ViewHeight * _vidPosY;
-        set => _vidOffsetX = value;
-    }
-    
-
     public Rectangle VideoDestination => new Rectangle((int)(Engine.ViewWidth - RightOffset + VideoOffsetX),
         (int)VideoPosY, (int)VideoSize.X, (int)VideoSize.Y);
     public MenuLayout() { }
