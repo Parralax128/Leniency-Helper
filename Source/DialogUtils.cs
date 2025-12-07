@@ -8,8 +8,14 @@ public static class DialogUtils
     public static string Lookup(string key) => Dialog.Clean(key, Dialog.Languages["english"]);
     public static string Lookup(Tweak tweak) => Lookup($"{LeniencyHelperModule.Name}_Tweaks_{tweak}");
     public static string Lookup(Tweak tweak, string setting) => Lookup($"{LeniencyHelperModule.Name}_Settings_{tweak}_{setting}");
-    public static string Lookup(object value) => Lookup($"{LeniencyHelperModule.Name}_Enums_{value.GetType().Name}_{value.ToString()}");
-    public static string Enum<T>(T value) => Dialog.Clean($"{LeniencyHelperModule.Name}_Enums_{typeof(T).Name}_{value}");
+    public static string Lookup(object value) => Lookup($"{LeniencyHelperModule.Name}_Enums_{value.GetType()}_{value}");
+    
+    public static string Enum<T>(T value)
+    {
+        Type type = typeof(T);
+        return Dialog.Clean($"{LeniencyHelperModule.Name}_Enums_{(type.DeclaringType != null
+            ? type.DeclaringType.Name+ '_' + type.Name : type.Name)}_{value}");
+    }
 
     public static string TweakToUrl(Tweak tweak)
     {
@@ -42,10 +48,12 @@ public static class DialogUtils
         {
             if (int.TryParse(str[0..(str.Length - 1)], null, out int frames))
                 return new Time(frames, LeniencyHelper.Time.Modes.Frames);
+
             else throw new ArgumentException($"Invalid time provided: \"{str}\". Could not parse \"{str[0..(str.Length - 1)]}\" as an integer value!");
         }
         else if (float.TryParse(str, null, out float time))
             return new Time(time);
+
         else throw new ArgumentException($"Invalid time provided: \"{str}\". Could not parse \"{str}\" as a floating-point value!");
     }
 }

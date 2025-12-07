@@ -10,16 +10,16 @@ using System.Reflection;
 namespace Celeste.Mod.LeniencyHelper;
 public static class TweakData
 {
-    private static CompoundSetting<FlexDistance> FlexDistanceSetting(string name) =>
-        new CompoundSetting<FlexDistance>(name, new SettingContainer {
-                new Setting<int>("StaticDistance", 4, 0, 12),
-                new Setting<bool>("Dynamic", false),
-                new Setting<Time>("Time", new Time(0f), new Time(0f), new Time(0.25f))
-        }, (value, subsettings, source) => {
-            value.StaticValue = subsettings.Get<int>("StaticDistance", source);
-            value.Mode = subsettings.Get<FlexDistance.Modes>("Dynamic", source);
-            value.Time = subsettings.Get<Time>("Time", source);
-        });
+    private static CompoundSetting<FlexDistance> FlexDistanceSetting(string name, FlexDistance defaultValue) =>
+       new CompoundSetting<FlexDistance>(name, defaultValue, new SettingContainer {
+               new Setting<int>("StaticDistance", defaultValue.StaticValue, 0, 12),
+               new Setting<FlexDistance.Modes>("Dynamic", defaultValue.Mode),
+               new Setting<Time>("Time", defaultValue.Time, 0f, 0.25f)
+       }, (value, subsettings, source) => {
+           value.StaticValue = subsettings.Get<int>(0, source);
+           value.Mode = subsettings.Get<FlexDistance.Modes>(1, source);
+           value.Time = subsettings.Get<Time>(2, source);
+       });
 
     public class TweakList : IEnumerable<TweakState>
     {
@@ -55,7 +55,7 @@ public static class TweakData
             new Setting<bool>("TechOnly", true),
             new Setting<bool>("DelayedJumpRelease", true),
             new Setting<Time>("ReleaseDelay", 0.2f, 0f, 1f)
-        }),
+        }, new List<string> { "TechState" }),
 
         new TweakState(Tweak.BackboostProtection, new SettingContainer {
             new Setting<Time>("EarlyBackboostTiming", 0.35f, 0f, 1f),
@@ -90,9 +90,9 @@ public static class TweakData
         new TweakState(Tweak.CrouchOnBonk),
 
         new TweakState(Tweak.CustomBufferTime, new SettingContainer {
-            new Setting<Time>("JumpBufferTime", 0.08f, 0f, 0.25f),
-            new Setting<Time>("DashBufferTime", 0.08f, 0f, 0.25f),
-            new Setting<Time>("DemoDashBufferTime", 0.08f, 0f, 0.25f)
+            new Setting<Time>("JumpBufferTime", 4, 0f, 0.25f),
+            new Setting<Time>("DashBufferTime", 4, 0f, 0.25f),
+            new Setting<Time>("DemoDashBufferTime", 4, 0f, 0.25f)
         }),
 
         new TweakState(Tweak.CustomDashbounceTiming, new SettingContainer {
@@ -100,7 +100,7 @@ public static class TweakData
         }),
 
         new TweakState(Tweak.CustomSnapDownDistance, new SettingContainer {
-            FlexDistanceSetting("SnapDownDistance")
+            FlexDistanceSetting("SnapDownDistance", new FlexDistance(5, 0.05f, FlexDistance.Modes.Static))
         }),
 
         new TweakState(Tweak.DashCDIgnoreFFrames),
@@ -184,11 +184,11 @@ public static class TweakData
         new TweakState(Tweak.SuperOverWalljump),
 
         new TweakState(Tweak.WallAttraction, new SettingContainer {
-            FlexDistanceSetting("AttractionDistance")
+            FlexDistanceSetting("AttractionDistance", new FlexDistance(4, 0f, FlexDistance.Modes.Static))
         }),
 
         new TweakState(Tweak.WallCoyoteFrames, new SettingContainer {
-            new Setting<Time>("WallCoyoteTime", 0.05f, 0f, 0.1f)
+            new Setting<Time>("WallCoyoteTime", 4, 0, 0.1f)
         })
     };
 }

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Celeste.Mod.LeniencyHelper.TweakSettings;
 
-public class CompoundSetting<T> : AbstractSetting where T : class
+public class CompoundSetting<T> : AbstractSetting
 {
     private SettingContainer subsettings;
     private Action<T, SettingContainer, SettingSource> valueUpdater;
@@ -15,10 +15,21 @@ public class CompoundSetting<T> : AbstractSetting where T : class
         valueUpdater.Invoke(cachedValue, subsettings, source);
         return cachedValue; 
     }
-    public CompoundSetting(string name, SettingContainer subsettings, Action<T, SettingContainer, SettingSource> updater)
+    public override object GetTypeless(SettingSource source)
+    {
+        valueUpdater.Invoke(cachedValue, subsettings, source);
+        return cachedValue;
+    }
+
+    public CompoundSetting(string name, T defaultValue, SettingContainer subsettings, Action<T, SettingContainer, SettingSource> updater)
     {
         Name = name;
         this.subsettings = subsettings;
+        cachedValue = defaultValue;
+        if(defaultValue is FlexDistance d)
+        {
+            Debug.Log($"default  static: {d.StaticValue}  mode: {d.Mode}  time: {d.Time}");
+        }
         valueUpdater = updater;
     }
 

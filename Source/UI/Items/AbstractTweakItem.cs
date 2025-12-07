@@ -2,13 +2,14 @@
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
-using VivHelper.Entities;
 
 namespace Celeste.Mod.LeniencyHelper.UI.Items;
 
 public class AbstractTweakItem : TextMenu.Item
 {
+    public TweakSlider Parent;
     public string Label;
+    protected string cachedText;
     protected Tweak tweak;
     protected int lastDir = 0;
     protected bool ViolateLeniency = false;
@@ -17,8 +18,14 @@ public class AbstractTweakItem : TextMenu.Item
     protected float SineShift => (float)Math.Sin(sineCounter * 4f);
     public Description description { get; private set; }
 
-    public bool Selected = false;
-    public bool RenderDescription = false;
+    public bool RenderDescription
+    {
+        set 
+        { 
+            if (description != null) description.Visible = value;
+            if (Parent?.description != null) Parent.description.Visible = value;
+        }
+    }
 
     public static readonly Color InactiveColor = Color.DarkSlateGray;
     public Color StrokeColor => Color.Black * Container.Alpha * Container.Alpha * Container.Alpha;
@@ -46,7 +53,7 @@ public class AbstractTweakItem : TextMenu.Item
 
         if (WebScrapper.TweaksInfo.ContainsKey(tweak))
         {
-            description = new Description(() => Container.Alpha, WebScrapper.TweaksInfo[tweak], settingName);
+            description = new Description(WebScrapper.TweaksInfo[tweak], settingName != null ? DialogUtils.Lookup(tweak, settingName) : null);
             description.Visible = false;
         }
     }
@@ -57,13 +64,6 @@ public class AbstractTweakItem : TextMenu.Item
         sineCounter += Engine.RawDeltaTime;
 
         if (description == null) return;
-
-        if (Selected || RenderDescription) {
-            if (!description.Visible) 
-                description.Visible = true;
-        }
-        else if (description.Visible)
-            description.Visible = false;
     }
 
     public virtual void ChangeValue(int dir) 
@@ -99,9 +99,10 @@ public class AbstractTweakItem : TextMenu.Item
     #region Render
     public Vector2 RightColumn(Vector2 orig, Vector2 offset = default)
     {
-        return new Vector2(Engine.ViewWidth - Layout.RightOffset
+        return new Vector2(1920f - Layout.RightOffset
             + lastDir * ValueWiggler.Value * 8f, orig.Y) + offset;
     }
+
     public void DrawTextCentered(string text, Vector2 position, bool inactiveColor = false)
     {
         ActiveFont.DrawOutline(text, position, new Vector2(0.5f), Vector2.One * TextScale,
@@ -122,7 +123,6 @@ public class AbstractTweakItem : TextMenu.Item
         string value, bool left, bool right,
         Color? overrideColor = null)
     {
-        Selected = selected;
         cachedPosition = position;
         cachedMainColor = overrideColor ?? MainColor(selected);
         cachedStrokeColor = StrokeColor;

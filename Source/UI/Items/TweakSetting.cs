@@ -14,9 +14,6 @@ public class TweakSetting<T> : AbstractTweakItem
 
     public bool PlayerSource = false;
 
-    protected T DefaultValue { get; private set; }
-
-
     private static readonly Dictionary<Type, object> Handlers = new()
     {
         { typeof(bool), new BoolHandler() },
@@ -24,7 +21,7 @@ public class TweakSetting<T> : AbstractTweakItem
         { typeof(float), new FloatHandler() },
         { typeof(Time), new TimeHandler() },
     };
-    private SettingTypeHandler<T> GetHandler<T>()
+    private static SettingTypeHandler<T> GetHandler<T>()
     {
         Type type = typeof(T);
         if (Handlers.TryGetValue(type, out var handler))
@@ -44,10 +41,14 @@ public class TweakSetting<T> : AbstractTweakItem
     public TweakSetting(Tweak tweak, Setting<T> setting) : base(tweak, setting.Name)
     {
         Setting = setting;
-        DefaultValue = setting.Get(SettingSource.Default);
 
         handler = GetHandler<T>();
         cachedWidth = handler.CalculateMaxWidth(Setting);
+        OnAltPressed += () =>
+        {
+            handler.OnJournalPressed?.Invoke(Setting);
+            cachedText = null;
+        };
 
         TextScale = Layout.SubSettingScale;
     }
@@ -59,32 +60,19 @@ public class TweakSetting<T> : AbstractTweakItem
     public override void ChangeValue(int dir)
     {
         base.ChangeValue(dir);
+        cachedText = handler.GetText(Setting.Player);
         Setting.Player = handler.Advance(Setting.Player, dir);
     }
     public override void ConfirmPressed()
     {
-        Setting.Set(SettingSource.Player, DefaultValue);
+        Setting.Reset(SettingSource.Player);
     }
-
-    public override void Update()
-    {
-        base.Update();
-
-        if (Input.MenuJournal.Pressed)
-            handler.OnJournalPressed?.Invoke(Setting);
-    }
-
     public override float RightWidth() => cachedWidth;
     public override void Render(Vector2 position, bool selected)
     {
         handler.CheckBounds(Setting, out bool left, out bool right);
-
-        
-        Debug.GrabLog($"offset: {Layout.SubSettingOffset}");
-
         position.X = Layout.LeftOffset + Layout.SubSettingOffset;
-        base.Render(position, selected, handler.GetText(Setting.Player), left, right);
-
-        RenderDescription = selected;
+        base.Render(position, selected, cachedText ??
+            (cachedText = handler.GetText(Setting.Get(TweakData.Tweaks[tweak].CurrentSettingSource))), left, right);
     }
 }

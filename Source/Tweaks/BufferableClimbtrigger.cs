@@ -11,6 +11,10 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
 {
+    private const int OnNormalUpdate = 0;
+    private const int OnDash = 1;
+
+
     [OnLoad]
     public static void LoadHooks()
     {
@@ -73,7 +77,7 @@ public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
     }
     private static int ClimbTriggerDuringDash(On.Celeste.Player.orig_DashUpdate orig, Player self)
     {
-        if (Enabled && GetSetting<bool>("OnDash"))
+        if (Enabled && GetSetting<bool>(OnDash))
         {
             if (self.Holding == null && Math.Sign(self.Speed.X) != 0 - self.Facing && self.ClimbBoundsCheck((int)self.Facing)
                 && Input.GrabCheck && !self.IsTired && !self.Ducking)
@@ -175,6 +179,6 @@ public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
     
     private static bool CheckEnabled(Player player)
     {
-        return Enabled && GetSetting<bool>("OnNormalUpdate");
+        return Enabled && GetSetting<bool>(OnNormalUpdate);
     }    
 }

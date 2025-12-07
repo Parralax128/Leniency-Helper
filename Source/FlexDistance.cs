@@ -19,8 +19,8 @@ public class FlexDistance
 
     public Modes Mode;
     public Time Time;
-    public int Get(SettingSource source, float Speed)
-        =>  Mode == Modes.Dynamic ? StaticValue : (int)(Time.Value * Speed);
+    public int Get(float Speed)
+        => Mode == Modes.Static ? StaticValue : (int)(Time.Value * Speed);
 
 
     public FlexDistance(int staticValue, Time timer, Modes mode)

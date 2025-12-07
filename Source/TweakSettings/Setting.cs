@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.LeniencyHelper.TweakSettings;
 public class Setting<T> : AbstractSetting
 {
-    public Dictionary<SettingSource, T> Values = new();
+    public T[] Values = new T[5];
     public T Player
     {
-        get => Values[SettingSource.Player];
-        set => Values[SettingSource.Player] = value;
+        get => Values[(int)SettingSource.Player];
+        set => Values[(int)SettingSource.Player] = value;
     }
 
     public Bounds<T> ValueBounds { get; private set; }
@@ -21,18 +22,14 @@ public class Setting<T> : AbstractSetting
         Name = name;
         
         if(defaultValue is ICloneable clonable) foreach (var source in Enum.GetValues<SettingSource>())
-                Values[source] = (T)clonable.Clone();
+            Values[(int)source] = (T)clonable.Clone();
         
         else foreach (var source in Enum.GetValues<SettingSource>())
-            Values[source] = defaultValue;
+            Values[(int)source] = defaultValue;
     }
     public Setting(string name, T defaultValue, T min, T max) : this(name, defaultValue)
     {
         ValueBounds = new Bounds<T>(min, max);
-    }
-    public Setting(string name, T defaultValue, T min) : this(name, defaultValue)
-    {
-        ValueBounds = new Bounds<T>(min);
     }
 
     public bool CheckLeniencyViolation(T value)
@@ -52,18 +49,22 @@ public class Setting<T> : AbstractSetting
         
         if(result == true)
         {
-            Values[source] = typedValue;
+            Values[(int)source] = typedValue;
         }
         
         return result;
     }
-    public virtual T Get(SettingSource source)
-    {
-        return Values[source];
-    }
+
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T Get(SettingSource source) => Values[(int)source];
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override object GetTypeless(SettingSource source) => Values[(int)source];
+
 
     public override bool? Reset(SettingSource source)
-        => Set(source, Values[SettingSource.Default]);
+        => Set(source, Values[(int)SettingSource.Default]);
 
 
     public void SetValidLeniency(T min, T max)
@@ -91,17 +92,5 @@ public class Setting<T> : AbstractSetting
     {
         return new() { new UI.Items.TweakSetting<T>(tweak, this) };
     }
-
-
-    public T GetMapValue(Tweak tweak) => Values[tweak.GetMapSource()];
-    public void CheckBounds(T value, out bool withMin, out bool withMax)
-    {
-        ValueBounds.Check(value, out withMin, out withMax);
-    }
-
-    public T this[SettingSource source]
-    {
-        get => Values[source];
-        set => Set(source, value);
-    }
+    public T GetMapValue(Tweak tweak) => Values[(int)tweak.GetMapSource()];
 }

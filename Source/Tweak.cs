@@ -66,23 +66,6 @@ public static class TweakExtension
     public static T GetSetting<T>(this Tweak tweak, string setting)
         => TweakData.Tweaks[tweak].GetSetting<T>(setting);
     public static bool? Get(this Tweak tweak, SettingSource source) => TweakData.Tweaks[tweak].Get(source);
-
-    public static T Advance<T>(this T current, int direction) where T : struct, Enum
-    {
-        T[] values = (T[])Enum.GetValues(typeof(T));
-        return values[Array.IndexOf(values, current) + direction];
-    }
-    public static bool CheckRange<T>(this T current, int direction, out bool min, out bool max) where T : struct, Enum
-    {
-        T[] values = (T[])Enum.GetValues(typeof(T));
-
-        int nextIndex = Array.IndexOf(values, current) + direction;
-
-        min = nextIndex >= 0;
-        max = nextIndex < values.Length;
-
-        return min && max;
-    }
     public static bool CheckRange<T>(this T current, int direction) where T : struct, Enum
     {
         T[] values = (T[])Enum.GetValues(typeof(T));

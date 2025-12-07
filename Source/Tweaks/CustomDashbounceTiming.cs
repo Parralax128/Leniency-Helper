@@ -41,7 +41,7 @@ public class CustomDashbounceTiming : AbstractTweak<CustomDashbounceTiming>
 
         if (Enabled)
         {
-            LeniencyHelperModule.Session.dashbounceTimer = GetSetting<Time>("dashbounceTiming");
+            LeniencyHelperModule.Session.dashbounceTimer = GetSetting<Time>("Timing");
         }
     }
     private static void UpdateTimer(Level level)

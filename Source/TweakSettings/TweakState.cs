@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.LeniencyHelper.TweakSettings;
+using MonoMod;
 using MonoMod.Core.Platforms;
 using System;
 using System.Collections;
@@ -14,10 +15,10 @@ public class TweakState : IEnumerable<AbstractSetting>
 
     private bool?[] Values = 
     {
-         null /*Player = 0 */,
-         null /*API = 1 */,
-         null/*Trigger = 2 */,
-         false /*Controller = 3 */,
+         null,  // Player = 0
+         null,  // API = 1
+         null,  // Trigger = 2
+         false  // Controller = 3
     };
 
     public SettingSource CurrentSettingSource = SettingSource.Default;
@@ -54,20 +55,30 @@ public class TweakState : IEnumerable<AbstractSetting>
     public SettingContainer Settings;
     private Dictionary<string, object> Temps;
 
-    public TweakState(Tweak tweak, SettingContainer settings = null, Dictionary<string, object> temps = null)
+    public TweakState(Tweak tweak, SettingContainer settings = null, List<string> temps = null)
     {
         Tweak = tweak;
-
         Settings = settings;
-        Temps = temps;
+
+        if (temps != null)
+        {
+            Temps = new();
+            foreach (string s in temps)
+                Temps.Add(s, null);
+        }
     }
 
-    public T GetSetting<T>(string key) => Settings.Get<T>(key, CurrentSettingSource);
-    public AbstractSetting this[string key] => Settings[key];
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T GetSetting<T>(int index) => Settings.Get<T>(index, CurrentSettingSource);
 
-    public T GetTemp<T>(string key) => (T)Temps[key];
 
-    public static implicit operator Tweak(TweakState state) => state.Tweak;
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public T GetTemp<T>(string key) => (T)(Temps[key] ?? default(T));
+
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetTemp(string key, object value) => Temps[key] = value;
+
     public static implicit operator string(TweakState state) => state.Tweak.ToString();
     public static implicit operator bool(TweakState state) => state.Enabled;
 
@@ -76,9 +87,6 @@ public class TweakState : IEnumerable<AbstractSetting>
 
     public List<UI.Items.AbstractTweakItem> CreateMenuEntry()
     {
-        if(Settings != null)
-            return Settings.SelectMany(setting => setting.MenuEntry(Tweak)).ToList();
-
-        return null;
+        return Settings?.SelectMany(setting => setting.MenuEntry(Tweak)).ToList();
     }
 }

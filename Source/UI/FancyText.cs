@@ -161,7 +161,7 @@ public class FancyText
     }
 
 
-    public void Render(Vector2 position)
+    public void Render(Vector2 position, float alpha = 1f)
     {
         position.Y -= Height / 2f;
         float lineHeight = ActiveFont.LineHeight * EffectiveScale;

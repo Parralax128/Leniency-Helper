@@ -3,6 +3,7 @@ using Celeste.Mod.LeniencyHelper.UI.Items;
 using Celeste.Mod.UI;
 using Monocle;
 using System;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
@@ -24,17 +25,23 @@ public static class TweakMenuManager
     public static MenuLayout Layout;
     private static void RestrictMove(On.Celeste.TextMenu.orig_MoveSelection orig, TextMenu self, int dir, bool wiggle)
     {
-        if (self.Components.Get<LHmenuTracker>() != null)
+        if (self.Components.Get<LHmenuTracker>() != null && InSingleSubsettingMenu && InSubsettingsMode)
         {
-            if (InSingleSubsettingMenu && InSubsettingsMode) return;
-            if (self.Items[self.Selection] is TweakSlider slider && slider.addedSubsettings) return;
+            return;
         }
 
+        if (self.Current is AbstractTweakItem customItem)
+        {
+            customItem.RenderDescription = false;
+        }
         orig(self, dir, wiggle);
+        if (self.Current is AbstractTweakItem newCustomItem)
+        {
+            newCustomItem.RenderDescription = true;
+        }
     }
 
     public static bool InSingleSubsettingMenu = false;
-
     public static bool InSubsettingsMode = false;
     private static Action searchLabel;
 
@@ -141,6 +148,7 @@ public static class TweakMenuManager
 
             if (InSubsettingsMode)
             {
+                InSingleSubsettingMenu = false;
                 foreach (TextMenu.Item item in thisMenu.Items)
                 {
                     if (item is TweakSlider slider && slider.addedSubsettings)
@@ -152,12 +160,11 @@ public static class TweakMenuManager
             }
             else
             {
-                InSubsettingsMode = false;
-                InSingleSubsettingMenu = false;
-
                 thisMenu.Close();
                 level.Add(parentMenu);
                 level.PauseMainMenuOpen = comesFromPauseMainMenu;
+
+                level.AllowHudHide = true;
             }
         };
 
@@ -171,6 +178,7 @@ public static class TweakMenuManager
             thisMenu.Close();
             level.Add(parentMenu);
             level.PauseMainMenuOpen = comesFromPauseMainMenu;
+            level.AllowHudHide = true;
         };  
 
         thisMenu.OnPause = () =>
@@ -181,6 +189,7 @@ public static class TweakMenuManager
             thisMenu.Close();
             level.Paused = false;
             Engine.FreezeTimer = 0.15f;
+            level.AllowHudHide = true;
         };
 
         level.Add(thisMenu);

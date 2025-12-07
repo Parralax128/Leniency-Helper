@@ -118,11 +118,11 @@ public class EnumHandler<EnumT> : SettingTypeHandler<EnumT> where EnumT : struct
     public override bool CheckValidDir(EnumT value, Bounds<EnumT> bounds, int dir)
     {
         int targetIndex = Array.IndexOf(values, value) + dir;
-        return targetIndex > 0 && targetIndex < values.Length - 1;
+        return targetIndex >= 0 && targetIndex <= values.Length - 1;
     }
 
     public override string GetText(EnumT value)
     {
-        return DialogUtils.Enum<EnumT>(value);
+        return DialogUtils.Enum(value);
     }
 }

@@ -9,6 +9,7 @@ public abstract class AbstractSetting
     public Func<bool> Visible = () => true;
     public abstract List<UI.Items.AbstractTweakItem> MenuEntry(Tweak tweak);
     public abstract bool? Set(SettingSource source, object value);
+    public abstract object GetTypeless(SettingSource source);
     public abstract bool? Reset(SettingSource source);
 
     public abstract object ParseFromData(EntityData data);

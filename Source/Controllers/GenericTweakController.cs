@@ -10,6 +10,7 @@ namespace Celeste.Mod.LeniencyHelper.Controllers;
 public class GenericTweakController : GenericController
 {
     public Tweak tweak;
+    // might just be List<object> ?
     private Dictionary<string, object> Data = null;
     private Dictionary<string, object> savedData = new Dictionary<string, object>();
     private bool savedEnabled;

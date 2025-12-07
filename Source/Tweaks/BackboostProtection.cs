@@ -6,6 +6,9 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class BackboostProtection : AbstractTweak<BackboostProtection>
 {
+    private const int EarlyBackboostTiming = 0;
+    private const int LateBackboostTiming = 1;
+
     [OnLoad]
     public static void LoadHooks()
     {
@@ -30,11 +33,11 @@ public class BackboostProtection : AbstractTweak<BackboostProtection>
 
         if(s.pickupTimeLeft > 0f || player.minHoldTimer > 0f)
         {
-            saveDuration = Math.Min(GetSetting<Time>("EarlyBackboostTiming"), Player.HoldMinTime + s.pickupTimeLeft);
+            saveDuration = Math.Min(GetSetting<Time>(EarlyBackboostTiming), Player.HoldMinTime + s.pickupTimeLeft);
         }
         else
         {
-            saveDuration = GetSetting<Time>("LateBackboostTiming");
+            saveDuration = GetSetting<Time>(LateBackboostTiming);
         }
 
         if (player.moveX == 1) s.rightTimer = saveDuration;

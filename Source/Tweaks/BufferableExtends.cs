@@ -8,6 +8,9 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 public class BufferableExtends : AbstractTweak<BufferableExtends>
 {
+    private const int ForceWaitForRefill = 0;
+    private const int ExtendTiming = 1;
+
     [OnLoad]
     public static void LoadHooks()
     {
@@ -24,14 +27,14 @@ public class BufferableExtends : AbstractTweak<BufferableExtends>
     public static bool CanSuperjump(Player player)
     {
         if (player.Dashes >= player.MaxDashes || !Enabled) return true;
-        if (GetSetting<bool>("ForceWaitForRefill")) return false;
+        if (GetSetting<bool>(ForceWaitForRefill)) return false;
 
         if (RefillDashInCoyote.Enabled)
         {
             float refillTimer = player.Get<Components.RefillCoyoteComponent>().refillCoyoteTimer;
 
             if (refillTimer > player.dashRefillCooldownTimer
-                && GetSetting<Time>("ExtendTiming") > player.dashRefillCooldownTimer
+                && GetSetting<Time>(ExtendTiming) > player.dashRefillCooldownTimer
                 && Input.Jump.bufferCounter > player.dashRefillCooldownTimer)
             {
                 return false;
@@ -47,7 +50,7 @@ public class BufferableExtends : AbstractTweak<BufferableExtends>
         player.Dashes = saveDashes;
 
         if (!player.Inventory.NoRefills
-            && GetSetting<Time>("ExtendTiming") - Engine.DeltaTime > player.dashRefillCooldownTimer
+            && GetSetting<Time>(ExtendTiming) - Engine.DeltaTime > player.dashRefillCooldownTimer
             && Input.Jump.bufferCounter - Engine.DeltaTime > player.dashRefillCooldownTimer
             && LeniencyHelperModule.Session.dashTimer <= 0f)
         {
