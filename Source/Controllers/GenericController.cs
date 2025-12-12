@@ -6,11 +6,11 @@ public abstract class GenericController : Entity
 {
     public string stopFlag;
     public bool persistent;
-    private TransitionListener transitionListener;
+    TransitionListener transitionListener;
 
-    private bool? prevFlagActive = null;
+    bool? prevFlagActive = null;
     public bool GetFlagActive => stopFlag != "" && SceneAs<Level>().Session.GetFlag(stopFlag);
-    private bool removeOthers;
+    bool removeOthers;
 
     public GenericController(EntityData data, Vector2 offset, bool removeOthers) : base(data.Position + offset)
     {
@@ -70,7 +70,7 @@ public abstract class GenericController : Entity
     public abstract void Undo(bool fromFlag);
     public abstract void GetOldSettings();
 
-    private void OnLeave()
+    void OnLeave()
     {
         if (!persistent)
         {

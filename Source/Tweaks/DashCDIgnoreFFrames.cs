@@ -5,7 +5,7 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class DashCDIgnoreFFrames : AbstractTweak<DashCDIgnoreFFrames>
+class DashCDIgnoreFFrames : AbstractTweak<DashCDIgnoreFFrames>
 {
     [OnLoad]
     public static void LoadHooks()

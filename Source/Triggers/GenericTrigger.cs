@@ -34,11 +34,11 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
         }
 
         public bool enabled;
-        private string flag;
+        string flag;
         public bool oneUse;
         public bool revertOnLeave;
 
-        private bool applyOnStay;
+        bool applyOnStay;
 
         public GenericTrigger(EntityData data, Vector2 offset, bool applyOnStay = false) : base(data, offset)
         {

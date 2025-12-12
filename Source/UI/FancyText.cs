@@ -4,36 +4,36 @@ using Microsoft.Xna.Framework;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
 
-public class FancyText
+class FancyText
 {
-    private struct TextFragment
+    struct TextFragment
     {
         public string Text;
         public Color Color;
     }
 
     // Formatting tag definitions
-    private static readonly Dictionary<string, Action<FormattingState>> TagActions = new()
+    static readonly Dictionary<string, Action<FormattingState>> TagActions = new()
     {
         { "ins", state => state.Color = Color.SlateGray }
     };
 
     // State tracker for the parser
-    private class FormattingState
+    class FormattingState
     {
         public Color Color = Color.DarkSlateGray; // Default 'NormalColor'
         public float? Scale = null;
     }
 
     public string String;
-    private static readonly float BaseScale = 0.8f;
+    static readonly float BaseScale = 0.8f;
     public Func<float> ScaleGetter { get; set; } = null;
-    private float EffectiveScale => ScaleGetter?.Invoke() ?? BaseScale;
+    float EffectiveScale => ScaleGetter?.Invoke() ?? BaseScale;
 
-    private List<TextFragment> parsedFragments = new();
-    private List<List<TextFragment>> wrappedLines = new(); // Final layout: Lines contain Fragments
+    List<TextFragment> parsedFragments = new();
+    List<List<TextFragment>> wrappedLines = new(); // Final layout: Lines contain Fragments
 
-    public float LineWidth { get; private set; }
+    public float LineWidth { get; set; }
     public float Height => wrappedLines.Count * ActiveFont.LineHeight * EffectiveScale;
 
     public FancyText(string text)
@@ -49,7 +49,7 @@ public class FancyText
         ScaleGetter = scaleGetter;
     }
 
-    private void ParseFragments()
+    void ParseFragments()
     {
         parsedFragments.Clear();
         var currentState = new FormattingState();
@@ -115,7 +115,7 @@ public class FancyText
         }
     }
 
-    private void WrapLines()
+    void WrapLines()
     {
         wrappedLines.Clear();
         List<TextFragment> currentLine = new();

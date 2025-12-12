@@ -23,7 +23,7 @@ public static class TweakMenuManager
 
 
     public static MenuLayout Layout;
-    private static void RestrictMove(On.Celeste.TextMenu.orig_MoveSelection orig, TextMenu self, int dir, bool wiggle)
+    static void RestrictMove(On.Celeste.TextMenu.orig_MoveSelection orig, TextMenu self, int dir, bool wiggle)
     {
         if (self.Components.Get<LHmenuTracker>() != null && InSingleSubsettingMenu && InSubsettingsMode)
         {
@@ -43,9 +43,9 @@ public static class TweakMenuManager
 
     public static bool InSingleSubsettingMenu = false;
     public static bool InSubsettingsMode = false;
-    private static Action searchLabel;
+    static Action searchLabel;
 
-    private static TextMenu BuildMenu()
+    static TextMenu BuildMenu()
     {
         TextMenu menu = new TextMenu();
 
@@ -70,7 +70,7 @@ public static class TweakMenuManager
 
         return menu;
     }
-    private static void AddItemsToMenu(TextMenu menu)
+    static void AddItemsToMenu(TextMenu menu)
     {
         TextMenu.Button resetTweaksButton = new TextMenu.Button(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENU_RESETTWEAKS"));
         resetTweaksButton.OnPressed = () =>
@@ -102,7 +102,7 @@ public static class TweakMenuManager
         menu.Insert(2, resetSettingsButton);
         menu.Selection = 1;       
     }
-    private static void OnUpdate(TextMenu menu)
+    static void OnUpdate(TextMenu menu)
     {
         UI.Items.AbstractTweakItem selectedItem = menu.Items[menu.Selection] as AbstractTweakItem;
 
@@ -132,7 +132,7 @@ public static class TweakMenuManager
             searchLabel.Invoke();
         }
     }
-    private static void OnButtonPress(TextMenu parentMenu)
+    static void OnButtonPress(TextMenu parentMenu)
     {
         Level level = Engine.Scene as Level;
         parentMenu.RemoveSelf();

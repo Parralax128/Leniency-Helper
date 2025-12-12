@@ -8,8 +8,11 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
+class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
 {
+    [SettingIndex] static int FloorCorrectionTiming;
+    [SettingIndex] static int WallCorrectionTiming;
+
     [OnLoad]
     public static void LoadHooks()
     {
@@ -24,6 +27,7 @@ public class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
         IL.Celeste.Player.OnCollideV -= CustomOnCollideV;
         IL.Celeste.Player.DashUpdate -= CustomJumpThruCorrection;
     }
+
     public static int GetDynamicCorrection(int defaultValue, Player player, bool vertical)
     {
         defaultValue = Math.Abs(defaultValue);
@@ -36,7 +40,7 @@ public class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
             return defaultValue;
         }
 
-        float resultingTime = GetSetting<Time>(vertical ? "FloorCorrectionTiming" : "WallCorrectionTiming");
+        float resultingTime = GetSetting<Time>(vertical ? FloorCorrectionTiming : WallCorrectionTiming);
 
         float maxSpeed = Math.Abs(vertical ? player.Speed.Y : player.Speed.X);
         if ((new int[] { 2, 4, 5 }).Contains(player.StateMachine.State))
@@ -48,8 +52,8 @@ public class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
         int result = Math.Max((int)(maxSpeed * resultingTime), defaultValue);
 
         LeniencyHelperModule.Session.cornerCorrection = vertical ?
-                LeniencyHelperModule.Session.cornerCorrection with { Y = result } :
-                LeniencyHelperModule.Session.cornerCorrection with { X = result };
+            LeniencyHelperModule.Session.cornerCorrection with { Y = result } :
+            LeniencyHelperModule.Session.cornerCorrection with { X = result };
 
         return result;
     }
@@ -116,8 +120,7 @@ public class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
             }
         }
     }
-    private static float DoubleAbs(float orig) => Enabled ? orig < 0f ? orig * -2f : orig : orig;
-    private static void CustomJumpThruCorrection(ILContext il)
+    static void CustomJumpThruCorrection(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
 
@@ -144,7 +147,7 @@ public class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
 
                 cursor.GotoPrev(MoveType.After, instr => instr.MatchLdloc(out int a), instr => instr.MatchCall<Entity>("CollideCheck"));
 
-                cursor.EmitDelegate(() => Enabled);
+                cursor.EmitDelegate(enabled);
                 cursor.EmitBrfalse(skipBoundsCheck);
 
                 cursor.EmitPop();
@@ -155,9 +158,9 @@ public class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
                 cursor.MarkLabel(skipBoundsCheck);
             }
         }
-    }
-    private static bool InBounds(Entity entity, Player player)
-    {
-        return player.Right >= entity.Left && player.Left <= entity.Right;
+
+        static float DoubleAbs(float orig) => Enabled ? orig < 0f ? orig * -2f : orig : orig;
+        static bool enabled() => Enabled;
+        static bool InBounds(Entity entity, Player player) => player.Right >= entity.Left && player.Left <= entity.Right;
     }
 }

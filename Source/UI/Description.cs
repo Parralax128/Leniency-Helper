@@ -3,16 +3,17 @@ using System;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
 
-public class Description : TextMenu.Item
+class Description : TextMenu.Item
 {
-    private FancyText text = new FancyText("");
-    private static float Scale => 0.8f * TweakMenuManager.Layout.SubSettingScale;
-    private static float Offset;
+    FancyText text = new FancyText("");
+    static float Scale => 0.8f * TweakMenuManager.Layout.SubSettingScale;
+    static float Offset;
     public float TextWidth;
 
     public Description(WebScrapper.TweakInfo info, string setting = null, float? textWidth = null)
     {
-        Offset = setting == null ? 0f : TweakMenuManager.Layout.LeftOffset + TweakMenuManager.Layout.SubSettingOffset;
+        Offset = setting == null ? TweakMenuManager.Layout.LeftOffset
+            : TweakMenuManager.Layout.LeftOffset + TweakMenuManager.Layout.SubSettingOffset;
 
         if (setting == null)
         {

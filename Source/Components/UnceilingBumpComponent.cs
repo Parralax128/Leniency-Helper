@@ -9,12 +9,12 @@ using Microsoft.Build.Utilities;
 namespace Celeste.Mod.LeniencyHelper.Components;
 
 [Tracked]
-public class UnceilingBumpComponent : Component
+class UnceilingBumpComponent : Component
 {
     public bool disableCeilingBump;
     public bool disableGroundFriction;
 
-    private FieldInfo speedField;
+    FieldInfo speedField;
     public Vector2 savedSpeed;
     public float speedDecceleration;
     public bool wasOnGround;

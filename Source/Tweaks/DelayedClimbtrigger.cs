@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class DelayedClimbtrigger : AbstractTweak<DelayedClimbtrigger>
+class DelayedClimbtrigger : AbstractTweak<DelayedClimbtrigger>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -19,7 +19,7 @@ public class DelayedClimbtrigger : AbstractTweak<DelayedClimbtrigger>
 
     public static bool useOrigCheck;
 
-    private static void AddComponent(On.Celeste.Solid.orig_ctor orig, Solid self, Vector2 position, float width, float height, bool safe)
+    static void AddComponent(On.Celeste.Solid.orig_ctor orig, Solid self, Vector2 position, float width, float height, bool safe)
     {
         orig(self, position, width, height, safe);
         if(self is not SolidTiles) self.Add(new DelayedClimbtriggerComponent());
@@ -35,5 +35,4 @@ public class DelayedClimbtrigger : AbstractTweak<DelayedClimbtrigger>
         return solid.Get<DelayedClimbtriggerComponent>()?.climbtriggerTimer > 0f ?
             player ?? LeniencyHelperModule.GetPlayer(solid.Scene) : null;
     }
-
 }

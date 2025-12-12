@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Celeste.Mod.LeniencyHelper.TweakSettings;
 
-public abstract class AbstractSetting
+abstract class AbstractSetting
 {
     public string Name;
     public Func<bool> Visible = () => true;

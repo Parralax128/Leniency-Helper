@@ -7,14 +7,14 @@ using System.Collections.Generic;
 namespace Celeste.Mod.LeniencyHelper.Triggers;
 
 [CustomEntity("LeniencyHelper/SetupEntityOnRespawnTrigger")]
-public class SetupEntityOnRespawnTrigger : Trigger
+class SetupEntityOnRespawnTrigger : Trigger
 {
-    private Vector2 checkPos;
-    private Vector2 newEntityPosition;
-    private Vector2 newEntitySpeed;
-    private List<Entity> affectedEntities = new List<Entity>();
-    private List<string> blackList = new List<string>();
-    private List<string> whiteList = new List<string>();
+    Vector2 checkPos;
+    Vector2 newEntityPosition;
+    Vector2 newEntitySpeed;
+    List<Entity> affectedEntities = new List<Entity>();
+    List<string> blackList = new List<string>();
+    List<string> whiteList = new List<string>();
     public SetupEntityOnRespawnTrigger(EntityData data, Vector2 offset) : base(data, offset)
     {
         checkPos = new Vector2

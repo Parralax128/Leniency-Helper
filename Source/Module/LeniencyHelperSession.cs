@@ -1,29 +1,26 @@
+using FMOD;
 using Microsoft.Xna.Framework;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 using static Celeste.Mod.LeniencyHelper.Triggers.InputRequiresBlockboostTrigger;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
 
-public class LeniencyHelperSession : EverestModuleSession
+class LeniencyHelperSession : EverestModuleSession
 {
     #region temp vars
 
-    
+
     public int wjDistR { get; set; } = 3;
     public int wjDistL { get; set; } = 3;
 
-    //AutoSlowfall
-    public float jumpReleaseTimer = 0f;
-    public bool inTechState = false;
     
     //BackboostProtection
     public Facings lastFacing { get; set; } = Facings.Right;
-    public float rightTimer { get; set; } = 0f;
-    public float leftTimer { get; set; } = 0f;
-    public float speedXbeforePickup { get; set; } = 0f;
 
     //BufferableExtends
     public float dashTimer { get; set; } = 0f;
@@ -47,7 +44,6 @@ public class LeniencyHelperSession : EverestModuleSession
 
     //ExtendBufferOnFreezeAndPickup
     public float pickupDelay { get; set; } = 0.016f;
-    public float pickupTimeLeft { get; set; } = 0f;
     public int prevFrameState { get; set; } = 0;
     public bool jumpExtended { get; set; } = false;
     public bool dashExtended { get; set; } = false;

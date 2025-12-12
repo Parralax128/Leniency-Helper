@@ -7,7 +7,7 @@ using System;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class LateReverses : AbstractTweak<LateReverses>
+class LateReverses : AbstractTweak<LateReverses>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -23,7 +23,7 @@ public class LateReverses : AbstractTweak<LateReverses>
         Everest.Events.Player.OnAfterUpdate -= UpdateRedirectTimer;
     }
 
-    private static void LaunchRedirectTimer(ILContext il)
+    static void LaunchRedirectTimer(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
 
@@ -40,20 +40,20 @@ public class LateReverses : AbstractTweak<LateReverses>
             cursor.EmitDelegate(GetRedirectSpeed);
         }
     }
-    private static void GetRedirectSpeed(Vector2 liftboost, Player player)
+    static void GetRedirectSpeed(Vector2 liftboost, Player player)
     {
         LeniencyHelperModule.Session.redirectSpeed = (-player.Speed.X + liftboost.X) * (player.Ducking ? 1.25f : 1f);
     }
-    private static void LaunchTimer(Player player)
+    static void LaunchTimer(Player player)
     {
         if((int)player.Facing == Math.Sign(player.Speed.X))
             LeniencyHelperModule.Session.redirectTimer = 0f;
     }
-    private static void UpdateRedirectTimer(Player player)
+    static void UpdateRedirectTimer(Player player)
     {   
         var s = LeniencyHelperModule.Session;
 
-        if(s.redirectTimer <= GetSetting<Time>("ReverseTiming"))
+        if(s.redirectTimer <= GetSetting<Time>())
         {
             s.redirectTimer += Engine.DeltaTime;
             if (Enabled && s.prevFrameFacing != player.Facing)

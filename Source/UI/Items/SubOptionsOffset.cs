@@ -2,7 +2,7 @@
 
 namespace Celeste.Mod.LeniencyHelper.UI.Items
 {
-    public class SubOptionsOffset : SubHeader
+    class SubOptionsOffset : SubHeader
     {
         public int offset;
         public SubOptionsOffset(int offset) : base(string.Empty)

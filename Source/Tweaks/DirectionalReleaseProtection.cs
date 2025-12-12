@@ -11,18 +11,25 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProtection>
+class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProtection>
 {
-    private static Vector2 bufferAimTimer;
-    private static Vector2 savedAimValue;
-    private static Vector2 bufferMoveTimer;
-    private static Vector2 savedMoveValue;
+    [SettingIndex] static int DashDir;
+    [SettingIndex] static int JumpDir;
+    [SettingIndex] static int ProtectionTime;
+    [SettingIndex] static int AffectFeathers;
+    [SettingIndex] static int AffectSuperdashes;
 
-    private static float featherAimTimer;
 
-    private static ILHook DashCoroutineHook;
-    private static ILHook BoosterCoroutineHook;
-    private static ILHook RedBoosterCoroutineHook;
+    static Vector2 bufferAimTimer;
+    static Vector2 savedAimValue;
+    static Vector2 bufferMoveTimer;
+    static Vector2 savedMoveValue;
+
+    static float featherAimTimer;
+
+    static ILHook DashCoroutineHook;
+    static ILHook BoosterCoroutineHook;
+    static ILHook RedBoosterCoroutineHook;
 
     [OnLoad]
     public static void LoadHooks()
@@ -33,7 +40,7 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
         On.Celeste.Player.ClimbJump += ClimbJumpDirBuffer;
 
         On.Celeste.Player.StarFlyUpdate += AffectSavedFeatherDir;
-        IL.Celeste.Player.DashUpdate += AffectSuperDasheDir;
+        IL.Celeste.Player.DashUpdate += AffectSuperDashDir;
 
         DashCoroutineHook = new ILHook(typeof(Player).GetMethod("DashCoroutine",
             BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget(), DashDirBuffer);
@@ -56,7 +63,7 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
         IL.Celeste.Player.DashCoroutine -= DashDirBuffer;
 
         On.Celeste.Player.StarFlyUpdate -= AffectSavedFeatherDir;
-        IL.Celeste.Player.DashUpdate -= AffectSuperDasheDir; // Determined buffer order!!
+        IL.Celeste.Player.DashUpdate -= AffectSuperDashDir;
 
         DashCoroutineHook.Dispose();
         BoosterCoroutineHook.Dispose();
@@ -64,7 +71,7 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
 
         IL.Monocle.Engine.Update -= UpdateOnFF;
     }
-    private static void UpdateOnFF(ILContext il)
+    static void UpdateOnFF(ILContext il)
     {
         ILCursor c = new ILCursor(il);
 
@@ -76,7 +83,7 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
             c.EmitDelegate(UpdateDirectionalBuffers);
         }
     }
-    private static void UpdateDirectionalBuffers()
+    static void UpdateDirectionalBuffers()
     {
         if (Engine.Scene is not Level || LeniencyHelperModule.Session == null || !Enabled) return;
 
@@ -86,14 +93,14 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
         if (bufferMoveTimer.Y > 0f) bufferMoveTimer.Y -= Engine.RawDeltaTime;
         if (featherAimTimer > 0f) featherAimTimer -= Engine.RawDeltaTime;
 
-        Dirs dashDir = GetSetting<Dirs>("DashDir");
-        if (dashDir != Dirs.None || GetSetting<bool>("AffectFeathers") || GetSetting<bool>("AffectSuperdashes"))
+        Dirs dashDir = GetSetting<Dirs>(DashDir);
+        if (dashDir != Dirs.None || GetSetting<bool>(AffectFeathers) || GetSetting<bool>(AffectSuperdashes))
         {
             //X
             if (Input.Aim.Value.X > 0f && (dashDir == Dirs.Right || dashDir == Dirs.All)
                 || Input.Aim.Value.X < 0f && (dashDir == Dirs.Left || dashDir == Dirs.All))
             {
-                bufferAimTimer.X = GetSetting<Time>("ProtectionTime");
+                bufferAimTimer.X = GetSetting<Time>(ProtectionTime);
                 savedAimValue.X = Input.Aim.Value.X;
             }
 
@@ -101,12 +108,12 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
             if (Input.Aim.Value.Y > 0f && (dashDir == Dirs.Down || dashDir == Dirs.All)
                 || Input.Aim.Value.Y < 0f && (dashDir == Dirs.Up || dashDir == Dirs.All))
             {
-                bufferAimTimer.Y = GetSetting<Time>("ProtectionTime");
+                bufferAimTimer.Y = GetSetting<Time>(ProtectionTime);
                 savedAimValue.Y = Input.Aim.Value.Y;
             }
         }
 
-        Dirs jumpDir = GetSetting<Dirs>("JumpDir");
+        Dirs jumpDir = GetSetting<Dirs>(JumpDir);
         if (jumpDir == Dirs.None) return;
 
         bool posX, posY;
@@ -117,20 +124,20 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
 
         if (posX && (jumpDir == Dirs.Right || jumpDir == Dirs.All) || negX && (jumpDir == Dirs.Left || jumpDir == Dirs.All))
         {
-            bufferMoveTimer.X = GetSetting<Time>("ProtectionTime");
+            bufferMoveTimer.X = GetSetting<Time>(ProtectionTime);
             savedMoveValue.X = Input.MoveX.Value;
         }
 
         if (posY && (jumpDir == Dirs.Down || jumpDir == Dirs.All) || negY && (jumpDir == Dirs.Up || jumpDir == Dirs.All))
         {
-            bufferMoveTimer.Y = GetSetting<Time>("ProtectionTime");
+            bufferMoveTimer.Y = GetSetting<Time>(ProtectionTime);
             savedMoveValue.Y = Input.MoveY.Value;
         }
     }
 
-    private static void JumpDirBuffer(On.Celeste.Player.orig_Jump orig, Player self, bool particles, bool playSfx)
+    static void JumpDirBuffer(On.Celeste.Player.orig_Jump orig, Player self, bool particles, bool playSfx)
     {
-        if(!Enabled)
+        if(Engine.Scene is not Level || !Enabled)
         {
             orig(self, particles, playSfx);
             return;
@@ -147,7 +154,7 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
         self.moveX = save;
     }
 
-    private static void SuperJumpDirBuffer(On.Celeste.Player.orig_SuperJump orig, Player self)
+    static void SuperJumpDirBuffer(On.Celeste.Player.orig_SuperJump orig, Player self)
     {
         if(!Enabled)
         {
@@ -165,7 +172,7 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
 
         Input.MoveX.Value = save;
     }
-    private static void WallJumpDirBuffer(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
+    static void WallJumpDirBuffer(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
     {
         if (!Enabled)
         {
@@ -183,7 +190,7 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
 
         self.moveX = save;
     }
-    private static void ClimbJumpDirBuffer(On.Celeste.Player.orig_ClimbJump orig, Player self)
+    static void ClimbJumpDirBuffer(On.Celeste.Player.orig_ClimbJump orig, Player self)
     {
         if (!Enabled)
         {
@@ -202,7 +209,7 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
         self.moveX = save;
     }
 
-    private static Vector2 ChangeLastAim(Vector2 orig)
+    static Vector2 ChangeLastAim(Vector2 orig)
     {
         if (!Enabled)
         {
@@ -221,7 +228,7 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
 
         return result.SafeNormalize();
     }
-    private static void DashDirBuffer(ILContext il)
+    static void DashDirBuffer(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
 
@@ -232,19 +239,21 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
         }
     }
 
-    private static int AffectSavedFeatherDir(On.Celeste.Player.orig_StarFlyUpdate orig, Player self)
+    static int AffectSavedFeatherDir(On.Celeste.Player.orig_StarFlyUpdate orig, Player self)
     {
-        if (Enabled && GetSetting<bool>("AffectFeathers"))
+        if (Enabled && GetSetting<bool>(AffectFeathers))
         {
-            if (Input.Feather.Value != Vector2.Zero) featherAimTimer = GetSetting<Time>("ProtectionTime");
+            if (Input.Feather.Value != Vector2.Zero) featherAimTimer = GetSetting<Time>(ProtectionTime);
             if(featherAimTimer > 0f)
             self.starFlyLastDir = SnapAim(self.starFlyLastDir);
         }
         
         return orig(self);
     }
-    public static void AffectSuperDasheDir(ILContext il)
+    public static void AffectSuperDashDir(ILContext il)
     {
+        return;
+
         ILCursor cursor = new ILCursor(il);
 
         ILLabel endLabel;
@@ -273,7 +282,7 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
 
                 cursor.Goto(saveIndex);
 
-                cursor.EmitDelegate(() => Input.Aim.Value == Vector2.Zero);
+                cursor.EmitDelegate(SetAimValue);
                 cursor.EmitBrtrue(skipCondition);
 
                 if(cursor.TryGotoNext(MoveType.Before, instr => instr.MatchCall(typeof(Calc).GetMethod("Angle", new Type[] { typeof(Vector2) }))))
@@ -284,12 +293,15 @@ public class DirectionalReleaseProtection : AbstractTweak<DirectionalReleaseProt
                 }
             }
         }
+
+
+        
     }
-    private static bool OrSuperdashesAffected(bool orig) => Enabled && GetSetting<bool>("AffectSuperdashes") ? true : orig;
-    private static Vector2 ModifySuperdashTarget(Vector2 orig, Vector2 speed)
-        => Enabled && GetSetting<bool>("AffectSuperdashes") && Input.Aim.Value == Vector2.Zero ? SnapAim(speed) : orig;
-    
-    private static Vector2 SnapAim(Vector2 aim)
+    static void SetAimValue() => Input.Aim.Value = Vector2.Zero;
+        static bool OrSuperdashesAffected(bool orig) => Enabled && GetSetting<bool>(AffectSuperdashes) ? true : orig;
+        static Vector2 ModifySuperdashTarget(Vector2 orig, Vector2 speed)
+            => Enabled && GetSetting<bool>(AffectSuperdashes) && Input.Aim.Value == Vector2.Zero ? SnapAim(speed) : orig;
+    static Vector2 SnapAim(Vector2 aim)
     {
         float num = aim.Angle();
         int num2 = num < 0f ? 1 : 0;

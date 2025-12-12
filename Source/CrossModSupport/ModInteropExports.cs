@@ -8,7 +8,7 @@ namespace Celeste.Mod.LeniencyHelper.CrossModSupport;
 [ModExportName("LeniencyHelper")]
 public static class ModInteropExports
 {
-    private static TweakState Parse(string tweakName) => TweakData.Tweaks[Enum.Parse<Tweak>(tweakName)];
+    static TweakState Parse(string tweakName) => TweakData.Tweaks[Enum.Parse<Tweak>(tweakName)];
     public static bool GetTweakEnabled(string tweakName, bool ignoreOverride = false)
     {
         TweakState tweakState = Parse(tweakName);

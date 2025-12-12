@@ -4,7 +4,7 @@ using MonoMod.Cil;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class SuperdashSteeringProtection : AbstractTweak<SuperdashSteeringProtection>
+class SuperdashSteeringProtection : AbstractTweak<SuperdashSteeringProtection>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -17,7 +17,7 @@ public class SuperdashSteeringProtection : AbstractTweak<SuperdashSteeringProtec
     {
         IL.Celeste.Player.DashUpdate -= DisableAngleRestriction;
     }
-    private static void DisableAngleRestriction(ILContext il)
+    static void DisableAngleRestriction(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
         ILLabel skipCondition = il.DefineLabel();
@@ -37,5 +37,5 @@ public class SuperdashSteeringProtection : AbstractTweak<SuperdashSteeringProtec
             cursor.MarkLabel(skipCondition);
         }
     }
-    private static bool CheckConditionSkip(float cos) => Enabled && cos < 0.99f;
+    static bool CheckConditionSkip(float cos) => Enabled && cos < 0.99f;
 }

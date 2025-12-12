@@ -7,7 +7,7 @@ namespace Celeste.Mod.LeniencyHelper.Triggers;
 
 [Tracked]
 [CustomEntity("LeniencyHelper/ClearBlockBoostTrigger")]
-public class ClearBlockBoostTrigger : GenericTrigger
+class ClearBlockBoostTrigger : GenericTrigger
 {
     [OnLoad]
     public static void AddEvent()
@@ -19,8 +19,8 @@ public class ClearBlockBoostTrigger : GenericTrigger
         Everest.Events.Player.OnBeforeUpdate -= ClearBB;
     }
 
-    private static readonly Vector2 FakeZero = new Vector2(0f, 0.0001f);
-    private static void ClearBB(Player player)
+    static readonly Vector2 FakeZero = new Vector2(0f, 0.0001f);
+    static void ClearBB(Player player)
     {
         if (player.CollideCheck<ClearBlockBoostTrigger>())
         {

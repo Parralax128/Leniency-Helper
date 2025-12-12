@@ -5,18 +5,17 @@ using System;
 
 namespace Celeste.Mod.LeniencyHelper.UI.Items;
 
-public class AbstractTweakItem : TextMenu.Item
+class AbstractTweakItem : TextMenu.Item
 {
     public TweakSlider Parent;
     public string Label;
-    protected string cachedText;
     protected Tweak tweak;
     protected int lastDir = 0;
     protected bool ViolateLeniency = false;
     
-    private float sineCounter;
+    float sineCounter;
     protected float SineShift => (float)Math.Sin(sineCounter * 4f);
-    public Description description { get; private set; }
+    public Description description { get; set; }
 
     public bool RenderDescription
     {
@@ -35,14 +34,14 @@ public class AbstractTweakItem : TextMenu.Item
 
     protected MenuLayout Layout => TweakMenuManager.Layout;
 
-    private Color cachedMainColor;
-    private Color cachedStrokeColor;
-    private Vector2 cachedPosition;    
+    Color cachedMainColor;
+    Color cachedStrokeColor;
+    Vector2 cachedPosition;    
     protected float cachedWidth;
 
     protected float TextScale = 1f;
 
-    private AbstractTweakItem(Tweak tweak)
+    AbstractTweakItem(Tweak tweak)
     {
         this.tweak = tweak;
         Selectable = true;
@@ -76,15 +75,15 @@ public class AbstractTweakItem : TextMenu.Item
     public override void LeftPressed()
     {
         lastDir = -1;
-        if (!TryChangeValue(-1)) OnLeniencyViolation();
-        else ChangeValue(-1);
+        if (TryChangeValue(-1)) 
+            ChangeValue(-1);
     }
 
     public override void RightPressed()
     {
         lastDir = 1;
-        if (!TryChangeValue(1)) OnLeniencyViolation();
-        else ChangeValue(1);
+        if (TryChangeValue(1))
+            ChangeValue(1);
     }
 
     public override string SearchLabel() => Label;

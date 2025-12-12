@@ -3,7 +3,7 @@ using Monocle;
 
 namespace Celeste.Mod.LeniencyHelper.Components;
 
-public class SolidLiftboostComponent : Component
+class SolidLiftboostComponent : Component
 {
     public Collider drawRect;
     public float boostSaveTimer = 0f;
@@ -19,12 +19,12 @@ public class SolidLiftboostComponent : Component
         if(Entity is Platform p && p.LiftSpeed != Vector2.Zero)
         {
             savedLiftSpeed = (Entity as Platform).LiftSpeed;
-            boostSaveTimer = TweakData.Tweaks[Tweak.SolidBlockboostProtection].GetSetting<Time>("MaxSaveTime");
+            boostSaveTimer = Tweaks.SolidBlockboostProtection.GetSetting<Time>();
         }
     }
     public void OnSidewaysMove(Vector2 liftspeed)
     {
         savedLiftSpeed = liftspeed;
-        boostSaveTimer = TweakData.Tweaks[Tweak.SolidBlockboostProtection].GetSetting<Time>("MaxSaveTime");
+        boostSaveTimer = Tweaks.SolidBlockboostProtection.GetSetting<Time>();
     }
 }

@@ -3,7 +3,7 @@ using Monocle;
 
 namespace Celeste.Mod.LeniencyHelper.Components;
 
-public class WallCoyoteFramesComponent : PlayerComponent
+class WallCoyoteFramesComponent : PlayerComponent
 {
     public float wallCoyoteTimer;
     public Tweaks.WallCoyoteFrames.WallCoyoteTypes currentWallCoyoteType;
@@ -30,17 +30,17 @@ public class WallCoyoteFramesComponent : PlayerComponent
 
         if (wallLeft && wallRight)
         {
-            wallCoyoteTimer = Tweaks.WallCoyoteFrames.GetSetting<Time>("WallCoyoteTime");
+            wallCoyoteTimer = Tweaks.WallCoyoteFrames.GetSetting<Time>();
             currentWallCoyoteType = Tweaks.WallCoyoteFrames.WallCoyoteTypes.Both;
         }
         else if (wallLeft && !wallRight)
         {
-            wallCoyoteTimer = Tweaks.WallCoyoteFrames.GetSetting<Time>("WallCoyoteTime");
+            wallCoyoteTimer = Tweaks.WallCoyoteFrames.GetSetting<Time>();
             currentWallCoyoteType = Tweaks.WallCoyoteFrames.WallCoyoteTypes.Right;
         }
         else if (wallRight && !wallLeft)
         {
-            wallCoyoteTimer = Tweaks.WallCoyoteFrames.GetSetting<Time>("WallCoyoteTime");
+            wallCoyoteTimer = Tweaks.WallCoyoteFrames.GetSetting<Time>();
             currentWallCoyoteType = Tweaks.WallCoyoteFrames.WallCoyoteTypes.Left;
         }
     }

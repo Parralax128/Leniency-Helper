@@ -6,7 +6,7 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class WallAttraction : AbstractTweak<WallAttraction>
+class WallAttraction : AbstractTweak<WallAttraction>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -19,9 +19,9 @@ public class WallAttraction : AbstractTweak<WallAttraction>
         Everest.Events.Player.OnBeforeUpdate -= AttractUpdate;
     }
 
-    private static readonly int[] noGrabStates = { 2, 4, 5, 7, 10, 11, 16, 17, 18, 20, 21, 22, 23, 24, 25 };
+    static readonly int[] noGrabStates = { 2, 4, 5, 7, 10, 11, 16, 17, 18, 20, 21, 22, 23, 24, 25 };
 
-    private static void AttractUpdate(Player player)
+    static void AttractUpdate(Player player)
     {
         if (!Enabled)
             return;
@@ -30,7 +30,7 @@ public class WallAttraction : AbstractTweak<WallAttraction>
         if (Input.GrabCheck && !player.IsTired && !noGrabStates.Contains(player.StateMachine.State) && player.CanUnDuck &&
             Math.Sign(player.Speed.X) != -(int)player.Facing && player.Holding == null && player.Speed.Y >= 0)
         {
-            float distance = GetSetting<FlexDistance>("AttractionDistance").Get(Math.Abs(player.Speed.X));
+            float distance = GetSetting<FlexDistance>().Get(Math.Abs(player.Speed.X));
 
             Vector2 origPos = player.Position;
             for (int c = 0; c < (int)distance; c++)
@@ -53,7 +53,7 @@ public class WallAttraction : AbstractTweak<WallAttraction>
         }
     }
 
-    private static bool CollidingWithSidewaysJT(Player player, Vector2 at)
+    static bool CollidingWithSidewaysJT(Player player, Vector2 at)
     {
         SidewaysJumpThru jt = player.CollideFirstOutside<SidewaysJumpThru>(at);
         return jt != null && jt.AllowLeftToRight == player.Position.X > at.X

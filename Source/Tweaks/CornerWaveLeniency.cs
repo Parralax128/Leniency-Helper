@@ -9,9 +9,9 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
+class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
 {
-    private static ILHook origUpdateHook;
+    static ILHook origUpdateHook;
     [OnLoad]
     public static void LoadHooks()
     {
@@ -27,9 +27,9 @@ public class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
         origUpdateHook.Dispose();
     }
 
-    private static bool groundChecking = false, groundDetected = false, wasDashing = false;
-    private static Vector2 origPos;
-    private static void HookedUpdate(ILContext il)
+    static bool groundChecking = false, groundDetected = false, wasDashing = false;
+    static Vector2 origPos;
+    static void HookedUpdate(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
 
@@ -85,7 +85,7 @@ public class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
             }
         }
     }
-    private static void OnGroundDetected(Player player)
+    static void OnGroundDetected(Player player)
     {
         if (!groundChecking || !Enabled) return;
 
@@ -103,10 +103,10 @@ public class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
         if (wasDashing) player.SuperJump();
         else player.Jump();
     }
-    private static bool GroundChecking() => groundChecking;
-    private static bool GroundAndCDChecking(Player player) => player.dashRefillCooldownTimer > 0f && groundChecking;
-    private static void ClearGroundChecking() => groundChecking = false;
-    private static void ReturnPos(Player player)
+    static bool GroundChecking() => groundChecking;
+    static bool GroundAndCDChecking(Player player) => player.dashRefillCooldownTimer > 0f && groundChecking;
+    static void ClearGroundChecking() => groundChecking = false;
+    static void ReturnPos(Player player)
     {
         if (!groundChecking) return;
 
@@ -118,13 +118,13 @@ public class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
         else player.Position.X = origPos.X;
     }
 
-    private static bool CheckDiag(Player player)
+    static bool CheckDiag(Player player)
     {
         if (!Enabled) return false;
 
         return player.DashDir.X != 0f && player.DashDir.Y > 0f && player.Speed.Y > 0f;
     }
-    private static void RemoveDiagCCorection(ILContext il)
+    static void RemoveDiagCCorection(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
 
@@ -146,7 +146,7 @@ public class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
             cursor.EmitOr();
         }
     }
-    private static void StartGroundCheck(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
+    static void StartGroundCheck(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
     {
         if (Enabled && !groundChecking && Math.Sign(self.Speed.X) == dir && CheckCorner(self, -dir))
         {
@@ -159,7 +159,7 @@ public class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
         orig(self, dir);
     }
 
-    private static bool CheckCorner(Player player, int dir)
+    static bool CheckCorner(Player player, int dir)
     {
         Vector2 checkPos = new Vector2(player.Position.X, currentGravity == 1 ? player.Bottom : player.Top);
         int vertPosCheck = (int)(Math.Abs(player.Speed.Y) * 1.1f * Engine.DeltaTime);

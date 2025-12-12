@@ -10,9 +10,9 @@ namespace Celeste.Mod.LeniencyHelper.Components;
 
 public  class DelayedClimbtriggerComponent : Component
 {
-    private static float Delay => DelayedClimbtrigger.GetSetting<Time>("MaxDelay");
+    static float Delay => DelayedClimbtrigger.GetSetting<Time>();
     public float climbtriggerTimer;
-    private Solid Solid => (Solid) Entity;
+    Solid Solid => (Solid) Entity;
     public DelayedClimbtriggerComponent() : base(true, false) { }
 
     public override void Update()

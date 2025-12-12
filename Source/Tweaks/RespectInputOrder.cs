@@ -5,7 +5,7 @@ using Celeste.Mod.LeniencyHelper.Triggers;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class RespectInputOrder : AbstractTweak<RespectInputOrder>
+class RespectInputOrder : AbstractTweak<RespectInputOrder>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -21,8 +21,8 @@ public class RespectInputOrder : AbstractTweak<RespectInputOrder>
     }
 
     
-    private static Queue<List<Inputs>> Queue = new();
-    private static void OnInputUpdate(On.Monocle.MInput.orig_Update orig)
+    static Queue<List<Inputs>> Queue = new();
+    static void OnInputUpdate(On.Monocle.MInput.orig_Update orig)
     {
         orig();
         if (Engine.Scene is not Level) return;
@@ -31,7 +31,7 @@ public class RespectInputOrder : AbstractTweak<RespectInputOrder>
         if(BindPressed(Input.Jump)) pressed.Add(Inputs.Jump);
         if(BindPressed(Input.Dash)) pressed.Add(Inputs.Dash);
         if(BindPressed(Input.CrouchDash)) pressed.Add(Inputs.Demo);
-        if(BindPressed(Input.Grab) && GetSetting<bool>("AffectGrab")) pressed.Add(Inputs.Grab);
+        if(BindPressed(Input.Grab) && GetSetting<bool>()) pressed.Add(Inputs.Grab);
         
         if(pressed.Count > 0) Queue.Enqueue(pressed);
 
@@ -42,7 +42,7 @@ public class RespectInputOrder : AbstractTweak<RespectInputOrder>
         Input.Jump.consumed = !current.Contains(Inputs.Jump);
         Input.Dash.consumed = !current.Contains(Inputs.Dash);
         Input.CrouchDash.consumed = !current.Contains(Inputs.Demo);
-        if (GetSetting<bool>("AffectGrab")) Input.Grab.consumed = !current.Contains(Inputs.Grab);
+        if (GetSetting<bool>()) Input.Grab.consumed = !current.Contains(Inputs.Grab);
     }
 
     public static bool BindPressed(VirtualButton button)
@@ -60,7 +60,7 @@ public class RespectInputOrder : AbstractTweak<RespectInputOrder>
 
         return false;
     }
-    private static void DequeueInputs(Level level)
+    static void DequeueInputs(Level level)
     {
         if (Queue.Count == 0) return;
 

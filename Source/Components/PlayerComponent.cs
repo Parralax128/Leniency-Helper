@@ -2,9 +2,9 @@
 
 namespace Celeste.Mod.LeniencyHelper.Components;
 
-public class PlayerComponent : Component
+class PlayerComponent : Component
 {
-    private Tweak tweak;
+    Tweak tweak;
     public PlayerComponent(Tweak tweak) : base(true, true)
     {
         if (Entity is not Player) RemoveSelf();

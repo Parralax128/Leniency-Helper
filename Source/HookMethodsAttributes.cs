@@ -2,7 +2,7 @@
 
 namespace Celeste.Mod.LeniencyHelper;
 [AttributeUsage(AttributeTargets.Method)]
-public class OnLoad : Attribute { }
+class OnLoad : Attribute { }
 
 [AttributeUsage(AttributeTargets.Method)]
-public class OnUnload : Attribute { }
+class OnUnload : Attribute { }

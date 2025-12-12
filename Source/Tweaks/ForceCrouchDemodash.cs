@@ -1,6 +1,6 @@
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class ForceCrouchDemodash : AbstractTweak<ForceCrouchDemodash>
+class ForceCrouchDemodash : AbstractTweak<ForceCrouchDemodash>
 {
     [OnLoad]
     public static void LoadHooks()

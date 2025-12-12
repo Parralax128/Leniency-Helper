@@ -61,16 +61,5 @@ public static class TweakExtension
         return SettingSource.Controller;
     }
 
-    public static bool? SetSetting(this Tweak tweak, string setting, object value, SettingSource source)
-        => TweakData.Tweaks[tweak].Settings.Set(setting, source, value);
-    public static T GetSetting<T>(this Tweak tweak, string setting)
-        => TweakData.Tweaks[tweak].GetSetting<T>(setting);
     public static bool? Get(this Tweak tweak, SettingSource source) => TweakData.Tweaks[tweak].Get(source);
-    public static bool CheckRange<T>(this T current, int direction) where T : struct, Enum
-    {
-        T[] values = (T[])Enum.GetValues(typeof(T));
-
-        int nextIndex = Array.IndexOf(values, current) + direction;
-        return nextIndex >= 0 && nextIndex < values.Length;
-    }
 }

@@ -6,14 +6,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Reflection;
+using static System.Reflection.CustomAttributeExtensions;
 
 namespace Celeste.Mod.LeniencyHelper.TweakSettings;
 
-public class TweakState : IEnumerable<AbstractSetting>
+class TweakState : IEnumerable<AbstractSetting>
 {
     public Tweak Tweak;
 
-    private bool?[] Values = 
+    bool?[] Values = 
     {
          null,  // Player = 0
          null,  // API = 1
@@ -50,34 +52,39 @@ public class TweakState : IEnumerable<AbstractSetting>
         ?? Values[(int)SettingSource.Trigger]
         ?? Values[(int)SettingSource.Controller] == true;
 
-
-
     public SettingContainer Settings;
-    private Dictionary<string, object> Temps;
+    public List<object> Temps;
 
-    public TweakState(Tweak tweak, SettingContainer settings = null, List<string> temps = null)
+    public TweakState(Tweak tweak, SettingContainer settings = null)
     {
         Tweak = tweak;
         Settings = settings;
 
-        if (temps != null)
+        if(settings != null) AssignTweakIndices();
+    }
+
+    void AssignTweakIndices()
+    {
+        Type tweakType = TweakData.TweakList.Types[Tweak];
+
+        IEnumerable<FieldInfo> fields = tweakType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static).
+            Where(f => f.IsDefined(typeof(Tweaks.SettingIndexAttribute), false));
+
+        if (fields == null || fields.Count() == 0) return;
+
+        int counter = 0;
+        foreach(AbstractSetting setting in Settings)
         {
-            Temps = new();
-            foreach (string s in temps)
-                Temps.Add(s, null);
+            FieldInfo matchingField = fields.FirstOrDefault(f => (f.GetCustomAttribute<Tweaks.SettingIndexAttribute>(false).setting ?? f.Name) == setting.Name);
+
+            matchingField?.SetValue(null, counter);
+            counter++;
         }
     }
 
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T GetSetting<T>(int index) => Settings.Get<T>(index, CurrentSettingSource);
-
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public T GetTemp<T>(string key) => (T)(Temps[key] ?? default(T));
-
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetTemp(string key, object value) => Temps[key] = value;
 
     public static implicit operator string(TweakState state) => state.Tweak.ToString();
     public static implicit operator bool(TweakState state) => state.Enabled;

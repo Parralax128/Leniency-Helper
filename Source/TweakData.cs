@@ -8,9 +8,9 @@ using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.LeniencyHelper;
-public static class TweakData
+static class TweakData
 {
-    private static CompoundSetting<FlexDistance> FlexDistanceSetting(string name, FlexDistance defaultValue) =>
+    static CompoundSetting<FlexDistance> FlexDistanceSetting(string name, FlexDistance defaultValue) =>
        new CompoundSetting<FlexDistance>(name, defaultValue, new SettingContainer {
                new Setting<int>("StaticDistance", defaultValue.StaticValue, 0, 12),
                new Setting<FlexDistance.Modes>("Dynamic", defaultValue.Mode),
@@ -23,11 +23,18 @@ public static class TweakData
 
     public class TweakList : IEnumerable<TweakState>
     {
-        private List<TweakState> tweakStates;
+        List<TweakState> tweakStates;
 
         public IEnumerator<TweakState> GetEnumerator() => tweakStates.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => tweakStates.GetEnumerator();
 
+        // LINQ mess :P
+        public static Dictionary<Tweak, Type> Types = 
+            AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypesSafe()).
+            Where(x => x.IsClass && x.BaseType != null && x.BaseType.IsGenericType
+            && typeof(Tweaks.AbstractTweak<>) == x.BaseType.GetGenericTypeDefinition()).
+            ToDictionary(t => Enum.Parse<Tweak>(t.Name));
+            
         public TweakList()
         {
             int size = System.Enum.GetValues<Tweak>().Length;
@@ -48,14 +55,16 @@ public static class TweakData
         }
     }
 
-
-    public static TweakList Tweaks = new()
+[System.Runtime.CompilerServices.ModuleInitializer]
+internal static void SetupTweaklist()
+{
+    Tweaks = new()
     {
         new TweakState(Tweak.AutoSlowfall, new SettingContainer {
             new Setting<bool>("TechOnly", true),
             new Setting<bool>("DelayedJumpRelease", true),
             new Setting<Time>("ReleaseDelay", 0.2f, 0f, 1f)
-        }, new List<string> { "TechState" }),
+        }),
 
         new TweakState(Tweak.BackboostProtection, new SettingContainer {
             new Setting<Time>("EarlyBackboostTiming", 0.35f, 0f, 1f),
@@ -93,7 +102,7 @@ public static class TweakData
             new Setting<Time>("JumpBufferTime", 4, 0f, 0.25f),
             new Setting<Time>("DashBufferTime", 4, 0f, 0.25f),
             new Setting<Time>("DemoDashBufferTime", 4, 0f, 0.25f)
-        }),
+        }), 
 
         new TweakState(Tweak.CustomDashbounceTiming, new SettingContainer {
             new Setting<Time>("Timing", 0.1f, 0f, 0.5f)
@@ -191,4 +200,6 @@ public static class TweakData
             new Setting<Time>("WallCoyoteTime", 4, 0, 0.1f)
         })
     };
+}
+    public static TweakList Tweaks;
 }

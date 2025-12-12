@@ -6,7 +6,7 @@ using Celeste.Mod.LeniencyHelper.Components;
 namespace Celeste.Mod.LeniencyHelper.Controllers;
 
 [CustomEntity("LeniencyHelper/Controllers/ThrowableCeilingBumpController")]
-public class ThrowableCeilingBumpController : GenericController
+class ThrowableCeilingBumpController : GenericController
 {
     [OnLoad]
     public static void LoadHooks()
@@ -22,7 +22,7 @@ public class ThrowableCeilingBumpController : GenericController
         On.Monocle.Scene.AfterUpdate -= AfterUpdate;
     }
 
-    private static void BeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self)
+    static void BeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self)
     {
         orig(self);
 
@@ -33,7 +33,7 @@ public class ThrowableCeilingBumpController : GenericController
             bumpComponent.BeforeUpdate();
         }
     }
-    private static void AfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self)
+    static void AfterUpdate(On.Monocle.Scene.orig_AfterUpdate orig, Scene self)
     {
         orig(self);
         foreach (UnceilingBumpComponent bumpComponent in self.Tracker.GetComponents<UnceilingBumpComponent>())
@@ -42,8 +42,8 @@ public class ThrowableCeilingBumpController : GenericController
         }
     }
 
-    private bool disableGroundFriction;
-    private string whiteList;
+    bool disableGroundFriction;
+    string whiteList;
 
     public ThrowableCeilingBumpController(EntityData data, Vector2 offset) : base(data, offset, false) 
     {

@@ -4,9 +4,9 @@ using System;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class CustomSnapDownDistance : AbstractTweak<CustomSnapDownDistance>
+class CustomSnapDownDistance : AbstractTweak<CustomSnapDownDistance>
 {
-    private static ILHook origUpdateHook;
+    static ILHook origUpdateHook;
 
     [OnLoad]
     public static void LoadHooks()
@@ -20,22 +20,14 @@ public class CustomSnapDownDistance : AbstractTweak<CustomSnapDownDistance>
         origUpdateHook.Dispose();
     }
 
-    private static float GetCustomDistance(float defaultValue, Player player)
+    static float GetCustomDistance(float defaultValue, Player player)
     {
         if (!Enabled) return defaultValue;
 
-        if (GetSetting<bool>("dynamicSnapdownDistance"))
-        {
-            return (int)Math.Max(defaultValue, Math.Max(Math.Abs(player.beforeDashSpeed.Y),
-                Math.Abs(player.Speed.Y)) * GetSetting<Time>("snapdownTiming"));
-        }
-        else
-        {
-            return GetSetting<int>("staticSnapdownDistance");
-        }
+        return GetSetting<FlexDistance>().Get(Math.Max(Math.Abs(player.beforeDashSpeed.Y), Math.Abs(player.Speed.Y)));
     }
 
-    private static void ModifySnapdownDistance(ILContext il)
+    static void ModifySnapdownDistance(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
 

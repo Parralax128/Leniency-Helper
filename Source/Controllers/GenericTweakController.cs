@@ -7,13 +7,13 @@ using System.Linq;
 namespace Celeste.Mod.LeniencyHelper.Controllers;
 
 [Tracked(true, Inherited = true)]
-public class GenericTweakController : GenericController
+class GenericTweakController : GenericController
 {
     public Tweak tweak;
-    // might just be List<object> ?
-    private Dictionary<string, object> Data = null;
-    private Dictionary<string, object> savedData = new Dictionary<string, object>();
-    private bool savedEnabled;
+
+    List<object> Data = null;
+    List<object> savedData = new();
+    bool savedEnabled;
 
     public GenericTweakController(EntityData data, Vector2 offset, Tweak tweak) : base(data, offset, true)
     {
@@ -26,10 +26,9 @@ public class GenericTweakController : GenericController
         savedEnabled = TweakData.Tweaks[tweak].Get(TweakSettings.SettingSource.Controller) == true;
 
         if (Data == null) return;
-
-        foreach (string key in Data.Keys)
-        {
-            savedData.Add(key, TweakData.Tweaks[tweak].Settings.Get(key, TweakSettings.SettingSource.Controller));
+        
+        for(int c=0; c<Data.Count; c++) {
+            savedData.Add(TweakData.Tweaks[tweak].Settings.Get(c, TweakSettings.SettingSource.Controller));
         }
     }
 
@@ -47,9 +46,9 @@ public class GenericTweakController : GenericController
     public void ApplySettings()
     {
         if (Data == null) return;
-        
-        foreach (string key in Data.Keys)
-            TweakData.Tweaks[tweak].Settings.Set(key, TweakSettings.SettingSource.Controller, Data[key]);
+
+        for (int c = 0; c < Data.Count; c++)
+            TweakData.Tweaks[tweak].Settings.Set(c, TweakSettings.SettingSource.Controller, Data[c]);
     }
     public void ApplyTweak()
     {
@@ -59,13 +58,8 @@ public class GenericTweakController : GenericController
     public void UndoSettings()
     {
         if (savedData.Count() > 0)
-        {
-            foreach (string key in savedData.Keys)
-            {
-                TweakData.Tweaks[tweak].Settings.Set(key, TweakSettings.SettingSource.Controller, savedData[key]);
-            }
-              
-        }
+            for (int c = 0; c < Data.Count; c++)
+                TweakData.Tweaks[tweak].Settings.Set(c, TweakSettings.SettingSource.Controller, savedData[c]);
     }
     public void UndoTweak()
     {

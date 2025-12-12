@@ -3,12 +3,12 @@ using Microsoft.Xna.Framework;
 
 namespace Celeste.Mod.LeniencyHelper.UI.Items;
 
-public class OptionsHint : TextMenu.Item
+class OptionsHint : TextMenu.Item
 {
-    private static string confirmTutorial = Dialog.Clean("LENIENCYHELPER_OPTIONS_CONFIRMHINT");
-    private static string grabTutorial = Dialog.Clean("LENIENCYHELPER_OPTIONS_GRABHINT");
-    private static MTexture confirmButton => Input.GuiButton(Input.MenuConfirm, Input.PrefixMode.Latest);
-    private static MTexture grabButton => Input.GuiButton(Input.Grab, Input.PrefixMode.Latest);
+    static string confirmTutorial = Dialog.Clean("LENIENCYHELPER_OPTIONS_CONFIRMHINT");
+    static string grabTutorial = Dialog.Clean("LENIENCYHELPER_OPTIONS_GRABHINT");
+    static MTexture confirmButton => Input.GuiButton(Input.MenuConfirm, Input.PrefixMode.Latest);
+    static MTexture grabButton => Input.GuiButton(Input.Grab, Input.PrefixMode.Latest);
 
     public OptionsHint()
     {

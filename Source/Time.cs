@@ -10,7 +10,7 @@ public class Time : IComparable<Time>, ICloneable
         Seconds = 0,
         Frames = 1
     }
-    private const float FPS = 60f;
+    const float FPS = 60f;
 
     public Modes Mode = Modes.Seconds;
 
@@ -27,7 +27,8 @@ public class Time : IComparable<Time>, ICloneable
 
     int IComparable<Time>.CompareTo(Time other)
     {
-        return other.Value > Value ? -1 : Math.Abs(Value - other.Value) < 0.01f ? 0 : 1;
+        if (Math.Abs(Value - other.Value) < 0.0001f) return 0;
+        return Value < other.Value ? -1 : 1;
     }
 
     object ICloneable.Clone()
@@ -68,6 +69,8 @@ public class Time : IComparable<Time>, ICloneable
 
     public override string ToString()
     {
-        return Mode == Modes.Seconds ? Value.ToString("F2")+'s' : Frames.ToString()+'f';
+        return Mode == Modes.Seconds
+            ? MathF.Round(Math.Abs(Value), 2).ToString()+'s'
+            : Frames.ToString()+'f';
     }
 }

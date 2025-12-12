@@ -7,9 +7,9 @@ using Microsoft.Xna.Framework;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class NoFailedTech : AbstractTweak<NoFailedTech>
+class NoFailedTech : AbstractTweak<NoFailedTech>
 {
-    private static ILHook dashCoroutineHook;
+    static ILHook dashCoroutineHook;
 
     [OnLoad]
     public static void LoadHooks()
@@ -29,7 +29,7 @@ public class NoFailedTech : AbstractTweak<NoFailedTech>
         dashCoroutineHook.Dispose();
     }
 
-    private static void JumpToTech(On.Celeste.Player.orig_Jump orig, Player self, bool particles = true, bool playSfx = true)
+    static void JumpToTech(On.Celeste.Player.orig_Jump orig, Player self, bool particles = true, bool playSfx = true)
     {
         if (Enabled && self.CanUnDuck && self.DashDir.X != 0
             && self.OnGround() && LeniencyHelperModule.Session.protectedDashAttackTimer > 0f)
@@ -42,7 +42,7 @@ public class NoFailedTech : AbstractTweak<NoFailedTech>
         orig(self, particles, playSfx);
     }
 
-    private static void GetDashDir(ILContext il)
+    static void GetDashDir(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
 
@@ -52,19 +52,19 @@ public class NoFailedTech : AbstractTweak<NoFailedTech>
             cursor.EmitDelegate(SaveDashDir);
         }
     }
-    private static void SaveDashDir(Vector2 dir)
+    static void SaveDashDir(Vector2 dir)
     {
         LeniencyHelperModule.Session.downDiag = dir.X != 0f && dir.Y > 0f; 
     }
 
-    private static void StartProtectionTimer(On.Celeste.Player.orig_DashEnd orig, Player self)
+    static void StartProtectionTimer(On.Celeste.Player.orig_DashEnd orig, Player self)
     {
         orig(self);
 
-        LeniencyHelperModule.Session.protectedDashAttackTimer = GetSetting<Time>("ProtectedTechTime");
+        LeniencyHelperModule.Session.protectedDashAttackTimer = GetSetting<Time>();
         LeniencyHelperModule.Session.dashCrouched = self.Ducking;
     }
-    private static void RunTimer(Level level)
+    static void RunTimer(Level level)
     {
         var s = LeniencyHelperModule.Session;
 

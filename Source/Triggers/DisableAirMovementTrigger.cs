@@ -8,7 +8,7 @@ using Celeste.Mod.LeniencyHelper.Module;
 namespace Celeste.Mod.LeniencyHelper.Triggers;
 
 [CustomEntity("LeniencyHelper/DisableAirMovementTrigger")]
-public class DisableAirMovementTrigger : GenericTrigger
+class DisableAirMovementTrigger : GenericTrigger
 {
     [OnLoad]
     public static void LoadHooks()
@@ -40,22 +40,22 @@ public class DisableAirMovementTrigger : GenericTrigger
         LeniencyHelperModule.Session.airMovementDisabled = false;
     }
 
-    private static VirtualIntegerAxis zero = new VirtualIntegerAxis(Settings.Instance.Up,
+    static VirtualIntegerAxis zero = new VirtualIntegerAxis(Settings.Instance.Up,
         Settings.Instance.UpMoveOnly, Settings.Instance.Down, Settings.Instance.DownMoveOnly, Input.Gamepad, 0.7f); 
 
-    private static void ResetToggleOnPlayerRespawn(On.Celeste.Player.orig_ctor orig,
+    static void ResetToggleOnPlayerRespawn(On.Celeste.Player.orig_ctor orig,
         Player self, Vector2 pos, PlayerSpriteMode spriteMode)
     {
         orig(self, pos, spriteMode);
         LeniencyHelperModule.Session.airMovementDisabled = false;
     }
-    private static void ResetToggleOnLevelLoad(On.Celeste.LevelLoader.orig_ctor orig,
+    static void ResetToggleOnLevelLoad(On.Celeste.LevelLoader.orig_ctor orig,
         LevelLoader self, Session session, Vector2? startPos)
     {
         orig(self, session, startPos);
         LeniencyHelperModule.Session.airMovementDisabled = false;
     }
-    private static int MoveXToZero(int orig, Player player)
+    static int MoveXToZero(int orig, Player player)
     {
         if (player is null) return 0;
 
@@ -66,7 +66,7 @@ public class DisableAirMovementTrigger : GenericTrigger
 
         return 0;
     }
-    private static VirtualIntegerAxis MoveYToZero(VirtualIntegerAxis orig, Player player)
+    static VirtualIntegerAxis MoveYToZero(VirtualIntegerAxis orig, Player player)
     {
         zero.Value = 0;
         if (player == null || !LeniencyHelperModule.Session.airMovementDisabled || player.onGround) return orig;
@@ -100,7 +100,7 @@ public class DisableAirMovementTrigger : GenericTrigger
             cursor.EmitDelegate(MoveYToZero);
         }
     }
-    private static void DisableSpriteChanges(ILContext il)
+    static void DisableSpriteChanges(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
 

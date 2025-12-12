@@ -9,10 +9,10 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
+class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
 {
-    private const int OnNormalUpdate = 0;
-    private const int OnDash = 1;
+    [SettingIndex] static int OnNormalUpdate;
+    [SettingIndex] static int OnDash;
 
 
     [OnLoad]
@@ -32,7 +32,7 @@ public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
         IL.Celeste.Solid.MoveHExact += DontMovePlayer;
         IL.Celeste.Solid.MoveVExact += DontMovePlayer;
     }
-    private static Hook customWindUpHook;
+    static Hook customWindUpHook;
     public static void LoadVivHelperHooks()
     {
         customWindUpHook = new Hook(typeof(ReskinnableBounceBlock).GetMethod("WindUpPlayerCheck",
@@ -62,32 +62,28 @@ public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
         customWindUpHook.Dispose();
     }
     
-    private static int safeClimbtriggerDir;
+    static int safeClimbtriggerDir;
     public static bool useOrigCheck = false;
 
 
-    private static void ClimbTriggerOnClimbJump(On.Celeste.Player.orig_ClimbJump orig, Player self)
+    static void ClimbTriggerOnClimbJump(On.Celeste.Player.orig_ClimbJump orig, Player self)
     {
         orig(self);
 
-        if (Enabled)
-        {
-            self.ClimbTrigger((int)self.Facing);
-        }
+        if (Enabled) self.ClimbTrigger((int)self.Facing);
     }
-    private static int ClimbTriggerDuringDash(On.Celeste.Player.orig_DashUpdate orig, Player self)
+    static int ClimbTriggerDuringDash(On.Celeste.Player.orig_DashUpdate orig, Player self)
     {
-        if (Enabled && GetSetting<bool>(OnDash))
-        {
+        if (Enabled && GetSetting<bool>(OnDash)) {
             if (self.Holding == null && Math.Sign(self.Speed.X) != 0 - self.Facing && self.ClimbBoundsCheck((int)self.Facing)
                 && Input.GrabCheck && !self.IsTired && !self.Ducking)
             {
                 safeClimbtriggerDir = (int)self.Facing;
-            }
-        }
+        }   }
+
         return orig(self);
     }
-    private static void ClimbTriggerOnFlyingUp(ILContext il)
+    static void ClimbTriggerOnFlyingUp(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
         ILLabel skipClimbtriggerDelegate = il.DefineLabel();
@@ -114,36 +110,36 @@ public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
     }
 
 
-    private static void ClearSafeClimbTrigger(Level level)
+    static void ClearSafeClimbTrigger(Level level)
     {
         safeClimbtriggerDir = 0;
     }
-    private static void GetDefaultDir(On.Celeste.Player.orig_ClimbTrigger orig, Player self, int dir)
+    static void GetDefaultDir(On.Celeste.Player.orig_ClimbTrigger orig, Player self, int dir)
     {
         orig(self, dir);
         safeClimbtriggerDir = dir;
     }
 
-    private static bool ForceRideSolid(On.Celeste.Player.orig_IsRiding_Solid orig, Player self, Solid solid)
+    static bool ForceRideSolid(On.Celeste.Player.orig_IsRiding_Solid orig, Player self, Solid solid)
     {
         return !useOrigCheck && GetClimbTriggeringPlayer(solid, self) != null
             || !DelayedClimbtrigger.useOrigCheck && DelayedClimbtrigger.GetClimbtriggeringPlayer(solid, self) != null
             || orig(self, solid);
     }
-    private static Player ForceClimbSolid(On.Celeste.Solid.orig_GetPlayerClimbing orig, Solid self)
+     static Player ForceClimbSolid(On.Celeste.Solid.orig_GetPlayerClimbing orig, Solid self)
     {
         return orig(self) ?? GetClimbTriggeringPlayer(self) ?? DelayedClimbtrigger.GetClimbtriggeringPlayer(self);
     }
-    private static Player ForceCoreBlockTrigger(On.Celeste.BounceBlock.orig_WindUpPlayerCheck orig, BounceBlock self)
+     static Player ForceCoreBlockTrigger(On.Celeste.BounceBlock.orig_WindUpPlayerCheck orig, BounceBlock self)
     {
         return orig(self) ?? GetClimbTriggeringPlayer(self) ?? DelayedClimbtrigger.GetClimbtriggeringPlayer(self);
     }
-    private static Player ForceCustomCoreblockTrigger(Func<ReskinnableBounceBlock, Player> orig, ReskinnableBounceBlock self)
+    static Player ForceCustomCoreblockTrigger(Func<ReskinnableBounceBlock, Player> orig, ReskinnableBounceBlock self)
     {
         return orig(self) ?? GetClimbTriggeringPlayer(self) ?? DelayedClimbtrigger.GetClimbtriggeringPlayer(self);
     }
 
-    private static Player GetClimbTriggeringPlayer(Solid solid, Player player = null)
+    static Player GetClimbTriggeringPlayer(Solid solid, Player player = null)
     {
         if (!Enabled) return null;
 
@@ -154,7 +150,7 @@ public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
     }
 
 
-    private static void DontMovePlayer(ILContext il)
+    static void DontMovePlayer(ILContext il)
     {
         ILCursor c = new ILCursor(il);
         c.EmitLdcI4(1);
@@ -169,15 +165,15 @@ public class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
     }
 
 
-    private static void SetUseOrig(bool value) { useOrigCheck = DelayedClimbtrigger.useOrigCheck = value; }
+    static void SetUseOrig(bool value) { useOrigCheck = DelayedClimbtrigger.useOrigCheck = value; }
     
-    private static void ClimbtriggerDelegate(Player player)
+    static void ClimbtriggerDelegate(Player player)
     {
         if (Math.Sign(player.Speed.X) != 0 - player.Facing)
             safeClimbtriggerDir = (int)player.Facing;
     }
     
-    private static bool CheckEnabled(Player player)
+    static bool CheckEnabled(Player player)
     {
         return Enabled && GetSetting<bool>(OnNormalUpdate);
     }    

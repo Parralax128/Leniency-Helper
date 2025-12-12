@@ -8,7 +8,7 @@ using Celeste.Mod.LeniencyHelper.Triggers;
 
 namespace Celeste.Mod.LeniencyHelper.Components;
 
-public class SpinnerBounceComponent : Component
+class SpinnerBounceComponent : Component
 {
     public bool enabled;
     public BounceDirections direction;
@@ -62,7 +62,7 @@ public class SpinnerBounceComponent : Component
             holdComponent.OnHitSeeker = orig;
         }
     }
-    private void SetEntitySpeed(Entity entity, Vector2 speed)
+    void SetEntitySpeed(Entity entity, Vector2 speed)
     {
         FieldInfo speedField = entity.GetType().GetField("Speed");
         if (speedField != null)

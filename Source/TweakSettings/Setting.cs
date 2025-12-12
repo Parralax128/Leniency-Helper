@@ -3,7 +3,7 @@ using System;
 using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.LeniencyHelper.TweakSettings;
-public class Setting<T> : AbstractSetting
+class Setting<T> : AbstractSetting
 {
     public T[] Values = new T[5];
     public T Player
@@ -12,10 +12,10 @@ public class Setting<T> : AbstractSetting
         set => Values[(int)SettingSource.Player] = value;
     }
 
-    public Bounds<T> ValueBounds { get; private set; }
+    public Bounds<T> ValueBounds { get; set; }
 
-    private List<T> ValidLeniencyValues = null;
-    private Bounds<T> ValidLeniencyBounds = null;
+    List<T> ValidLeniencyValues = null;
+    Bounds<T> ValidLeniencyBounds = null;
 
     public Setting(string name, T defaultValue)
     {

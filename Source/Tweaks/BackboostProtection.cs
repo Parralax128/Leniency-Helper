@@ -4,15 +4,15 @@ using Monocle;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class BackboostProtection : AbstractTweak<BackboostProtection>
+class BackboostProtection : AbstractTweak<BackboostProtection>
 {
-    private const int EarlyBackboostTiming = 0;
-    private const int LateBackboostTiming = 1;
+    [SettingIndex] static int EarlyBackboostTiming;
+    [SettingIndex] static int LateBackboostTiming;
+
 
     [OnLoad]
     public static void LoadHooks()
     {
-        Everest.Events.Level.OnAfterUpdate += UpdateTimer;
         Everest.Events.Player.OnAfterUpdate += CheckDir;
         On.Celeste.Player.Throw += ConsumeBackboostFacing;
     }
@@ -20,41 +20,36 @@ public class BackboostProtection : AbstractTweak<BackboostProtection>
     [OnUnload]
     public static void UnloadHooks()
     {
-        Everest.Events.Level.OnAfterUpdate -= UpdateTimer;
         Everest.Events.Player.OnAfterUpdate -= CheckDir;
         On.Celeste.Player.Throw -= ConsumeBackboostFacing;
     }
 
-    private static void CheckDir(Player player)
+    static Timer LeftTimer = new();
+    static Timer RightTimer = new();
+
+    static void CheckDir(Player player)
     {
         var s = LeniencyHelperModule.Session;
 
         float saveDuration;
 
-        if(s.pickupTimeLeft > 0f || player.minHoldTimer > 0f)
+        if(ExtendBufferOnFreezeAndPickup.PickupTimer || player.minHoldTimer > 0f)
         {
-            saveDuration = Math.Min(GetSetting<Time>(EarlyBackboostTiming), Player.HoldMinTime + s.pickupTimeLeft);
+            saveDuration = Math.Min(GetSetting<Time>(EarlyBackboostTiming),
+                Player.HoldMinTime + ExtendBufferOnFreezeAndPickup.PickupTimer);
         }
         else
         {
             saveDuration = GetSetting<Time>(LateBackboostTiming);
         }
 
-        if (player.moveX == 1) s.rightTimer = saveDuration;
-        else if (player.moveX == -1) s.leftTimer = saveDuration;
+        if (player.moveX == 1) RightTimer.Launch(saveDuration);
+        else if (player.moveX == -1) LeftTimer.Launch(saveDuration);
 
         s.lastFacing = (Facings)Input.MoveX.Value;
     }
 
-    private static void UpdateTimer(Level level)
-    {
-        var s = LeniencyHelperModule.Session;
-
-        if (s.rightTimer > 0f) s.rightTimer -= Engine.DeltaTime;
-        if (s.leftTimer > 0f) s.leftTimer -= Engine.DeltaTime;
-    }
-
-    private static void ConsumeBackboostFacing(On.Celeste.Player.orig_Throw orig, Player self)
+    static void ConsumeBackboostFacing(On.Celeste.Player.orig_Throw orig, Player self)
     {
         if (!Enabled)
         {
@@ -75,7 +70,7 @@ public class BackboostProtection : AbstractTweak<BackboostProtection>
 
         if(Math.Sign(self.Speed.X) == -1)
         {
-            if(s.rightTimer > 0f)
+            if(RightTimer)
             {
                 savedPlayerFacing = self.Facing;
                 self.Facing = Facings.Right;
@@ -86,7 +81,7 @@ public class BackboostProtection : AbstractTweak<BackboostProtection>
         }
         else if(Math.Sign(self.Speed.X) == 1)
         {
-            if (s.leftTimer > 0f)
+            if (LeftTimer)
             {
                 savedPlayerFacing = self.Facing;
                 self.Facing = Facings.Left;
@@ -99,7 +94,7 @@ public class BackboostProtection : AbstractTweak<BackboostProtection>
         {
             if (self.Facing == Facings.Left)
             {
-                if (s.rightTimer > 0f)
+                if (RightTimer)
                 {
                     savedPlayerFacing = self.Facing;
                     self.Facing = Facings.Right;
@@ -110,7 +105,7 @@ public class BackboostProtection : AbstractTweak<BackboostProtection>
             }
             else if (self.Facing == Facings.Right)
             {
-                if (s.leftTimer > 0f)
+                if (LeftTimer)
                 {
                     savedPlayerFacing = self.Facing;
                     self.Facing = Facings.Left;

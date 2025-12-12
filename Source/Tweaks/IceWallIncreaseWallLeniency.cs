@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeniency>
+class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeniency>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -22,7 +22,7 @@ public class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeni
         IL.Celeste.Player.WallJumpCheck -= CustomWJCheck;
     }
 
-    private static int GetNewLeniency(int defaultValue, Player player, int dir, bool returnOrig)
+    static int GetNewLeniency(int defaultValue, Player player, int dir, bool returnOrig)
     {
         if (returnOrig)
         {
@@ -42,7 +42,7 @@ public class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeni
         if (!Enabled)
             return newValue;
 
-        int iceLeni = GetSetting<int>("ExtraWalljumpDistance");
+        int iceLeni = GetSetting<int>();
         for (int c = 0; c < newValue + iceLeni + 1; c++)
         {
             Vector2 at = player.Position + Vector2.UnitX * dir * c;
@@ -65,20 +65,20 @@ public class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeni
         }
         return newValue;
     }
-    private static bool CollidingAttachedIceWall(Player player, Vector2 at, int dir, int c)
+    static bool CollidingAttachedIceWall(Player player, Vector2 at, int dir, int c)
     {
         if (!LeniencyHelperModule.ModLoaded("ShroomHelper")) return false;
 
         return player.CollideCheck<AttachedIceWall>(at) &&
             (int)player.CollideFirst<AttachedIceWall>(player.Position + Vector2.UnitX * dir * c).Facing == dir;
     }
-    private static void SetWjDist(int value, int dir)
+    static void SetWjDist(int value, int dir)
     {
         if (dir == 1) LeniencyHelperModule.Session.wjDistR = value;
         else LeniencyHelperModule.Session.wjDistL = value;
     }
 
-    private static void CustomWJCheck(ILContext il)
+    static void CustomWJCheck(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
 
@@ -166,18 +166,18 @@ public class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeni
             cursor.Index++;
         }
     }
-    private static bool BothDisabled()
+    static bool BothDisabled()
     {
         return !Enabled && !DynamicWallLeniency.Enabled;
     }
-    private static void ReturnOrigPos(Player player, Vector2 pos)
+    static void ReturnOrigPos(Player player, Vector2 pos)
     {
         if (Enabled || DynamicWallLeniency.Enabled)
         {
             player.Position = pos;
         }
     }
-    private static Vector2 MovePlayer(Player player, int newWjDist, int origWjDist, int dir)
+    static Vector2 MovePlayer(Player player, int newWjDist, int origWjDist, int dir)
     {
         Vector2 savePos = player.Position;
 
@@ -268,7 +268,7 @@ public class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeni
     }
 
     public static List<(Rectangle, Color)> debugRects = new List<(Rectangle, Color)>();
-    private static void Debug(On.Celeste.Player.orig_Render orig, Player self)
+    static void Debug(On.Celeste.Player.orig_Render orig, Player self)
     {
         orig(self);
 

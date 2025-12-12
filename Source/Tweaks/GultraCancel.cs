@@ -9,11 +9,11 @@ using MonoMod.Utils;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class GultraCancel : AbstractTweak<GultraCancel>
+class GultraCancel : AbstractTweak<GultraCancel>
 {
-    private static ILHook modifyDashCoroutine;
-    private static ILContext.Manipulator onCollideVHook = (il) => AddSpeedPreservation(il, false);
-    private static ILContext.Manipulator dashCoroutineHook = (il) => AddSpeedPreservation(il, true);
+    static ILHook modifyDashCoroutine;
+    static ILContext.Manipulator onCollideVHook = (il) => AddSpeedPreservation(il, false);
+    static ILContext.Manipulator dashCoroutineHook = (il) => AddSpeedPreservation(il, true);
 
     [OnLoad]
     public static void LoadHooks()
@@ -35,12 +35,12 @@ public class GultraCancel : AbstractTweak<GultraCancel>
         modifyDashCoroutine.Dispose();
     }
 
-    private static void ClearSavedSpeed(On.Celeste.Player.orig_DashBegin orig, Player self)
+    static void ClearSavedSpeed(On.Celeste.Player.orig_DashBegin orig, Player self)
     {
         orig(self);
         LeniencyHelperModule.Session.savedSpeed = null;
     }
-    private static void AddSpeedPreservation(ILContext il, bool coroutine)
+    static void AddSpeedPreservation(ILContext il, bool coroutine)
     {
         ILCursor cursor = new ILCursor(il);
 
@@ -62,13 +62,13 @@ public class GultraCancel : AbstractTweak<GultraCancel>
             }
         }
     }
-    private static void SaveSpeedY(Player player)
+    static void SaveSpeedY(Player player)
     {
         LeniencyHelperModule.Session.savedSpeed = player.Speed;
-        LeniencyHelperModule.Session.cancelTimer = GetSetting<Time>("MaxCancelDelay");
+        LeniencyHelperModule.Session.cancelTimer = GetSetting<Time>();
     }
 
-    private static int CancelGultraOnMidAir(On.Celeste.Player.orig_DashUpdate orig, Player self)
+    static int CancelGultraOnMidAir(On.Celeste.Player.orig_DashUpdate orig, Player self)
     {
         if(LeniencyHelperModule.Session.cancelTimer > 0f)
         {

@@ -12,7 +12,7 @@ namespace Celeste.Mod.LeniencyHelper.Controllers;
 
 [Tracked(true)]
 [CustomEntity("LeniencyHelper/Controllers/ConsistentCoreboostDirectionController")]
-public class ConsistentCoreboostDirectionController : Entity
+class ConsistentCoreboostDirectionController : Entity
 {
     #region Hooks
 
@@ -22,13 +22,13 @@ public class ConsistentCoreboostDirectionController : Entity
         IL.Celeste.BounceBlock.Update += ModifyDirection;
     }
 
-    private static ILHook vivHelperUpdateHook;
+    static ILHook vivHelperUpdateHook;
     public static void LoadVivHelperHooks()
     {
         vivHelperUpdateHook = new ILHook(typeof(ReskinnableBounceBlock).GetMethod("Update"), ModifyDirection);
     }
 
-    private static void ModifyDirection(ILContext il)
+    static void ModifyDirection(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
 
@@ -45,11 +45,11 @@ public class ConsistentCoreboostDirectionController : Entity
             cursor.EmitDelegate(GetBounceDir);
         }
     }
-    private static bool MatchVivHelperBounceDir(Mono.Cecil.Cil.Instruction instr)
+    static bool MatchVivHelperBounceDir(Mono.Cecil.Cil.Instruction instr)
     {
         return instr.MatchStfld<ReskinnableBounceBlock>("bounceDir");
     }
-    private static Vector2 GetBounceDir(Vector2 origDir, Solid block)
+    static Vector2 GetBounceDir(Vector2 origDir, Solid block)
     {
         bool controllerExists, aimCorner;
         CheckControllers(block, out controllerExists, out aimCorner);
@@ -76,7 +76,7 @@ public class ConsistentCoreboostDirectionController : Entity
 
         return Vector2.UnitY * -CrossModSupport.GravityHelperImports.currentGravity;
     }
-    private static void CheckControllers(Entity e, out bool controllerExists, out bool cornerAim)
+    static void CheckControllers(Entity e, out bool controllerExists, out bool cornerAim)
     {
         cornerAim = controllerExists = false;
         foreach (ConsistentCoreboostDirectionController controller in e.Scene.Tracker.GetEntities<ConsistentCoreboostDirectionController>())
@@ -90,10 +90,10 @@ public class ConsistentCoreboostDirectionController : Entity
     #endregion
 
 
-    private bool aimCorner;
-    private string stopFlag;
+    bool aimCorner;
+    string stopFlag;
 
-    private bool GetFlagActive {
+    bool GetFlagActive {
         get
         {
             return stopFlag != "" && SceneAs<Level>().Session.GetFlag(stopFlag);

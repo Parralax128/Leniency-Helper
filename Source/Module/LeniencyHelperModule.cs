@@ -11,11 +11,11 @@ using System.Linq;
 using System.Reflection;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
-public class LeniencyHelperModule : EverestModule
+class LeniencyHelperModule : EverestModule
 {
     #region very important generic stuff
 
-    public static LeniencyHelperModule Instance { get; private set; }
+    public static LeniencyHelperModule Instance { get; set; }
 
     public override Type SettingsType => typeof(LeniencyHelperSettings);
     public static LeniencyHelperSettings Settings => (LeniencyHelperSettings)Instance._Settings;
@@ -28,7 +28,7 @@ public class LeniencyHelperModule : EverestModule
     #endregion
 
     #region loaded mods handling
-    private static Dictionary<string, (Version, bool)> ModsLoaded = new Dictionary<string, (Version, bool)>
+    static Dictionary<string, (Version, bool)> ModsLoaded = new Dictionary<string, (Version, bool)>
     {
         { "MaxHelpingHand", (new Version(1,30,0), false) },
         { "ShroomHelper", (new Version(1,0,0), false) },
@@ -112,26 +112,7 @@ public class LeniencyHelperModule : EverestModule
         }
 
         Watermark = GFX.Gui["LeniencyHelper/Parralax/Watermark"];
-
-
-
-        string text = "";
-        foreach(Tweak tweak in TweakList)
-        {
-            if (!tweak.HasSettings()) continue;
-            text += $"public enum {tweak}Settings {{ ";
-            
-            foreach(AbstractSetting s in TweakData.Tweaks[tweak].Settings)
-            {
-                text += s.Name + ", ";
-            }
-            text += "}\n";
-        }
-
-        Console.Write(text);
     }
-    public enum TweakSettings { A = 0, B = 1, C = 2 }
-
     public override void Load()
     {
         var loadHooksMethods = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypesSafe()).
@@ -169,7 +150,7 @@ public class LeniencyHelperModule : EverestModule
         Everest.Events.GameLoader.OnLoadThread -= WebScrapper.LoadInfo;
     }
 
-    private void AddTweaksMenuButton(Level level, TextMenu menu, bool minimal)
+    void AddTweaksMenuButton(Level level, TextMenu menu, bool minimal)
     {
         if (!Settings.showSettings) return;
 
@@ -183,8 +164,8 @@ public class LeniencyHelperModule : EverestModule
         menu.Insert(optionsIndex, button);
     }
 
-    private static Monocle.MTexture Watermark;
-    private static void RenderWatermark(On.Celeste.HudRenderer.orig_RenderContent orig, HudRenderer self, Monocle.Scene scene)
+    static Monocle.MTexture Watermark;
+    static void RenderWatermark(On.Celeste.HudRenderer.orig_RenderContent orig, HudRenderer self, Monocle.Scene scene)
     {
         orig(self, scene);
 

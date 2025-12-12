@@ -9,9 +9,9 @@ using MonoMod.RuntimeDetour;
 namespace Celeste.Mod.LeniencyHelper.Triggers;
 
 [CustomEntity("LeniencyHelper/InputRequiresBlockboostTrigger")]
-public class InputRequiresBlockboostTrigger : Trigger
+class InputRequiresBlockboostTrigger : Trigger
 {
-    private static Hook pressedHook;
+    static Hook pressedHook;
 
     [OnLoad]
     public static void LoadHooks()
@@ -27,8 +27,8 @@ public class InputRequiresBlockboostTrigger : Trigger
         pressedHook.Dispose();
     }
 
-    private bool oneUse;
-    private string flag;
+    bool oneUse;
+    string flag;
 
     public enum InputModes
     {
@@ -91,19 +91,19 @@ public class InputRequiresBlockboostTrigger : Trigger
         PlayerIsInside = false;
         RemoveFromBindlist();
     }
-    private void RemoveFromBindlist()
+    void RemoveFromBindlist()
     {
         var s = LeniencyHelperModule.Session;
         if (s.BindList.Contains(localBindInfo))
             s.BindList.Remove(localBindInfo);
     }
 
-    private static void GetLiftboost(Player player)
+    static void GetLiftboost(Player player)
     {
         LeniencyHelperModule.Session.playerLiftboost = player.LiftBoost.Abs();
     }
 
-    private static bool CheckLiftboost(BindInfo bind, bool origPressed)
+    static bool CheckLiftboost(BindInfo bind, bool origPressed)
     {
         float boost = bind.vertical ? LeniencyHelperModule.Session.playerLiftboost.Y : LeniencyHelperModule.Session.playerLiftboost.X;
         bool almostEqual = Math.Abs(boost - bind.targetLiftspeed) < 0.01f;
@@ -126,7 +126,7 @@ public class InputRequiresBlockboostTrigger : Trigger
         return result;
     }
 
-    private static bool HookedPressed(Func<VirtualButton, bool> orig, VirtualButton self)
+    static bool HookedPressed(Func<VirtualButton, bool> orig, VirtualButton self)
     {
         bool origResult = orig(self);
         if (LeniencyHelperModule.Session == null || LeniencyHelperModule.Session.BindList.Count == 0)

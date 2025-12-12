@@ -6,12 +6,12 @@ using System.Collections.Generic;
 namespace Celeste.Mod.LeniencyHelper.Triggers;
 
 [Tracked(true, Inherited = true)]
-public class GenericTweakTrigger : GenericTrigger
+class GenericTweakTrigger : GenericTrigger
 {
-    private Dictionary<string, object> Data = null;
-    private Dictionary<string, object> savedData = new();
-    private Tweak tweak;
-    private bool? savedEnabled;
+    List<object> Data = null;
+    List<object> savedData = new();
+    Tweak tweak;
+    bool? savedEnabled;
 
     public GenericTweakTrigger(EntityData data, Vector2 offset, Tweak tweak) : base(data, offset)
     {
@@ -25,8 +25,8 @@ public class GenericTweakTrigger : GenericTrigger
 
         if (Data != null && enabled)
         {
-            foreach (string key in Data.Keys)
-                tweak.SetSetting(key, Data[key], TweakSettings.SettingSource.Trigger);
+            for (int c = 0; c < Data.Count; c++)
+                TweakData.Tweaks[tweak].Settings.Set(c, TweakSettings.SettingSource.Trigger, Data[c]);
         }
     }
     public override void GetOldSettings()
@@ -37,12 +37,12 @@ public class GenericTweakTrigger : GenericTrigger
         savedData.Clear();
 
         if (Data == null) return;
-        
-        foreach (string key in Data.Keys)
+
+        for (int c = 0; c < Data.Count; c++)
         {
-            savedData.Add(key, tweakState.Get(TweakSettings.SettingSource.Trigger) == null ?
-                tweakState.Settings.Get(key, TweakSettings.SettingSource.Controller)
-                : tweakState.Settings.Get(key, TweakSettings.SettingSource.Trigger));
+            savedData.Add(tweakState.Get(TweakSettings.SettingSource.Trigger) == null ?
+                tweakState.Settings.Get(c, TweakSettings.SettingSource.Controller)
+                : tweakState.Settings.Get(c, TweakSettings.SettingSource.Trigger));
         }
     }
     public override void UndoSettings()
@@ -51,10 +51,8 @@ public class GenericTweakTrigger : GenericTrigger
 
         if (savedData.Count > 0)
         {
-            foreach (string key in savedData.Keys)
-            {
-                TweakData.Tweaks[tweak].Settings.Set(key, TweakSettings.SettingSource.Trigger, savedData[key]);
-            }
+            for (int c = 0; c < Data.Count; c++)
+                TweakData.Tweaks[tweak].Settings.Set(c, TweakSettings.SettingSource.Trigger, savedData[c]);
 
             savedData.Clear();
         }

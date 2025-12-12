@@ -9,7 +9,7 @@ using Celeste.Mod.LeniencyHelper.CrossModSupport;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class RemoveDBlockCCorrection : AbstractTweak<RemoveDBlockCCorrection>
+class RemoveDBlockCCorrection : AbstractTweak<RemoveDBlockCCorrection>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -53,12 +53,12 @@ public class RemoveDBlockCCorrection : AbstractTweak<RemoveDBlockCCorrection>
             cursor.EmitBrtrue(label);
         }
     }
-    private static bool CollidingDBlockX(Player player)
+    static bool CollidingDBlockX(Player player)
     {
         return player.CollideCheck<DreamBlock>(player.Position + Vector2.UnitX
             * Math.Sign(player.Speed.X)) && Enabled;
     }
-    private static bool CollidingDBlockY(Vector2 at, Player player, int shift)
+    static bool CollidingDBlockY(Vector2 at, Player player, int shift)
     {
         return player.CollideCheck<DreamBlock>(at + Vector2.UnitY * shift * GravityHelperImports.currentGravity) 
             && Enabled;

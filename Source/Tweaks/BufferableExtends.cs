@@ -6,10 +6,10 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class BufferableExtends : AbstractTweak<BufferableExtends>
+class BufferableExtends : AbstractTweak<BufferableExtends>
 {
-    private const int ForceWaitForRefill = 0;
-    private const int ExtendTiming = 1;
+    [SettingIndex] static int ForceWaitForRefill;
+    [SettingIndex] static int ExtendTiming;
 
     [OnLoad]
     public static void LoadHooks()
@@ -60,7 +60,7 @@ public class BufferableExtends : AbstractTweak<BufferableExtends>
         return true;
     }
 
-    private static void CheckForDashStart(Player player)
+    static void CheckForDashStart(Player player)
     {
         if (!Enabled) return;
 
@@ -73,7 +73,7 @@ public class BufferableExtends : AbstractTweak<BufferableExtends>
         }
         s.prevFrameState = player.StateMachine.State;
     }
-    private static void AddSuperjumpCheckOnUpdate(ILContext il)
+    static void AddSuperjumpCheckOnUpdate(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
         ILLabel label = null;

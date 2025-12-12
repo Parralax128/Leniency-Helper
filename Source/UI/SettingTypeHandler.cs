@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using static Celeste.GaussianBlur;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
-public abstract class SettingTypeHandler<T>
+abstract class SettingTypeHandler<T>
 {
     public abstract float CalculateMaxWidth(Setting<T> setting);
 
@@ -18,7 +18,7 @@ public abstract class SettingTypeHandler<T>
     public abstract string GetText(T value);
 }
 
-public class BoolHandler : SettingTypeHandler<bool>
+class BoolHandler : SettingTypeHandler<bool>
 {
     public override float CalculateMaxWidth(Setting<bool> setting)
         => Math.Max(ActiveFont.Measure(GetText(true)).X, ActiveFont.Measure(GetText(false)).X);
@@ -41,7 +41,7 @@ public class BoolHandler : SettingTypeHandler<bool>
     }
 }
 
-public abstract class ComparableSettingType<T> : SettingTypeHandler<T> where T : IComparable<T>
+abstract class ComparableSettingType<T> : SettingTypeHandler<T> where T : IComparable<T>
 {
     public override float CalculateMaxWidth(Setting<T> setting)
     {
@@ -64,19 +64,19 @@ public abstract class ComparableSettingType<T> : SettingTypeHandler<T> where T :
     }
 }
 
-public class IntHandler : ComparableSettingType<int>
+class IntHandler : ComparableSettingType<int>
 {
     public override int Advance(int value, int direction) => value + direction;
     public override string GetText(int value) => value.ToString();
 }
 
-public class FloatHandler : ComparableSettingType<float>
+class FloatHandler : ComparableSettingType<float>
 {
     public override float Advance(float value, int direction) => value + direction * 0.01f;
     public override string GetText(float value) => Math.Round(value, 2).ToString();
 }
 
-public class TimeHandler : ComparableSettingType<Time>
+class TimeHandler : ComparableSettingType<Time>
 {
     public TimeHandler()
     {
@@ -91,17 +91,16 @@ public class TimeHandler : ComparableSettingType<Time>
     public override string GetText(Time value) => value.ToString();
 }
 
-public class EnumHandler<EnumT> : SettingTypeHandler<EnumT> where EnumT : struct, Enum
+class EnumHandler<EnumT>    : SettingTypeHandler<EnumT> where EnumT : struct, Enum
 {
-    private static EnumT[] values;
+    static EnumT[] values;
 
     public EnumHandler() => values = Enum.GetValues<EnumT>();
 
     public override float CalculateMaxWidth(Setting<EnumT> setting)
     {
         float len = 0f;
-        foreach (EnumT value in values)
-        {
+        foreach (EnumT value in values) {
             len = Math.Max(len, ActiveFont.Measure(GetText(value)).X);
         }
         return len;

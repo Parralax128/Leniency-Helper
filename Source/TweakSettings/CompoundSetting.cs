@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace Celeste.Mod.LeniencyHelper.TweakSettings;
 
-public class CompoundSetting<T> : AbstractSetting
+class CompoundSetting<T> : AbstractSetting
 {
-    private SettingContainer subsettings;
-    private Action<T, SettingContainer, SettingSource> valueUpdater;
+    SettingContainer subsettings;
+    Action<T, SettingContainer, SettingSource> valueUpdater;
 
-    private T cachedValue;
+    T cachedValue;
     public T Get(SettingSource source)
     {
         valueUpdater.Invoke(cachedValue, subsettings, source);

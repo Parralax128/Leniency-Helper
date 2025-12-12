@@ -3,7 +3,7 @@ using System;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class InstantAcceleratedJumps : AbstractTweak<InstantAcceleratedJumps>
+class InstantAcceleratedJumps : AbstractTweak<InstantAcceleratedJumps>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -18,14 +18,14 @@ public class InstantAcceleratedJumps : AbstractTweak<InstantAcceleratedJumps>
         IL.Celeste.Player.Bounce -= RecieveSpeedOnStart;
     }
 
-    private static void RecieveSpeedOnStart(ILContext il)
+    static void RecieveSpeedOnStart(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
 
         cursor.EmitLdarg0();
         cursor.EmitDelegate(RecieveWalkSpeed);
     }
-    private static void RecieveWalkSpeed(Player player)
+    static void RecieveWalkSpeed(Player player)
     {
         if (Enabled && Math.Abs(player.Speed.X) < 90f && player.moveX != 0)
         {

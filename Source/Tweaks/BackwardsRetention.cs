@@ -8,7 +8,7 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 class BackwardsRetention : AbstractTweak<BackwardsRetention>
 {
-    private static ILHook origUpdateHook;
+    static ILHook origUpdateHook;
     [OnLoad]
     public static void LoadHooks()
     {
@@ -20,12 +20,7 @@ class BackwardsRetention : AbstractTweak<BackwardsRetention>
         origUpdateHook.Dispose();
     }
     
-    private static bool CanSkipCancel(Player player)
-    {
-        return Enabled ? Math.Abs(player.Speed.X) < 40f : false; 
-        // ~40 is speed player can reach in their wallRetainTime from zero via air-movement
-    }
-    private static void HookedUpdate(ILContext il)
+    static void HookedUpdate(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
         ILLabel label = null;
@@ -56,13 +51,19 @@ class BackwardsRetention : AbstractTweak<BackwardsRetention>
                 }
             }
         }
-    }
 
-    private static float AddCollideCheckDist(float @default, Player player)
-    {
-        float result = @default * (Enabled &&
-            Math.Sign(player.Speed.X) == -Math.Sign(player.wallSpeedRetained) ? 4 : 1);
-        
-        return result;
+        static float AddCollideCheckDist(float @default, Player player)
+        {
+            float result = @default * (Enabled &&
+                Math.Sign(player.Speed.X) == -Math.Sign(player.wallSpeedRetained) ? 4 : 1);
+
+            return result;
+        }
+
+        static bool CanSkipCancel(Player player)
+        {
+            return Enabled ? Math.Abs(player.Speed.X) < 40f : false;
+            // ~40 is speed player can reach in their wallRetainTime from zero via air-movement
+        }
     }
 }

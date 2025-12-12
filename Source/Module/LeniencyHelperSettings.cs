@@ -4,7 +4,7 @@ using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
 
 namespace Celeste.Mod.LeniencyHelper.Module;
 
-public class LeniencyHelperSettings : EverestModuleSettings
+class LeniencyHelperSettings : EverestModuleSettings
 {
     [SettingName("LENIENCYHELPER_SETTINGS_SHOWSETTINGS")]
     public bool showSettings { get; set; } = true;

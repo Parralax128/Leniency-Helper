@@ -1,12 +1,12 @@
 using MonoMod.Cil;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
-
 class AutoSlowfall : AbstractTweak<AutoSlowfall>
 {
-    protected const int TechOnly = 0;
-    protected const int DelayedJumpRelease = 1;
-    protected const int ReleaseDelay = 2;
+    [SettingIndex] static int TechOnly;
+    [SettingIndex] static int DelayedJumpRelease;
+    [SettingIndex] static int ReleaseDelay;
+
 
     [OnLoad]
     public static void LoadHooks()
@@ -27,42 +27,42 @@ class AutoSlowfall : AbstractTweak<AutoSlowfall>
         Everest.Events.Player.OnBeforeUpdate -= CheckTechSpeed;
     }
 
+    static Timer ReleaseTimer = new();
+    static HelperValueWrapper<bool> TechState;
 
-    private readonly static Timer ReleaseTimer = GetSetting<Time>(ReleaseDelay);
-    private static bool TechState
-    {
-        get => GetTemp<bool>("TechState");
-        set => SetTemp("TechState", value);
+    static void CheckTechSpeed(Player player) {
+        if (TechState && player.Speed.Y > 0f) TechState.Set(false);
     }
 
-    private static void CheckTechSpeed(Player player) {
-        if (TechState && player.Speed.Y > 0f) TechState = false;
-    }
-
-    private static void LaunchTimer(ILContext il) => new ILCursor(il).EmitDelegate(StartTimer);
-    private static void StartTimer() => ReleaseTimer.Launch(GetSetting<Time>(ReleaseDelay));
-    private static void TechStateBegin(ILContext il) => new ILCursor(il).EmitDelegate(ToTechState);
-
-    private static void ToTechState()
+    static void LaunchTimer(ILContext il)
     {
-        TechState = true;
+        new ILCursor(il).EmitDelegate(StartTimer);
+        static void StartTimer() => ReleaseTimer.Launch(GetSetting<Time>(ReleaseDelay));
+    }
+    
+    static void TechStateBegin(ILContext il) => new ILCursor(il).EmitDelegate(ToTechState);
+
+    static void ToTechState()
+    {
+        TechState.Set(true);
         ReleaseTimer.Launch(GetSetting<Time>(ReleaseDelay));
     }
 
 
-    private static int AutoSlowfallOnUpdate(On.Celeste.Player.orig_NormalUpdate orig, Player self)
+    static int AutoSlowfallOnUpdate(On.Celeste.Player.orig_NormalUpdate orig, Player self)
     {
         if (Enabled)
         {
-            if (GetSetting<bool>(DelayedJumpRelease)) self.AutoJump = ReleaseTimer & GetSetting<bool>(TechOnly) ? TechState : true;
-            else self.AutoJump = GetSetting<bool>(TechOnly) ? TechState : true;
+            self.AutoJump =
+                (GetSetting<bool>(DelayedJumpRelease) ? ReleaseTimer : true)
+                && (GetSetting<bool>(TechOnly) ? TechState : true);
         }
         
         int newState = orig(self);
         if(newState != Player.StNormal)
         {
             ReleaseTimer.Abort();
-            TechState = false;
+            TechState.Set(false);
         }
         return newState;
     }

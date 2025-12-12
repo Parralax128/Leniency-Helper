@@ -3,7 +3,7 @@ using System;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class CrouchOnBonk : AbstractTweak<CrouchOnBonk>
+class CrouchOnBonk : AbstractTweak<CrouchOnBonk>
 {
     [OnLoad]
     public static void LoadHooks()

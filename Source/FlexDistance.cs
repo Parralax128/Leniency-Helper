@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using static Celeste.TrackSpinner;
 
 namespace Celeste.Mod.LeniencyHelper;
-public class FlexDistance
+class FlexDistance
 {
     public enum Modes
     { 

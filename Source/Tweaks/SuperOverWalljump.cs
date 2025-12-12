@@ -6,7 +6,7 @@ using MonoMod.Cil;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class SuperOverWalljump : AbstractTweak<SuperOverWalljump>
+class SuperOverWalljump : AbstractTweak<SuperOverWalljump>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -21,7 +21,7 @@ public class SuperOverWalljump : AbstractTweak<SuperOverWalljump>
         IL.Celeste.Player.RedDashUpdate -= PreventStupidThing;
     }
 
-    private static void PreventStupidThing(ILContext il)
+    static void PreventStupidThing(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
 
@@ -44,7 +44,7 @@ public class SuperOverWalljump : AbstractTweak<SuperOverWalljump>
             cursor.GotoNext(MoveType.After, instr => instr.MatchCallvirt<Player>("WallJump"));
         }
     }
-    private static bool CanWJ(Player player, int dir)
+    static bool CanWJ(Player player, int dir)
     {
         if (!Enabled || ClimbJumpCheck(player, dir) || Math.Abs(player.DashDir.Y) > 0.2f)
         {
@@ -69,7 +69,7 @@ public class SuperOverWalljump : AbstractTweak<SuperOverWalljump>
         }
         return true;
     }
-    private static bool WallJumpCheckAt(Player player, int dir, Vector2 at, bool useOrig = true)
+    static bool WallJumpCheckAt(Player player, int dir, Vector2 at, bool useOrig = true)
     {
         Vector2 savePos = player.Position;
         player.Position = at;
@@ -83,7 +83,7 @@ public class SuperOverWalljump : AbstractTweak<SuperOverWalljump>
 
         return result;
     }
-    private static bool ClimbJumpCheck(Player player, int dir)
+    static bool ClimbJumpCheck(Player player, int dir)
     {
         return (int)player.Facing == dir && Input.GrabCheck && player.Stamina > 0f && player.Holding == null &&
             !ClimbBlocker.Check(player.Scene, player, player.Position + Vector2.UnitX * 3f * dir);

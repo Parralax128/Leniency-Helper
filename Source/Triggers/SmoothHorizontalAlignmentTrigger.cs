@@ -11,7 +11,7 @@ using Celeste.Mod.LeniencyHelper.Module;
 namespace Celeste.Mod.LeniencyHelper.Triggers;
 
 [CustomEntity("LeniencyHelper/SmoothHorizontalAlignmentTrigger")]
-public class SmoothHorizontalAlignmentTrigger : Trigger
+class SmoothHorizontalAlignmentTrigger : Trigger
 {
     public enum Directions
     {
@@ -31,11 +31,11 @@ public class SmoothHorizontalAlignmentTrigger : Trigger
         Elastic
     }
 
-    private Directions fallDir;
-    private Ease.Easer easer;
-    private Vector2 enterPos;
-    private Vector2 target;
-    private float GetPercent(Vector2 playerPos)
+    Directions fallDir;
+    Ease.Easer easer;
+    Vector2 enterPos;
+    Vector2 target;
+    float GetPercent(Vector2 playerPos)
     {
         if (fallDir == Directions.Downwards)
         {
@@ -45,11 +45,11 @@ public class SmoothHorizontalAlignmentTrigger : Trigger
     }
     
     
-    private string flag;
-    private bool FlagActive => flag == "" || SceneAs<Level>().Session.GetFlag(flag);
-    private bool oneUse;
+    string flag;
+    bool FlagActive => flag == "" || SceneAs<Level>().Session.GetFlag(flag);
+    bool oneUse;
 
-    private bool active;
+    bool active;
 
     public SmoothHorizontalAlignmentTrigger(EntityData data, Vector2 offset) : base(data, offset)
     {
@@ -61,7 +61,7 @@ public class SmoothHorizontalAlignmentTrigger : Trigger
         target = data.Nodes[0];
     }
 
-    private static Ease.Easer EnumToEaser(Easings enumValue)
+    static Ease.Easer EnumToEaser(Easings enumValue)
     {
         switch(enumValue)
         {
@@ -79,12 +79,12 @@ public class SmoothHorizontalAlignmentTrigger : Trigger
         return Ease.Linear;
     }
 
-    private void Start(Vector2 from)
+    void Start(Vector2 from)
     {
         enterPos = from;
         active = true;
     }
-    private void Stop()
+    void Stop()
     {
         active = false;
         if (oneUse) RemoveSelf();

@@ -5,9 +5,9 @@ using System.Net.Http;
 using System.Collections.Concurrent;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
-public class WebScrapper
+class WebScrapper
 {
-    private static HttpClient sharedClient = new HttpClient();
+    static HttpClient sharedClient = new HttpClient();
     public struct TweakInfo
     {
         public string tweakDescription = "";
@@ -25,7 +25,7 @@ public class WebScrapper
             temp.Start();
         }
     }
-    private static async void ExtractTweakInfo(string url, Tweak tweak)
+    static async void ExtractTweakInfo(string url, Tweak tweak)
     {
         TweakInfo info = new();
         string contents = null;

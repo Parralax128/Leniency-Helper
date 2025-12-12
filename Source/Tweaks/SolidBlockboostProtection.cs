@@ -10,11 +10,11 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection>
+class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection>
 {
-    private static Hook SidewaysAddedHook = null;
-    private static Hook SidewaysOnMoveHook = null;
-    private static ILHook SidewaysUpdate = null;
+    static Hook SidewaysAddedHook = null;
+    static Hook SidewaysOnMoveHook = null;
+    static ILHook SidewaysUpdate = null;
 
     #region normal platforms
     [OnLoad]
@@ -47,13 +47,13 @@ public class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection
     }
 
 
-    private static void GiveComponentToPlatform(On.Celeste.Platform.orig_ctor orig, Platform self, Vector2 pos, bool safe)
+    static void GiveComponentToPlatform(On.Celeste.Platform.orig_ctor orig, Platform self, Vector2 pos, bool safe)
     {   
         orig(self, pos, safe);
 
         if (self is not SolidTiles) self.Add(new SolidLiftboostComponent());
     }
-    private static void GainSavedBlockboost(On.Celeste.Platform.orig_Update orig, Platform self)
+    static void GainSavedBlockboost(On.Celeste.Platform.orig_Update orig, Platform self)
     {
         orig(self);
 
@@ -92,7 +92,7 @@ public class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection
         component.boostSaveTimer -= Engine.DeltaTime;
     }
     
-    private static void ComponentOnMove(ILContext il)
+    static void ComponentOnMove(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
         
@@ -103,7 +103,7 @@ public class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection
             cursor.Index++;
         }
     }
-    private static void MoveDelegate(Entity self)
+    static void MoveDelegate(Entity self)
     {
         if (Enabled && self is Platform p && p.LiftSpeed.LengthSquared() > 0.01f)
         {
@@ -127,12 +127,12 @@ public class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection
         SidewaysUpdate?.Dispose();
     }
 
-    private static void SidewaysComponentOnAdded(Action<SidewaysJumpThru, Scene> orig, SidewaysJumpThru self, Scene scene)
+    static void SidewaysComponentOnAdded(Action<SidewaysJumpThru, Scene> orig, SidewaysJumpThru self, Scene scene)
     {
         orig(self, scene);
         self.Add(new SolidLiftboostComponent());
     }
-    private static void SidewaysOnMove(Action<Entity, Solid, bool, Vector2> orig,
+    static void SidewaysOnMove(Action<Entity, Solid, bool, Vector2> orig,
         Entity platform, Solid playerInteractingSolid, bool left, Vector2 move)
     {
         orig(platform, playerInteractingSolid, left, move);
@@ -142,7 +142,7 @@ public class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection
             platform.Get<SolidLiftboostComponent>()?.OnSidewaysMove(playerInteractingSolid.LiftSpeed);
         }
     }
-    private static void ModifyUpdate(ILContext il)
+    static void ModifyUpdate(ILContext il)
     {        
         ILCursor c = new ILCursor(il);
 
@@ -164,7 +164,7 @@ public class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection
         c.MarkLabel(skip);
     }
 
-    private static void GainSidewaysBlockboost(AttachedSidewaysJumpThru self, Solid interactSolid)
+    static void GainSidewaysBlockboost(AttachedSidewaysJumpThru self, Solid interactSolid)
     {
         if (!Enabled) return;
 

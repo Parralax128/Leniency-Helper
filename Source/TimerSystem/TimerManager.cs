@@ -15,7 +15,7 @@ static class TimerManager
     {
         Everest.Events.Level.OnBeforeUpdate += UpdateStaticTimers;
         On.Monocle.Engine.Update += UpdateStaticUnfrozen;
-        Everest.Events.LevelLoader.OnLoadingThread += AddEntity;
+        Everest.Events.LevelLoader.OnLoadingThread += AddTimerUpdaterEntity;
     }
 
     [OnUnload]
@@ -23,30 +23,33 @@ static class TimerManager
     {
         Everest.Events.Level.OnBeforeUpdate -= UpdateStaticTimers;
         On.Monocle.Engine.Update -= UpdateStaticUnfrozen;
-        Everest.Events.LevelLoader.OnLoadingThread -= AddEntity;
+        Everest.Events.LevelLoader.OnLoadingThread -= AddTimerUpdaterEntity;
     }
 
-    private static void AddEntity(Level level) => level.Add(new TimerUpdater());
-    private static void UpdateStaticTimers(Level l) => StaticTimers.Update();
+    static void AddTimerUpdaterEntity(Level level) => level.Add(new TimerUpdater());
+    static void UpdateStaticTimers(Level l) => StaticTimers.Update();
     
-    private static void UpdateStaticUnfrozen(On.Monocle.Engine.orig_Update orig, Engine self, GameTime time)
+    static void UpdateStaticUnfrozen(On.Monocle.Engine.orig_Update orig, Engine self, GameTime time)
     {
         StaticUnfrozenTimers.Update();
+        if (Engine.Scene is Level level)
+            TimerUpdater.Instance.UnfrozenTimers?.Update();
+
         orig(self, time);
     }
 
-    public static int IgnoreStates = 1;
-    public static int IgnoreFreeze = 2;
+    public const int IgnoreStates = 1;
+    public const int IgnoreFreeze = 2;
 
     public static void Update(this List<Timer> timerList)
     {
-        for (int i = timerList.Count - 1; i >= 0; i--)
-            timerList[i].Tick();
+        foreach (Timer timer in timerList)
+            timer.Tick();
     }
 
 
-    private static List<Timer> StaticTimers = new();
-    private static List<Timer> StaticUnfrozenTimers = new();
+    static List<Timer> StaticTimers = new();
+    static List<Timer> StaticUnfrozenTimers = new();
 
     public static void Add(Timer timer, int tag)
     {
@@ -58,30 +61,62 @@ static class TimerManager
         }
     }
 
-    private class TimerUpdater : Entity
+    class TimerUpdater : Entity
     {
-        static TimerUpdater Instance;
+        public static TimerUpdater Instance;
 
-        private List<Timer> timers = new();
-        private List<Timer> unfrozenTimers = new();
+        static List<Timer> toAdd = new();
+        static List<Timer> toAddUnfrozen = new();
+
+        List<Timer> timers = new();
+        public List<Timer> UnfrozenTimers = new();
 
         public TimerUpdater()
         {
-            AddTag(Tags.Persistent);
             AddTag(Tags.Global);
+            AddTag(Tags.TransitionUpdate);
+            AddTag(Tags.FrozenUpdate);
+            AddTag(Tags.Persistent);
+
+            if(Instance != null)
+            {
+                timers.AddRange(Instance.timers);
+                UnfrozenTimers.AddRange(Instance.UnfrozenTimers);
+            }
 
             Instance = this;
+
+            timers.AddRange(toAdd);
+            toAdd.Clear();
+
+            UnfrozenTimers.AddRange(toAddUnfrozen);
+            toAddUnfrozen.Clear();
         }
 
         public static void Add(Timer timer, bool unfrozen = false)
         {
-            if(unfrozen) Instance.unfrozenTimers.Add(timer);
-            else Instance.timers.Add(timer);
+            if (Instance != null)
+            {
+                if (unfrozen) Instance.UnfrozenTimers.Add(timer);
+                else Instance.timers.Add(timer);
+            }
+            else
+            {
+                if(unfrozen) toAddUnfrozen.Add(timer);
+                else toAdd.Add(timer);
+            }
         }
         public override void Update()
         {
             timers.Update();
-            unfrozenTimers.Update();
+        }
+
+        public override void Removed(Scene scene)
+        {
+            base.Removed(scene);
+            
+            if(Instance != null) 
+                Instance = null;
         }
     }
 }

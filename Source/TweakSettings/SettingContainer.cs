@@ -5,9 +5,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.LeniencyHelper.TweakSettings;
-public class SettingContainer : IEnumerable<AbstractSetting>
+class SettingContainer : IEnumerable<AbstractSetting>
 {
-    private readonly List<AbstractSetting> settingList = new();
+    readonly List<AbstractSetting> settingList = new();
 
     public IEnumerator<AbstractSetting> GetEnumerator() => settingList.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => settingList.GetEnumerator();

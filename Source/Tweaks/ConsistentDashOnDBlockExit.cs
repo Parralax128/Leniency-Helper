@@ -9,8 +9,9 @@ using System.Diagnostics;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class ConsistentDashOnDBlockExit : AbstractTweak<ConsistentDashOnDBlockExit>
+class ConsistentDashOnDBlockExit : AbstractTweak<ConsistentDashOnDBlockExit>
 {
+
     [OnLoad]
     public static void LoadHooks()
     {
@@ -26,14 +27,14 @@ public class ConsistentDashOnDBlockExit : AbstractTweak<ConsistentDashOnDBlockEx
         Everest.Events.Player.OnAfterUpdate -= MoveToDBlock;
     }
 
-    private static void DetectDreamDashEnd(On.Celeste.Player.orig_DreamDashEnd orig, Player self)
+    static void DetectDreamDashEnd(On.Celeste.Player.orig_DreamDashEnd orig, Player self)
     {
         orig(self);
 
         var s = LeniencyHelperModule.Session;
         if(Enabled) s.dreamDashEnded = true;
     }
-    private static void MoveToDBlock(Player player)
+    static void MoveToDBlock(Player player)
     {
         if (Enabled && LeniencyHelperModule.Session.dreamDashEnded)
         {
@@ -50,20 +51,20 @@ public class ConsistentDashOnDBlockExit : AbstractTweak<ConsistentDashOnDBlockEx
             LeniencyHelperModule.Session.dreamDashEnded = false;
         }
     }
-    private static float ZeroIfEnabled(float orig)
+    static float ZeroIfEnabled(float orig)
     {
         if (!Enabled) return orig;
         else return 0f;
     }
 
-    private static void ResetDashCDifEnabled(Player player)
+    static void ResetDashCDifEnabled(Player player)
     {
-        if(Enabled && GetSetting<bool>("ResetDashCDonLeave"))
+        if(Enabled && GetSetting<bool>())
         {
             player.dashCooldownTimer = 0f;
         }
     }
-    private static void InstantDBlockExit(ILContext il)
+    static void InstantDBlockExit(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
             

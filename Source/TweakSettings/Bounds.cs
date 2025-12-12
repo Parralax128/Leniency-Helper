@@ -1,26 +1,22 @@
 ﻿using System;
 namespace Celeste.Mod.LeniencyHelper.TweakSettings;
-public class Bounds<T>
+class Bounds<T>
 {
-    private bool hasMin = true;
+    bool hasMin = true;
     public T Min { get; private set; }
     
-    private bool hasMax = true;
-    public T Max {get; private set; }
+    bool hasMax = true;
+    public T Max { get; private set; }
 
     public bool Check(T value)
     {
-        Debug.Log($"checking {value} against [{Min}-{Max}]");
-
-        return (hasMin ? (value as IComparable<T>).CompareTo(Min) >= 0 : true)
-            && (hasMax ? (value as IComparable<T>).CompareTo(Max) <= 0 : true);
+        return (value as IComparable<T>).CompareTo(Min) >= 0
+            && (value as IComparable<T>).CompareTo(Max) <= 0;
     }
-    public void Check(T value, out bool withMin, out bool withMax)
+    public void Check(T value, out bool left, out bool right)
     {
-        Debug.Log($"checking {value} against ({Min}-{Max})");
-
-        withMin = hasMin ? (value as IComparable<T>).CompareTo(Min) > 0 : true;
-        withMax = hasMax ? (value as IComparable<T>).CompareTo(Max) < 0 : true;
+        left = (value as IComparable<T>).CompareTo(Min) > 0;
+        right = (value as IComparable<T>).CompareTo(Max) < 0;
     }
 
     public Bounds(T min, T max)

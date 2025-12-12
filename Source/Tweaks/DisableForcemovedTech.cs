@@ -1,7 +1,7 @@
 ﻿using MonoMod.Cil;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
-public class DisableForcemovedTech : AbstractTweak<DisableForcemovedTech>
+class DisableForcemovedTech : AbstractTweak<DisableForcemovedTech>
 {
     [OnLoad]
     public static void LoadHooks()
@@ -19,7 +19,7 @@ public class DisableForcemovedTech : AbstractTweak<DisableForcemovedTech>
         IL.Celeste.Player.SuperJump -= UnforceAllFacings;
         IL.Celeste.Player.Throw -= UnforceAllFacings;
     }
-    private static void ChangeClimbjumpCheckDir(ILContext il)
+    static void ChangeClimbjumpCheckDir(ILContext il)
     {
         ILCursor c = new ILCursor(il);
 
@@ -31,7 +31,7 @@ public class DisableForcemovedTech : AbstractTweak<DisableForcemovedTech>
             c.GotoNext(MoveType.After, i => i.MatchCallvirt<Player>("ClimbJump"));
         }
     }
-    private static void UnforceAllFacings(ILContext il)
+    static void UnforceAllFacings(ILContext il)
     {
         ILCursor c = new ILCursor(il);
         while (c.TryGotoNext(MoveType.After, i => i.MatchLdfld<Player>("Facing")))
@@ -39,7 +39,7 @@ public class DisableForcemovedTech : AbstractTweak<DisableForcemovedTech>
             c.EmitDelegate(UnforcedFacing);
         }
     }
-    private static Facings UnforcedFacing(Facings orig)
+    static Facings UnforcedFacing(Facings orig)
     {
         if (!Enabled) return orig;
         return Input.MoveX.Value != 0 ? (Facings)Input.MoveX.Value : orig;

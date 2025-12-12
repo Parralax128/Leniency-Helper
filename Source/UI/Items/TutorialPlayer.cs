@@ -8,10 +8,10 @@ namespace Celeste.Mod.LeniencyHelper.UI.Items;
 
 public static class TutorialPlayer
 {
-    private static VideoPlayer player = new() { IsLooped = true, IsMuted = true };
+    static VideoPlayer player = new() { IsLooped = true, IsMuted = true };
     public static Video CurrentVideo;
 
-    private static Rectangle SourceRectangle;
+    static Rectangle SourceRectangle;
 
     public static void LoadVideo(string tweakName)
     {

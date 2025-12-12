@@ -1,21 +1,19 @@
 ﻿using System;
-using Celeste.Mod.LeniencyHelper;
 using Monocle;
-using MonoMod;
 
 namespace Celeste.Mod.LeniencyHelper;
 
 public class Timer
 {
-    private float startTime;
-    private float counter = 0f;
-    public bool Expired { get; private set; }
-    private Action OnComplete = null;
+    float startTime;
+    float counter = 0f;
+    public bool Expired { get; set; }
+    Action OnComplete = null;
 
     public void Tick()
     {
         if (Expired) return;
-
+      
         counter -= Engine.DeltaTime;
         if (counter <= 0f)
         {
@@ -35,6 +33,7 @@ public class Timer
         counter = startTime = time;
         Expired = false;
     }
+
     public void Abort()
     {
         counter = 0f;
@@ -47,12 +46,11 @@ public class Timer
         Expired = true;
         this.OnComplete = onComplete;
 
-        Debug.Log($"this is not null: {this != null}");
         TimerManager.Add(this, tag);
     }
+    public Timer(int tag = 0) { TimerManager.Add(this, tag); }
 
     public static implicit operator Timer(Time createFrom) => new Timer(createFrom);
     public static implicit operator float(Timer createFrom) => createFrom.counter;
-    public static implicit operator Time(Timer createFrom) => new Time(createFrom);
     public static implicit operator bool(Timer timer) => !timer.Expired;
 }

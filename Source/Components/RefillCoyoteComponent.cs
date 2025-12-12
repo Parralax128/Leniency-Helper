@@ -3,7 +3,7 @@ using static Celeste.Mod.LeniencyHelper.SettingMaster;
 
 namespace Celeste.Mod.LeniencyHelper.Components;
 
-public class RefillCoyoteComponent : PlayerComponent
+class RefillCoyoteComponent : PlayerComponent
 {
     public float refillCoyoteTimer;
     public RefillCoyoteComponent() : base(Tweak.RefillDashInCoyote) 
@@ -28,7 +28,7 @@ public class RefillCoyoteComponent : PlayerComponent
     }
     public void ResetTimer()
     {
-        refillCoyoteTimer = Tweak.RefillDashInCoyote.GetSetting<Time>("RefillCoyoteTime");
+        refillCoyoteTimer = Tweaks.RefillDashInCoyote.GetSetting<Time>();
     }
 
     public void Cancel()

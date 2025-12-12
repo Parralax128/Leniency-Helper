@@ -9,7 +9,7 @@ namespace Celeste.Mod.LeniencyHelper.Triggers;
 
 [Tracked]
 [CustomEntity("LeniencyHelper/ConsistentTheoSpinnerBounceTrigger")]
-public class ConsistentTheoSpinnerBounceTrigger : GenericTrigger
+class ConsistentTheoSpinnerBounceTrigger : GenericTrigger
 {
     [OnLoad]
     public static void LoadHooks()
@@ -22,7 +22,7 @@ public class ConsistentTheoSpinnerBounceTrigger : GenericTrigger
         Everest.Events.Level.OnAfterUpdate -= ForceLoadSpinners;
     }
 
-    private static void ForceLoadSpinners(Level level)
+    static void ForceLoadSpinners(Level level)
     {
         foreach (Entity spinner in Engine.Scene.Entities.ToList().FindAll(e =>
         e.GetType().Name.ToLower().Contains("spinner") && !e.GetType().Name.Contains("controller")))
@@ -45,8 +45,8 @@ public class ConsistentTheoSpinnerBounceTrigger : GenericTrigger
         All
     }
 
-    private BounceDirections bounceDir;
-    private bool forceLoadSpinners;
+    BounceDirections bounceDir;
+    bool forceLoadSpinners;
     public ConsistentTheoSpinnerBounceTrigger(EntityData data, Vector2 offset) : base(data, offset)
     {
         bounceDir = data.Enum("BounceDirection", BounceDirections.All);

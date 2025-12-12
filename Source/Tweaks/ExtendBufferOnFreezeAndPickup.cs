@@ -6,9 +6,12 @@ using System.Reflection;
 using Celeste.Mod.LeniencyHelper.Module;
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class ExtendBufferOnFreezeAndPickup : AbstractTweak<ExtendBufferOnFreezeAndPickup>
+class ExtendBufferOnFreezeAndPickup : AbstractTweak<ExtendBufferOnFreezeAndPickup>
 {
-    private static ILHook customPickupDelayHook;
+    [SettingIndex] static int OnFreeze;
+    [SettingIndex] static int OnPickup;
+
+    static ILHook customPickupDelayHook;
 
     [OnLoad]
     public static void LoadHooks()
@@ -26,30 +29,32 @@ public class ExtendBufferOnFreezeAndPickup : AbstractTweak<ExtendBufferOnFreezeA
         Everest.Events.Player.OnBeforeUpdate -= ExtendBufferOnPickup;
         customPickupDelayHook.Dispose();
     }
-    private static void ExtendBufferOnPickup(Player player)
+
+    public static Timer PickupTimer = new();
+
+    static void ExtendBufferOnPickup(Player player)
     {
         var s = LeniencyHelperModule.Session;
-        if (s.pickupTimeLeft > 0f) s.pickupTimeLeft -= Engine.DeltaTime;
         
         if (player.StateMachine.State == 8)
         {
-            if (s.prevFrameState != 8) s.pickupTimeLeft = s.pickupDelay;
+            if (s.prevFrameState != 8) PickupTimer.Set(s.pickupDelay);
 
-            if(s.pickupTimeLeft > 0f && Enabled && GetSetting<bool>("OnPickup"))
+            if(PickupTimer && Enabled && GetSetting<bool>(OnPickup))
             {
                 if (Input.Dash.Pressed && !s.dashExtended)
                 {
-                    Input.Dash.bufferCounter += s.pickupTimeLeft;
+                    Input.Dash.bufferCounter += PickupTimer;
                     s.dashExtended = true;
                 }
                 if (Input.CrouchDash.Pressed && !s.demoExtended)
                 {
-                    Input.CrouchDash.bufferCounter += s.pickupTimeLeft;
+                    Input.CrouchDash.bufferCounter += PickupTimer;
                     s.demoExtended = true;
                 }
                 if (Input.Jump.Pressed && !s.jumpExtended)
                 {
-                    Input.Jump.bufferCounter += s.pickupTimeLeft;
+                    Input.Jump.bufferCounter += PickupTimer;
                     s.jumpExtended = true;
                 }
             }
@@ -60,7 +65,7 @@ public class ExtendBufferOnFreezeAndPickup : AbstractTweak<ExtendBufferOnFreezeA
         }
         s.prevFrameState = player.StateMachine.State;
     }
-    private static void GetCustomPickupDelayHook(ILContext il)
+    static void GetCustomPickupDelayHook(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
 
@@ -74,7 +79,7 @@ public class ExtendBufferOnFreezeAndPickup : AbstractTweak<ExtendBufferOnFreezeA
         }
     }
     
-    private static void GetNewCustomPickupDelay(float delay)
+    static void GetNewCustomPickupDelay(float delay)
     {
         LeniencyHelperModule.Session.pickupDelay = delay;
     }
@@ -82,7 +87,7 @@ public class ExtendBufferOnFreezeAndPickup : AbstractTweak<ExtendBufferOnFreezeA
     {
         orig(time);
         
-        if (!(Enabled && GetSetting<bool>("OnFreeze"))) return;
+        if (!(Enabled && GetSetting<bool>(OnFreeze))) return;
 
         if(Input.Dash.bufferCounter > 0f) Input.Dash.bufferCounter += time;
         if(Input.CrouchDash.bufferCounter > 0f) Input.CrouchDash.bufferCounter += time;

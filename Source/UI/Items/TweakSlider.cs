@@ -15,15 +15,15 @@ using static Celeste.TextMenu;
 
 namespace Celeste.Mod.LeniencyHelper.UI.Items;
 
-public class TweakSlider : AbstractTweakItem
+class TweakSlider : AbstractTweakItem
 {
     public List<AbstractTweakItem> subSettings = new ();
 
     public bool addedSubsettings = false;
-    private Action<bool> SetVisible;
+    Action<bool> SetVisible;
 
-    private static readonly Color PlayerValueColor = new Color(218, 165, 32);
-    private static readonly Color MapValueColor = new Color(0, 191, 255);
+    static readonly Color PlayerValueColor = new Color(218, 165, 32);
+    static readonly Color MapValueColor = new Color(0, 191, 255);
     public enum SliderValues
     {
         Map = 0, On = 1, Off = 2
@@ -33,7 +33,7 @@ public class TweakSlider : AbstractTweakItem
     
 
 
-    private bool? GetPlayerState => Value == SliderValues.Map ? null : Value == SliderValues.On;
+    bool? GetPlayerState => Value == SliderValues.Map ? null : Value == SliderValues.On;
     public static int GetIndexFromTweakName(Tweak tweak)
     {
         if (tweak.Get(SettingSource.Player) != null)
@@ -69,7 +69,7 @@ public class TweakSlider : AbstractTweakItem
             SetupSubItems();
         }
     }
-    private void SetupSubItems()
+    void SetupSubItems()
     {
         int baseindex = Container.IndexOf(this);
 
@@ -164,7 +164,6 @@ public class TweakSlider : AbstractTweakItem
     public override void ChangeValue(int dir)
     {
         Value = (SliderValues)((int)Value + dir);
-        cachedText = DialogUtils.Enum(Value);
         TweakData.Tweaks[tweak].Set(GetPlayerState, SettingSource.Player);
 
         ValueWiggler.Start();
@@ -196,7 +195,7 @@ public class TweakSlider : AbstractTweakItem
     public override float RightWidth() => cachedWidth;
     public override float LeftWidth() => ActiveFont.Measure(Label).X * Layout.SubSettingScale;
 
-    private Color GetColor(bool selected)
+    Color GetColor(bool selected)
     {
         if (selected) return Container.HighlightColor;
 
@@ -207,6 +206,6 @@ public class TweakSlider : AbstractTweakItem
     public override void Render(Vector2 position, bool selected)
     {
         position.X = Layout.LeftOffset;
-        base.Render(position, selected, cachedText ?? (cachedText = DialogUtils.Enum(Value)), (int)Value > 0, (int)Value < 3, GetColor(selected) * Container.Alpha);
+        base.Render(position, selected, DialogUtils.Enum(Value), (int)Value > 0, (int)Value < 3, GetColor(selected) * Container.Alpha);
     }
 }

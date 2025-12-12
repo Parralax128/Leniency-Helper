@@ -7,9 +7,9 @@ using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class RefillDashInCoyote : AbstractTweak<RefillDashInCoyote>
+class RefillDashInCoyote : AbstractTweak<RefillDashInCoyote>
 {
-    private static ILHook origUpdateHook;
+    static ILHook origUpdateHook;
 
     [OnLoad]
     public static void LoadHooks()
@@ -34,7 +34,7 @@ public class RefillDashInCoyote : AbstractTweak<RefillDashInCoyote>
         IL.Celeste.Player.HiccupJump -= CancelRefillOnJump;
     }
 
-    private static void HookedUpdate(ILContext il) //tl;dr we goto dash refill check as if player.dashRefillCDtimer was <= 0f
+    static void HookedUpdate(ILContext il) //tl;dr we goto dash refill check as if player.dashRefillCDtimer was <= 0f
     {
         ILCursor cursor = new ILCursor(il);
 
@@ -79,7 +79,7 @@ public class RefillDashInCoyote : AbstractTweak<RefillDashInCoyote>
             }
         }
     }
-    private static bool StartChecking()
+    static bool StartChecking()
     {
         if (Enabled)
         {
@@ -88,12 +88,12 @@ public class RefillDashInCoyote : AbstractTweak<RefillDashInCoyote>
         }
         return false;
     }
-    private static void CancelArtificialCheck()
+    static void CancelArtificialCheck()
     {
         if (Enabled)
             LeniencyHelperModule.Session.artificialChecking = false;
     }
-    private static bool OnRefillCheck(Player player)
+    static bool OnRefillCheck(Player player)
     {
         if (LeniencyHelperModule.Session.artificialChecking && Enabled)
         {
@@ -111,13 +111,13 @@ public class RefillDashInCoyote : AbstractTweak<RefillDashInCoyote>
         
         return false;
     }
-    private static void CancelRefillOnJump(ILContext il)
+    static void CancelRefillOnJump(ILContext il)
     {
         ILCursor c = new ILCursor(il);
         c.EmitLdarg0();
         c.EmitDelegate(CallComponentCancel);
     }
-    private static void CallComponentCancel(Player player)
+    static void CallComponentCancel(Player player)
     {
         player.Get<RefillCoyoteComponent>()?.Cancel();
     }

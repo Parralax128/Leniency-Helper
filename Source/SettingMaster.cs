@@ -43,7 +43,7 @@ public static class SettingMaster
 
         DisableTweaks();
     }
-    private static void DisableTweaks()
+    static void DisableTweaks()
     {
         var s = LeniencyHelperModule.Session;
 
@@ -91,18 +91,18 @@ public static class SettingMaster
     }
     #endregion
 
-    public static Dictionary<string, object> ParseSettingsFromData(EntityData data, Tweak tweak)
+    public static List<object> ParseSettingsFromData(EntityData data, Tweak tweak)
     {
         if (!tweak.HasSettings()) return null;
 
-        Dictionary<string, object> result = new();
+        List<object> result = new();
 
         foreach (AbstractSetting setting in TweakData.Tweaks[tweak].Settings)
         {
             object parsed = setting.ParseFromData(data);
-            if (parsed is Dictionary<string, object> dict)
-                result.AddRange(dict);
-            else result.Add(setting.Name, parsed);
+            if (parsed is List<object> innerSettings)
+                result.AddRange(innerSettings);
+            else result.Add(parsed);
         }
 
         return result;

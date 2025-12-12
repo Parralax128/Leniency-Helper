@@ -22,7 +22,7 @@ public static class DialogUtils
         return "https://github.com/Parralax128/Leniency-Helper/wiki/" +
             ToWikiPageName(Lookup(tweak));
     }
-    private static string ToWikiPageName(string tweakNameUpper)
+    static string ToWikiPageName(string tweakNameUpper)
     {
         string result = "";
 
@@ -40,8 +40,7 @@ public static class DialogUtils
 
     public static Time Time(this EntityData data, string key, Time defaultValue)
     {
-        //Debug.Warn($"trying to lookup for name \"{key}\" in dialog!");
-        string str = data.String(/*DialogLookup(key)*/ key);
+        string str = data.String(key);
         if (string.IsNullOrEmpty(str)) return defaultValue;
 
         if (str.ToLower().EndsWith('f'))

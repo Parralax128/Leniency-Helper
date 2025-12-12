@@ -3,7 +3,7 @@ using MonoMod.Cil;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
-public class WallCoyoteFrames : AbstractTweak<WallCoyoteFrames>
+class WallCoyoteFrames : AbstractTweak<WallCoyoteFrames>
 {
     public enum WallCoyoteTypes
     {
@@ -33,7 +33,7 @@ public class WallCoyoteFrames : AbstractTweak<WallCoyoteFrames>
 
     public static bool useOrigWJCheck = false;
 
-    private static void ConsumeOnWJ(ILContext il)
+    static void ConsumeOnWJ(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
 
@@ -44,7 +44,7 @@ public class WallCoyoteFrames : AbstractTweak<WallCoyoteFrames>
             cursor.Index++;
         }
     }
-    private static void ConsumeCoyoteTime(Player player)
+    static void ConsumeCoyoteTime(Player player)
     {
         if (!Enabled) return;
 
