@@ -4,7 +4,7 @@ using MonoMod.Cil;
 using Celeste.Mod.Helpers;
 using static Celeste.Mod.Helpers.ILCursorExtensions;
 using System.Linq;
-using Celeste.Mod.LeniencyHelper.Module;
+using Microsoft.Xna.Framework;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
@@ -12,6 +12,8 @@ class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
 {
     [SettingIndex] static int FloorCorrectionTiming;
     [SettingIndex] static int WallCorrectionTiming;
+
+    [SaveState] static Vector2 CornerCorrection;
 
     [OnLoad]
     public static void LoadHooks()
@@ -33,9 +35,8 @@ class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
         defaultValue = Math.Abs(defaultValue);
         if (!Enabled || Math.Abs(player.DashDir.X) > 0.2f && Math.Abs(player.DashDir.Y) > 0.2f)
         {
-            LeniencyHelperModule.Session.cornerCorrection = vertical ?
-                LeniencyHelperModule.Session.cornerCorrection with { Y = defaultValue } :
-                LeniencyHelperModule.Session.cornerCorrection with { X = defaultValue };
+            if (vertical) CornerCorrection.Y = defaultValue;
+            else CornerCorrection.X = defaultValue;
 
             return defaultValue;
         }
@@ -51,9 +52,8 @@ class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
 
         int result = Math.Max((int)(maxSpeed * resultingTime), defaultValue);
 
-        LeniencyHelperModule.Session.cornerCorrection = vertical ?
-            LeniencyHelperModule.Session.cornerCorrection with { Y = result } :
-            LeniencyHelperModule.Session.cornerCorrection with { X = result };
+        if (vertical) CornerCorrection.Y = result;
+        else CornerCorrection.X = result;
 
         return result;
     }
@@ -147,7 +147,7 @@ class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
 
                 cursor.GotoPrev(MoveType.After, instr => instr.MatchLdloc(out int a), instr => instr.MatchCall<Entity>("CollideCheck"));
 
-                cursor.EmitDelegate(enabled);
+                cursor.EmitDelegate(_Enabled);
                 cursor.EmitBrfalse(skipBoundsCheck);
 
                 cursor.EmitPop();
@@ -160,7 +160,7 @@ class DynamicCornerCorrection : AbstractTweak<DynamicCornerCorrection>
         }
 
         static float DoubleAbs(float orig) => Enabled ? orig < 0f ? orig * -2f : orig : orig;
-        static bool enabled() => Enabled;
+        static bool _Enabled() => Enabled;
         static bool InBounds(Entity entity, Player player) => player.Right >= entity.Left && player.Left <= entity.Right;
     }
 }

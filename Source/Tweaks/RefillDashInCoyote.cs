@@ -3,12 +3,15 @@ using MonoMod.RuntimeDetour;
 using Monocle;
 using Celeste.Mod.Helpers;
 using Celeste.Mod.LeniencyHelper.Components;
-using Celeste.Mod.LeniencyHelper.Module;
+
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 class RefillDashInCoyote : AbstractTweak<RefillDashInCoyote>
 {
+    static bool refillChecking;
+
+
     static ILHook origUpdateHook;
 
     [OnLoad]
@@ -57,7 +60,7 @@ class RefillDashInCoyote : AbstractTweak<RefillDashInCoyote>
             
             if (cursor.TryGotoPrev(MoveType.Before, instr => instr.MatchLdarg0(), instr => instr.MatchLdfld<Player>("onGround")))
             {
-                cursor.MarkLabel(gotoRefillCheck); // represents label of the start of refill check
+                cursor.MarkLabel(gotoRefillCheck); // represents label of the start of the refill check
 
                 if (cursor.TryGotoPrevBestFit(MoveType.After,
                     instr => instr.MatchCall<Engine>("get_DeltaTime"),
@@ -78,47 +81,49 @@ class RefillDashInCoyote : AbstractTweak<RefillDashInCoyote>
                 }
             }
         }
-    }
-    static bool StartChecking()
-    {
-        if (Enabled)
-        {
-            LeniencyHelperModule.Session.artificialChecking = true;
-            return true;
-        }
-        return false;
-    }
-    static void CancelArtificialCheck()
-    {
-        if (Enabled)
-            LeniencyHelperModule.Session.artificialChecking = false;
-    }
-    static bool OnRefillCheck(Player player)
-    {
-        if (LeniencyHelperModule.Session.artificialChecking && Enabled)
-        {
-            RefillCoyoteComponent component = player.Get<RefillCoyoteComponent>();
-            int saveDashes = player.Dashes;
 
-            if (component != null && player.RefillDash())
+
+        static bool StartChecking()
+        {
+            if (Enabled)
             {
-                component.ResetTimer();
-                player.Dashes = saveDashes;
+                refillChecking = true;
                 return true;
             }
-            player.Dashes = saveDashes;
+            return false;
         }
-        
-        return false;
+        static void CancelArtificialCheck()
+        {
+            if (Enabled)
+                refillChecking = false;
+        }
+        static bool OnRefillCheck(Player player)
+        {
+            if (refillChecking && Enabled)
+            {
+                RefillCoyoteComponent component = player.Get<RefillCoyoteComponent>();
+                int saveDashes = player.Dashes;
+
+                if (component != null && player.RefillDash())
+                {
+                    component.ResetTimer();
+                    player.Dashes = saveDashes;
+                    return true;
+                }
+                player.Dashes = saveDashes;
+            }
+
+            return false;
+        }
     }
+
+    
     static void CancelRefillOnJump(ILContext il)
     {
         ILCursor c = new ILCursor(il);
         c.EmitLdarg0();
         c.EmitDelegate(CallComponentCancel);
-    }
-    static void CallComponentCancel(Player player)
-    {
-        player.Get<RefillCoyoteComponent>()?.Cancel();
-    }
+        
+        static void CallComponentCancel(Player player) => player.Get<RefillCoyoteComponent>()?.Cancel();
+    }    
 }

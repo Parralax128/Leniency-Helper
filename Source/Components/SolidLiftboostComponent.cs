@@ -1,30 +1,26 @@
 ﻿using Microsoft.Xna.Framework;
-using Monocle;
 
 namespace Celeste.Mod.LeniencyHelper.Components;
 
-class SolidLiftboostComponent : Component
+class SolidLiftboostComponent : TweakComponent<Platform, Tweaks.SolidBlockboostProtection>
 {
-    public Collider drawRect;
-    public float boostSaveTimer = 0f;
-    public Vector2 savedLiftSpeed = Vector2.Zero;
-    public bool dontSetTimer = false;
-
-    public SolidLiftboostComponent() : base(true, true) { Visible = false; }
+    public Timer BoostSaveTimer = new();
+    public Vector2 SavedLiftSpeed = Vector2.Zero;
+    public bool DontSetTimer = false;
 
     public void OnMove()
     {
-        if (!Tweak.SolidBlockboostProtection.Enabled()) return;
+        if (!TweakEnabled) return;
         
-        if(Entity is Platform p && p.LiftSpeed != Vector2.Zero)
+        if(Entity.LiftSpeed != Vector2.Zero)
         {
-            savedLiftSpeed = (Entity as Platform).LiftSpeed;
-            boostSaveTimer = Tweaks.SolidBlockboostProtection.GetSetting<Time>();
+            SavedLiftSpeed = Entity.LiftSpeed;
+            BoostSaveTimer.Launch(GetSetting<Time>()); 
         }
     }
     public void OnSidewaysMove(Vector2 liftspeed)
     {
-        savedLiftSpeed = liftspeed;
-        boostSaveTimer = Tweaks.SolidBlockboostProtection.GetSetting<Time>();
+        SavedLiftSpeed = liftspeed;
+        BoostSaveTimer.Launch(GetSetting<Time>());
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Celeste.Mod.Entities;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Celeste.Mod.LeniencyHelper.Triggers;
 
@@ -26,7 +27,8 @@ class SetupEntityOnRespawnTrigger : Trigger
         newEntitySpeed = new Vector2(data.Int("SpeedX", (int)Position.X),
             data.Int("SpeedY", (int)Position.Y));
 
-        blackList = GenericTrigger.StringToList(data.Attr("Blacklist", ""));
+        // Split?
+        blackList = (data.Attr("Blacklist", "")).Replace(" ", "").Split(',').ToList();
         whiteList = GenericTrigger.StringToList(data.Attr("Whitelist", ""));
     }
     public override void Update()

@@ -74,7 +74,7 @@ class ConsistentTheoSpinnerBounceTrigger : GenericTrigger
                 //if holdable collided with trigger but component doesnt exist
                 if (hold.Entity.Components.Get<SpinnerBounceComponent>() is null)
                 {
-                    hold.Entity.Add(new SpinnerBounceComponent(enabled, bounceDir));
+                    hold.Entity.Add(new SpinnerBounceComponent(Enabled, bounceDir));
                     component = hold.Entity.Components.Get<SpinnerBounceComponent>();
                 }
 
@@ -84,19 +84,19 @@ class ConsistentTheoSpinnerBounceTrigger : GenericTrigger
                 bool entered = false;
                 if (!component.collidingWith[this]) entered = true;
 
-                if (GetFlagActive())
+                if (FlagActive)
                 {
-                    if (entered && revertOnLeave) component.SaveSettings();
+                    if (entered && RevertOnLeave) component.SaveSettings();
 
-                    component.enabled = enabled; //applying new settings if trigger is active and holdable is inside
+                    component.enabled = Enabled; //applying new settings if trigger is active and holdable is inside
                     component.direction = bounceDir;
 
-                    if (oneUse) RemoveSelf();
+                    if (OneUse) RemoveSelf();
                 }
             }
             else
             {
-                if (component is not null && component.collidingWith[this] && revertOnLeave) //if holdable left trigger
+                if (component is not null && component.collidingWith[this] && RevertOnLeave) //if holdable left trigger
                 {
                     component.UndoSettings();
                 }
@@ -107,6 +107,6 @@ class ConsistentTheoSpinnerBounceTrigger : GenericTrigger
                 component.collidingWith[this] = hold.Entity.CollideCheck(this);
         }
 
-        Collidable = GetFlagActive();
+        Collidable = FlagActive;
     }
 }

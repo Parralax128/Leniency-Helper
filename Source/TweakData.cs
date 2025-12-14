@@ -3,23 +3,20 @@ using Celeste.Mod.LeniencyHelper.TweakSettings;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Reflection;
+using MonoMod.Cil;
 
 namespace Celeste.Mod.LeniencyHelper;
 static class TweakData
 {
-    static CompoundSetting<FlexDistance> FlexDistanceSetting(string name, FlexDistance defaultValue) =>
-       new CompoundSetting<FlexDistance>(name, defaultValue, new SettingContainer {
-               new Setting<int>("StaticDistance", defaultValue.StaticValue, 0, 12),
-               new Setting<FlexDistance.Modes>("Dynamic", defaultValue.Mode),
-               new Setting<Time>("Time", defaultValue.Time, 0f, 0.25f)
-       }, (value, subsettings, source) => {
-           value.StaticValue = subsettings.Get<int>(0, source);
-           value.Mode = subsettings.Get<FlexDistance.Modes>(1, source);
-           value.Time = subsettings.Get<Time>(2, source);
-       });
+    static SettingContainer FlexDistanceSettings(string name="",
+        FlexDistance.Modes defaultMode = FlexDistance.Modes.Static, int defaultStatic = 4, Time defaultTime = null) =>
+    new SettingContainer() {
+        new Setting<FlexDistance.Modes>(name + "Mode", defaultMode),
+        new Setting<int>(name + "StaticDistance", defaultStatic, 0, 12),
+        new Setting<Time>(name + "Time", defaultTime ?? 0.05f, 0f, 0.25f)
+    };
 
     public class TweakList : IEnumerable<TweakState>
     {
@@ -27,6 +24,8 @@ static class TweakData
 
         public IEnumerator<TweakState> GetEnumerator() => tweakStates.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => tweakStates.GetEnumerator();
+
+        public void ForEach(Action<TweakState> action) => tweakStates.ForEach(action);
 
         // LINQ mess :P
         public static Dictionary<Tweak, Type> Types = 
@@ -55,10 +54,10 @@ static class TweakData
         }
     }
 
-[System.Runtime.CompilerServices.ModuleInitializer]
-internal static void SetupTweaklist()
-{
-    Tweaks = new()
+    public static TweakList Tweaks;
+
+    [System.Runtime.CompilerServices.ModuleInitializer]
+    internal static void SetupTweaklist() { Tweaks = new()
     {
         new TweakState(Tweak.AutoSlowfall, new SettingContainer {
             new Setting<bool>("TechOnly", true),
@@ -108,9 +107,7 @@ internal static void SetupTweaklist()
             new Setting<Time>("Timing", 0.1f, 0f, 0.5f)
         }),
 
-        new TweakState(Tweak.CustomSnapDownDistance, new SettingContainer {
-            FlexDistanceSetting("SnapDownDistance", new FlexDistance(5, 0.05f, FlexDistance.Modes.Static))
-        }),
+        new TweakState(Tweak.CustomSnapDownDistance, FlexDistanceSettings()),
 
         new TweakState(Tweak.DashCDIgnoreFFrames),
 
@@ -187,19 +184,47 @@ internal static void SetupTweaklist()
         new TweakState(Tweak.SolidBlockboostProtection, new SettingContainer {
             new Setting<Time>("MaxSaveTime", 0.1f, 0f, 0.5f)
         }),
-
-        new TweakState(Tweak.SuperdashSteeringProtection),
+         
+        new TweakState(Tweak.SuperdashSteeringProtection, new SettingContainer {
+            new Setting<bool>("CloseAngleRestriction", true)
+        }),
 
         new TweakState(Tweak.SuperOverWalljump),
 
-        new TweakState(Tweak.WallAttraction, new SettingContainer {
-            FlexDistanceSetting("AttractionDistance", new FlexDistance(4, 0f, FlexDistance.Modes.Static))
-        }),
+        new TweakState(Tweak.WallAttraction, FlexDistanceSettings(defaultStatic: 6)),
 
         new TweakState(Tweak.WallCoyoteFrames, new SettingContainer {
             new Setting<Time>("WallCoyoteTime", 4, 0, 0.1f)
         })
-    };
-}
-    public static TweakList Tweaks;
+    };  }
+
+
+    public static void ResetPlayerSettings()
+    {
+        foreach (AbstractSetting setting in LeniencyHelperModule.TweakList.
+            Where(t => t.HasSettings()).SelectMany(tweak => Tweaks[tweak].Settings))
+        {
+            setting.Reset(SettingSource.Player);
+        }
+    }
+
+
+    [OnLoad]
+    public static void LoadHooks()
+    {
+        IL.Celeste.Player.ctor += DisableTriggerTweaksHook;
+        IL.Celeste.LevelLoader.ctor += DisableTriggerTweaksHook;
+    }
+    [OnUnload]
+    public static void UnloadHooks()
+    {
+        IL.Celeste.Player.ctor -= DisableTriggerTweaksHook;
+        IL.Celeste.LevelLoader.ctor -= DisableTriggerTweaksHook;
+    }
+
+    static void DisableTriggerTweaksHook(ILContext il)
+    {
+        new ILCursor(il).EmitDelegate(DisableTriggerTweaks);
+        static void DisableTriggerTweaks() => Tweaks.ForEach(state => state.Set(null, SettingSource.Trigger));
+    }
 }

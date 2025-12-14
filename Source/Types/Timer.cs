@@ -5,6 +5,8 @@ namespace Celeste.Mod.LeniencyHelper;
 
 public class Timer
 {
+    public enum Type { Gameplay, Input }
+
     float startTime;
     float counter = 0f;
     public bool Expired { get; set; }
@@ -39,18 +41,17 @@ public class Timer
         counter = 0f;
         Expired = true;
     }
-
-    public Timer(float time, int tag = 0, Action onComplete = null)
+    public Timer(float time, Type type = Type.Gameplay, Action onComplete = null) : this(type)
     {
         startTime = counter = time;
-        Expired = true;
-        this.OnComplete = onComplete;
-
-        TimerManager.Add(this, tag);
+        OnComplete = onComplete;
     }
-    public Timer(int tag = 0) { TimerManager.Add(this, tag); }
+    public Timer(Type type = Type.Gameplay) 
+    {
+        Expired = true;
+        TimerManager.Add(this, type); 
+    }
 
-    public static implicit operator Timer(Time createFrom) => new Timer(createFrom);
     public static implicit operator float(Timer createFrom) => createFrom.counter;
     public static implicit operator bool(Timer timer) => !timer.Expired;
 }

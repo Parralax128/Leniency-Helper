@@ -2,7 +2,6 @@
 using Celeste.Mod.LeniencyHelper.CrossModSupport;
 using Celeste.Mod.LeniencyHelper.TweakSettings;
 using Celeste.Mod.LeniencyHelper.UI;
-using Microsoft.Build.Utilities;
 using Microsoft.Xna.Framework;
 using MonoMod.ModInterop;
 using System;

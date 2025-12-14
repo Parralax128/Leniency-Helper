@@ -1,5 +1,4 @@
-﻿using Celeste.Mod.LeniencyHelper.Module;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
 namespace Celeste.Mod.LeniencyHelper.Triggers
@@ -32,59 +31,52 @@ namespace Celeste.Mod.LeniencyHelper.Triggers
 
             return result;
         }
-
-        public bool enabled;
+            
+        protected bool Enabled;
+        protected bool OneUse;
+        protected bool RevertOnLeave;
         string flag;
-        public bool oneUse;
-        public bool revertOnLeave;
-
         bool applyOnStay;
 
         public GenericTrigger(EntityData data, Vector2 offset, bool applyOnStay = false) : base(data, offset)
         {
-            enabled = data.Bool("Enabled", true);
-            revertOnLeave = data.Bool("RevertOnLeave", true);
+            Enabled = data.Bool("Enabled", true);
+            RevertOnLeave = data.Bool("RevertOnLeave", true);
             flag = data.Attr("Flag", "");
-            oneUse = data.Bool("OneUse", false);
+            OneUse = data.Bool("OneUse", false);
             this.applyOnStay = applyOnStay;
         }
-        public bool GetFlagActive()
-        {
-            return flag == "" ? true : SceneAs<Level>().Session.GetFlag(flag);
-        }
-        public virtual void UndoSettings() { }
-        public virtual void GetOldSettings() { }
-        public virtual void ApplySettings() { }
+        protected bool FlagActive => flag == "" || SceneAs<Level>().Session.GetFlag(flag);
+        
+        protected virtual void Undo(Player player) { }
+        protected virtual void SaveData() { }
+        protected virtual void Apply(Player player) { }
 
         public override void OnEnter(Player player)
         {
             base.OnEnter(player);
 
-            if (revertOnLeave && !oneUse)
-            {
-                GetOldSettings();
-            }
-
-            ApplySettings();
+            if (RevertOnLeave) SaveData();
+            Apply(player);
         }
         public override void OnStay(Player player)
         {
             base.OnStay(player);
 
-            if (!oneUse && applyOnStay) ApplySettings();
+            if (applyOnStay) Apply(player);
         }
         public override void OnLeave(Player player)
         {
             base.OnLeave(player);
 
-            if (revertOnLeave) UndoSettings();
-            if (oneUse) RemoveSelf();
+            if (RevertOnLeave) Undo(player);
+            if (OneUse) RemoveSelf();
         }
 
         public override void Update()
         {
             base.Update();
-            Collidable = GetFlagActive();
+            Collidable = FlagActive;
         }
     }
 }

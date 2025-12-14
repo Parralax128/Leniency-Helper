@@ -23,6 +23,7 @@ class RemoveDBlockCCorrection : AbstractTweak<RemoveDBlockCCorrection>
         IL.Celeste.Player.OnCollideH -= CustomOnCollideH;
         IL.Celeste.Player.OnCollideV -= CustomOnCollideV;
     }
+
     public static void CustomOnCollideH(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);

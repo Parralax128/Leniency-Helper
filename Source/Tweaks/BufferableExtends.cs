@@ -11,6 +11,8 @@ class BufferableExtends : AbstractTweak<BufferableExtends>
     [SettingIndex] static int ForceWaitForRefill;
     [SettingIndex] static int ExtendTiming;
 
+    static Timer DashTimer = new();
+
     [OnLoad]
     public static void LoadHooks()
     {
@@ -29,30 +31,27 @@ class BufferableExtends : AbstractTweak<BufferableExtends>
         if (player.Dashes >= player.MaxDashes || !Enabled) return true;
         if (GetSetting<bool>(ForceWaitForRefill)) return false;
 
-        if (RefillDashInCoyote.Enabled)
-        {
-            float refillTimer = player.Get<Components.RefillCoyoteComponent>().refillCoyoteTimer;
 
-            if (refillTimer > player.dashRefillCooldownTimer
-                && GetSetting<Time>(ExtendTiming) > player.dashRefillCooldownTimer
-                && Input.Jump.bufferCounter > player.dashRefillCooldownTimer)
-            {
+        if (RefillDashInCoyote.Enabled
+            && player.Get<Components.RefillCoyoteComponent>().RefillCoyoteTimer > player.dashRefillCooldownTimer
+            && GetSetting<Time>(ExtendTiming) > player.dashRefillCooldownTimer
+            && Input.Jump.bufferCounter > player.dashRefillCooldownTimer) 
+        {
                 return false;
-            }
         }
 
-        int saveDashes = player.Dashes;
+        int savedDashes = player.Dashes;
         if (player.dashRefillCooldownTimer <= 0f && !player.RefillDash())
         {
-            player.Dashes = saveDashes;
+            player.Dashes = savedDashes;
             return true;
         }
-        player.Dashes = saveDashes;
+        player.Dashes = savedDashes;
 
+        // checks for: core mode, jump timing being in a time range of the buffer window, instant tech (first 2 frames of the dash)
         if (!player.Inventory.NoRefills
-            && GetSetting<Time>(ExtendTiming) - Engine.DeltaTime > player.dashRefillCooldownTimer
-            && Input.Jump.bufferCounter - Engine.DeltaTime > player.dashRefillCooldownTimer
-            && LeniencyHelperModule.Session.dashTimer <= 0f)
+            && Math.Min(GetSetting<Time>(ExtendTiming), Input.Jump.bufferCounter) - Engine.DeltaTime > player.dashRefillCooldownTimer
+            && DashTimer) 
         {
             return false;
         }
@@ -65,13 +64,12 @@ class BufferableExtends : AbstractTweak<BufferableExtends>
         if (!Enabled) return;
 
         var s = LeniencyHelperModule.Session;
-        if (s.dashTimer > 0f) s.dashTimer -= Engine.DeltaTime;
 
-        if (player.StateMachine.State != s.prevFrameState && (new int[] { 2, 4, 5 }).Contains(player.StateMachine.State))
+        if (player.StateMachine.State != ExtendBufferOnFreezeAndPickup.prevFrameState && (new int[] { 2, 4, 5 }).Contains(player.StateMachine.State))
         {
-            s.dashTimer = 2 * Engine.DeltaTime;
+            DashTimer.Launch(1.9f * Engine.DeltaTime); // set timer for 2f to check for instant tech
         }
-        s.prevFrameState = player.StateMachine.State;
+        ExtendBufferOnFreezeAndPickup.prevFrameState = player.StateMachine.State;
     }
     static void AddSuperjumpCheckOnUpdate(ILContext il)
     {

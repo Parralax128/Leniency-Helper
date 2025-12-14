@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.LeniencyHelper.TweakSettings;
+using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 using System.Collections.Generic;
@@ -10,29 +11,32 @@ class GenericTweakTrigger : GenericTrigger
 {
     List<object> Data = null;
     List<object> savedData = new();
-    Tweak tweak;
     bool? savedEnabled;
 
+    Tweak tweak;
+    TweakState state;
+    
     public GenericTweakTrigger(EntityData data, Vector2 offset, Tweak tweak) : base(data, offset)
     {
         this.tweak = tweak;
+        state = TweakData.Tweaks[tweak];
+
         if (tweak.HasSettings())
             Data = SettingMaster.ParseSettingsFromData(data, tweak);
     }
-    public override void ApplySettings()
+    protected override void Apply(Player player)
     {
-        SettingMaster.SetTriggerTweak(tweak, enabled);
+        state.Set(Enabled, SettingSource.Trigger);
 
-        if (Data != null && enabled)
+        if (Data != null && Enabled)
         {
             for (int c = 0; c < Data.Count; c++)
-                TweakData.Tweaks[tweak].Settings.Set(c, TweakSettings.SettingSource.Trigger, Data[c]);
+                TweakData.Tweaks[tweak].Settings.Set(c, SettingSource.Trigger, Data[c]);
         }
     }
-    public override void GetOldSettings()
+    protected override void SaveData()
     {
-        TweakSettings.TweakState tweakState = TweakData.Tweaks[tweak];
-        savedEnabled = tweakState.Get(TweakSettings.SettingSource.Trigger);
+        savedEnabled = state.Get(SettingSource.Trigger);
 
         savedData.Clear();
 
@@ -40,19 +44,19 @@ class GenericTweakTrigger : GenericTrigger
 
         for (int c = 0; c < Data.Count; c++)
         {
-            savedData.Add(tweakState.Get(TweakSettings.SettingSource.Trigger) == null ?
-                tweakState.Settings.Get(c, TweakSettings.SettingSource.Controller)
-                : tweakState.Settings.Get(c, TweakSettings.SettingSource.Trigger));
+            savedData.Add(state.Get(SettingSource.Trigger) == null ?
+                state.Settings.Get(c, SettingSource.Controller)
+                : state.Settings.Get(c, SettingSource.Trigger));
         }
     }
-    public override void UndoSettings()
+    protected override void Undo(Player player)
     {
-        SettingMaster.SetTriggerTweak(tweak, savedEnabled);
+        state.Set(savedEnabled, SettingSource.Trigger);
 
         if (savedData.Count > 0)
         {
             for (int c = 0; c < Data.Count; c++)
-                TweakData.Tweaks[tweak].Settings.Set(c, TweakSettings.SettingSource.Trigger, savedData[c]);
+                TweakData.Tweaks[tweak].Settings.Set(c, SettingSource.Trigger, savedData[c]);
 
             savedData.Clear();
         }

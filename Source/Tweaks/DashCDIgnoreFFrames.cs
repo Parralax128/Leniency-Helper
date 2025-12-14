@@ -1,12 +1,12 @@
 using Monocle;
-using Microsoft.Xna.Framework;
-using System;
-using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 class DashCDIgnoreFFrames : AbstractTweak<DashCDIgnoreFFrames>
 {
+    [SaveState] static Player targetPlayer;
+    [SaveState] static bool useOrigFreeze = false;
+
     [OnLoad]
     public static void LoadHooks()
     {
@@ -27,25 +27,22 @@ class DashCDIgnoreFFrames : AbstractTweak<DashCDIgnoreFFrames>
 
     public static void UseDefaultFFOnDash(On.Celeste.Player.orig_DashBegin orig, Player self)
     {
-        var s = LeniencyHelperModule.Session;
-        s.useOrigFreeze = true;
+        useOrigFreeze = true;
         orig(self);
-        s.useOrigFreeze = false;
+        useOrigFreeze = false;
     }   
     public static void GetPlayerOnAdded(On.Celeste.Player.orig_Added orig, Player self, Scene scene)
     {
-        var s = LeniencyHelperModule.Session;
         orig(self, scene);
-        s.modifiedPlayer = self;
+        targetPlayer = self;
     }
     public static void UpdateDashCDOnFreeze(On.Celeste.Celeste.orig_Freeze orig, float time)
     {
-        var s = LeniencyHelperModule.Session;
         orig(time);
-        if(!Enabled || s.useOrigFreeze) return;
+        if(!Enabled || useOrigFreeze) return;
         {
-            if (s.modifiedPlayer != null)
-                s.modifiedPlayer.dashCooldownTimer -= time;
+            if (targetPlayer != null)
+                targetPlayer.dashCooldownTimer -= time;
         }
     }
 
@@ -56,8 +53,8 @@ class DashCDIgnoreFFrames : AbstractTweak<DashCDIgnoreFFrames>
         if (self.CanDash)
         {
             self.StartDash();
-            self.StateMachine.ForceState(2);
-            return 2;
+            self.StateMachine.ForceState(Player.StDash);
+            return Player.StDash;
         }
 
         return orig(self);

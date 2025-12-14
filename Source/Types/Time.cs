@@ -35,9 +35,6 @@ public class Time : IComparable<Time>, ICloneable
     {
         return new Time(Mode == Modes.Frames ? Frames : Value, Mode);
     }
-
-    public Timer CreateTimer(int tag = 0) => new Timer(Value, tag);
-
     public static bool operator >=(Time left, Time right)
     {
         return left.Value >= right.Value;

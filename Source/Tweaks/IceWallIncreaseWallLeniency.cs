@@ -165,18 +165,21 @@ class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeniency>
             cursor.EmitDelegate(ReturnOrigPos);
             cursor.Index++;
         }
+
+
+        static void ReturnOrigPos(Player player, Vector2 pos)
+        {
+            if (Enabled || DynamicWallLeniency.Enabled)
+            {
+                player.Position = pos;
+            }
+        }
     }
     static bool BothDisabled()
     {
         return !Enabled && !DynamicWallLeniency.Enabled;
     }
-    static void ReturnOrigPos(Player player, Vector2 pos)
-    {
-        if (Enabled || DynamicWallLeniency.Enabled)
-        {
-            player.Position = pos;
-        }
-    }
+    
     static Vector2 MovePlayer(Player player, int newWjDist, int origWjDist, int dir)
     {
         Vector2 savePos = player.Position;
@@ -266,6 +269,8 @@ class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeniency>
         }
         return savePos;
     }
+
+
 
     public static List<(Rectangle, Color)> debugRects = new List<(Rectangle, Color)>();
     static void Debug(On.Celeste.Player.orig_Render orig, Player self)

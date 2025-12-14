@@ -1,5 +1,4 @@
-﻿using Celeste.Mod.LeniencyHelper.Module;
-using Mono.Cecil.Cil;
+﻿using Mono.Cecil.Cil;
 using MonoMod.Cil;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
@@ -17,6 +16,7 @@ class ManualDreamhyperLeniency : AbstractTweak<ManualDreamhyperLeniency>
     {
         IL.Celeste.Player.DashUpdate -= RemoveDashDirCheck;
     }
+
     static void RemoveDashDirCheck(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
@@ -49,10 +49,8 @@ class ManualDreamhyperLeniency : AbstractTweak<ManualDreamhyperLeniency>
 
             cursor.EmitLdarg0();
         }
-    }
 
-    static bool DreamHyperCheck(Player player, bool alreadyChecked)
-    {
-        return Enabled && !alreadyChecked && player.DashDir.Y > 0f && player.DashDir.X != 0f;
-    }
+        static bool DreamHyperCheck(Player player, bool alreadyChecked) =>
+            Enabled && !alreadyChecked && player.DashDir.Y > 0f && player.DashDir.X != 0f;
+    }    
 }

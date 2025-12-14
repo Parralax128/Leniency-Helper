@@ -36,6 +36,8 @@ class SuperdashSteeringProtection : AbstractTweak<SuperdashSteeringProtection>
                 instr => instr.MatchLdloc0());
             cursor.MarkLabel(skipCondition);
         }
+
+
+        static bool CheckConditionSkip(float dot) => Enabled && (!GetSetting<bool>() || dot < 0.99f);
     }
-    static bool CheckConditionSkip(float cos) => Enabled && cos < 0.99f;
 }

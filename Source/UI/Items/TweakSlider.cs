@@ -1,17 +1,12 @@
 ﻿using Celeste.Mod.LeniencyHelper.Module;
 using Celeste.Mod.LeniencyHelper.TweakSettings;
-using Celeste.Mod.MaxHelpingHand.Module;
-using IL.Monocle;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Transactions;
-using static Celeste.GaussianBlur;
-using static Celeste.Mod.LeniencyHelper.Module.LeniencyHelperModule;
-using static Celeste.Mod.LeniencyHelper.TweakExtension;
 using static Celeste.TextMenu;
+
 
 namespace Celeste.Mod.LeniencyHelper.UI.Items;
 

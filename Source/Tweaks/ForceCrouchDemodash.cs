@@ -16,6 +16,8 @@ class ForceCrouchDemodash : AbstractTweak<ForceCrouchDemodash>
     public static void ForceCrouchDemodashDashBegin(On.Celeste.Player.orig_DashBegin orig, Player self)
     {
         orig(self);
-        if (Enabled && self.demoDashed) self.Ducking = true;
+
+        if (Enabled && self.demoDashed)
+            self.Ducking = true;
     }
 }

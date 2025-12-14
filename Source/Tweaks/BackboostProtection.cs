@@ -1,6 +1,5 @@
 ﻿using System;
 using Celeste.Mod.LeniencyHelper.Module;
-using Monocle;
 
 namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
@@ -8,6 +7,9 @@ class BackboostProtection : AbstractTweak<BackboostProtection>
 {
     [SettingIndex] static int EarlyBackboostTiming;
     [SettingIndex] static int LateBackboostTiming;
+    
+    static Timer LeftTimer = new();
+    static Timer RightTimer = new();
 
 
     [OnLoad]
@@ -24,8 +26,6 @@ class BackboostProtection : AbstractTweak<BackboostProtection>
         On.Celeste.Player.Throw -= ConsumeBackboostFacing;
     }
 
-    static Timer LeftTimer = new();
-    static Timer RightTimer = new();
 
     static void CheckDir(Player player)
     {
@@ -45,8 +45,6 @@ class BackboostProtection : AbstractTweak<BackboostProtection>
 
         if (player.moveX == 1) RightTimer.Launch(saveDuration);
         else if (player.moveX == -1) LeftTimer.Launch(saveDuration);
-
-        s.lastFacing = (Facings)Input.MoveX.Value;
     }
 
     static void ConsumeBackboostFacing(On.Celeste.Player.orig_Throw orig, Player self)
@@ -66,11 +64,25 @@ class BackboostProtection : AbstractTweak<BackboostProtection>
         Facings? savedPlayerFacing = null;
         int? savedMoveY = null;
 
-        var s = LeniencyHelperModule.Session;
-
-        if(Math.Sign(self.Speed.X) == -1)
+        if(Math.Sign(self.Speed.X) == -1 && RightTimer)
         {
-            if(RightTimer)
+            savedPlayerFacing = self.Facing;
+            self.Facing = Facings.Right;
+
+            savedMoveY = Input.MoveY.Value;
+            Input.MoveY.Value = 0;
+        }
+        else if(Math.Sign(self.Speed.X) == 1 && LeftTimer)
+        {
+            savedPlayerFacing = self.Facing;
+            self.Facing = Facings.Left;
+
+            savedMoveY = Input.MoveY.Value;
+            Input.MoveY.Value = 0;
+        }
+        else
+        {
+            if (self.Facing == Facings.Left && RightTimer)
             {
                 savedPlayerFacing = self.Facing;
                 self.Facing = Facings.Right;
@@ -78,41 +90,13 @@ class BackboostProtection : AbstractTweak<BackboostProtection>
                 savedMoveY = Input.MoveY.Value;
                 Input.MoveY.Value = 0;
             }
-        }
-        else if(Math.Sign(self.Speed.X) == 1)
-        {
-            if (LeftTimer)
+            else if (self.Facing == Facings.Right && LeftTimer)
             {
                 savedPlayerFacing = self.Facing;
                 self.Facing = Facings.Left;
 
                 savedMoveY = Input.MoveY.Value;
                 Input.MoveY.Value = 0;
-            }
-        }
-        else
-        {
-            if (self.Facing == Facings.Left)
-            {
-                if (RightTimer)
-                {
-                    savedPlayerFacing = self.Facing;
-                    self.Facing = Facings.Right;
-
-                    savedMoveY = Input.MoveY.Value;
-                    Input.MoveY.Value = 0;
-                }
-            }
-            else if (self.Facing == Facings.Right)
-            {
-                if (LeftTimer)
-                {
-                    savedPlayerFacing = self.Facing;
-                    self.Facing = Facings.Left;
-
-                    savedMoveY = Input.MoveY.Value;
-                    Input.MoveY.Value = 0;
-                }
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using Celeste.Mod.LeniencyHelper.Module;
+using Celeste.Mod.MaxHelpingHand.Triggers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,31 +22,6 @@ class AbstractTweak<TweakType>   where TweakType : AbstractTweak<TweakType>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T GetSetting<T>(int index = 0) => TweakData.Tweaks[tweak].GetSetting<T>(index);
-
-    static AbstractTweak()
-    {
-        IEnumerable<FieldInfo> targetFields = typeof(TweakType)
-            .GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-            .Where(f => f.FieldType.IsGenericType && f.FieldType.GetGenericTypeDefinition() == typeof(HelperValueWrapper<>));
-
-        if (targetFields == null || targetFields.Count() == 0) return;
-
-        Attributes.TempContainerEntity.Pending.Add(tweak, new());
-
-        int indexCounter = 0;
-        foreach (FieldInfo field in targetFields)
-        {
-            Func<object> getter = () => Attributes.TempContainerEntity.Instance.Get(tweak, indexCounter);
-            Action<object> setter = (value) => Attributes.TempContainerEntity.Instance.Set(tweak, indexCounter, value);
-
-
-            field.FieldType.GetField("getter", BindingFlags.NonPublic).SetValue(field.GetValue(null), getter);
-            field.FieldType.GetField("setter", BindingFlags.NonPublic).SetValue(field.GetValue(null), setter);
-
-
-            Attributes.TempContainerEntity.Pending[tweak].Add(field.FieldType.GetMethod("get_Default").Invoke(field.GetValue(null), null));
-
-            indexCounter++;
-        }
-    }
+    public static int GetFlexDistance(int settingIndex, float speed) =>
+        FlexDistance.Get(GetSetting<FlexDistance.Modes>(settingIndex), GetSetting<int>(settingIndex+1), GetSetting<Time>(settingIndex+2), speed);
 }

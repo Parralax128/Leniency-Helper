@@ -1,6 +1,5 @@
 ﻿using System;
 using Celeste.Mod.Helpers;
-using Celeste.Mod.LeniencyHelper.Module;
 using Microsoft.Xna.Framework;
 using Monocle;
 using MonoMod.Cil;
@@ -11,6 +10,10 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 class GultraCancel : AbstractTweak<GultraCancel>
 {
+    [SaveState] static Vector2? savedSpeed = null;
+    static Timer CancelTimer = new();
+
+
     static ILHook modifyDashCoroutine;
     static ILContext.Manipulator onCollideVHook = (il) => AddSpeedPreservation(il, false);
     static ILContext.Manipulator dashCoroutineHook = (il) => AddSpeedPreservation(il, true);
@@ -38,8 +41,9 @@ class GultraCancel : AbstractTweak<GultraCancel>
     static void ClearSavedSpeed(On.Celeste.Player.orig_DashBegin orig, Player self)
     {
         orig(self);
-        LeniencyHelperModule.Session.savedSpeed = null;
+        savedSpeed = null;
     }
+
     static void AddSpeedPreservation(ILContext il, bool coroutine)
     {
         ILCursor cursor = new ILCursor(il);
@@ -61,28 +65,28 @@ class GultraCancel : AbstractTweak<GultraCancel>
                 cursor.EmitDelegate(SaveSpeedY);
             }
         }
-    }
-    static void SaveSpeedY(Player player)
-    {
-        LeniencyHelperModule.Session.savedSpeed = player.Speed;
-        LeniencyHelperModule.Session.cancelTimer = GetSetting<Time>();
+
+
+        static void SaveSpeedY(Player player)
+        {
+            savedSpeed = player.Speed;
+            CancelTimer.Launch(GetSetting<Time>());
+        }
     }
 
     static int CancelGultraOnMidAir(On.Celeste.Player.orig_DashUpdate orig, Player self)
     {
-        if(LeniencyHelperModule.Session.cancelTimer > 0f)
-        {
-            LeniencyHelperModule.Session.cancelTimer -= Engine.DeltaTime;
-            
-            // dash started on ground check!
-            if (Enabled && LeniencyHelperModule.Session.savedSpeed.HasValue && !self.dashStartedOnGround
+        // dash stated on ground + left ground + no vertical speed & dash dir
+        if(Enabled && CancelTimer && savedSpeed.HasValue && !self.dashStartedOnGround
             && !self.OnGround() && self.DashDir.Y == 0f && self.Speed.Y == 0f)
-            {
-                self.Speed = LeniencyHelperModule.Session.savedSpeed.Value;
-                self.DashDir = new Vector2(Math.Sign(self.Speed.X), Math.Sign(self.Speed.Y)).SafeNormalize();
-                self.Ducking = false;
-            }
+        {
+            self.Speed = savedSpeed.Value;
+            self.DashDir = new Vector2(Math.Sign(self.Speed.X), Math.Sign(self.Speed.Y)).SafeNormalize();
+            self.Ducking = false;
         }
-        return orig(self);
+
+        int nextState = orig(self);
+        if (nextState != Player.StDash) CancelTimer.Abort();
+        return nextState;
     }
 }

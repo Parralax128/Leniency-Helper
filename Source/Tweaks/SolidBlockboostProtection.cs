@@ -60,7 +60,7 @@ class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection>
         if (!Enabled) return;
 
         SolidLiftboostComponent component = self.Get<SolidLiftboostComponent>();
-        if (component is null || component.boostSaveTimer <= 0f) return;
+        if (component == null || component.BoostSaveTimer.Expired) return;
 
         if (self.Collidable && self.LiftSpeed.LengthSquared() <= 0.01f)
         {
@@ -74,22 +74,20 @@ class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection>
 
                 if (self is JumpThru jt && actor.IsRiding(jt) || self is Solid solid && actor.IsRiding(solid))
                 {
-                    actor.LiftSpeed = component.savedLiftSpeed;
+                    actor.LiftSpeed = component.SavedLiftSpeed;
                 }
-                else if (LeniencyHelperModule.CollideOnWJdist(self, actor, Math.Sign(component.savedLiftSpeed.X), null))
+                else if (LeniencyHelperModule.CollideOnWJdist(self, actor, Math.Sign(component.SavedLiftSpeed.X), null))
                 {
-                    actor.LiftSpeed = actor.LiftSpeed with { X = component.savedLiftSpeed.X };
+                    actor.LiftSpeed = actor.LiftSpeed with { X = component.SavedLiftSpeed.X };
                 }
-                else if (self.CollideCheck(actor, self.Position + Math.Sign(component.savedLiftSpeed.Y) * Vector2.UnitY))
+                else if (self.CollideCheck(actor, self.Position + Math.Sign(component.SavedLiftSpeed.Y) * Vector2.UnitY))
                 {
-                    actor.LiftSpeed = actor.LiftSpeed with { Y = component.savedLiftSpeed.Y };
+                    actor.LiftSpeed = actor.LiftSpeed with { Y = component.SavedLiftSpeed.Y };
                 }
 
                 actor.Collidable = saveCollidable;
             }
         }
-
-        component.boostSaveTimer -= Engine.DeltaTime;
     }
     
     static void ComponentOnMove(ILContext il)
@@ -132,15 +130,14 @@ class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection>
         orig(self, scene);
         self.Add(new SolidLiftboostComponent());
     }
-    static void SidewaysOnMove(Action<Entity, Solid, bool, Vector2> orig,
+    static void SidewaysOnMove(Action<Entity, Solid, bool, Vector2> orig, 
         Entity platform, Solid playerInteractingSolid, bool left, Vector2 move)
     {
         orig(platform, playerInteractingSolid, left, move);
 
+
         if(Enabled && LeniencyHelperModule.ModLoaded("MaxHelpingHand") && platform is AttachedSidewaysJumpThru)
-        {
             platform.Get<SolidLiftboostComponent>()?.OnSidewaysMove(playerInteractingSolid.LiftSpeed);
-        }
     }
     static void ModifyUpdate(ILContext il)
     {        
@@ -169,7 +166,7 @@ class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection>
         if (!Enabled) return;
 
         SolidLiftboostComponent component = self.Get<SolidLiftboostComponent>();
-        if (component is null || component.boostSaveTimer <= 0f) return;
+        if (component == null || component.BoostSaveTimer.Expired) return;
 
 
         if (self.Collidable && interactSolid.LiftSpeed.LengthSquared() <= 0.01f)
@@ -181,24 +178,21 @@ class SolidBlockboostProtection : AbstractTweak<SolidBlockboostProtection>
                 bool saveCollidable = actor.Collidable;
                 actor.Collidable = true;
 
-                if (LeniencyHelperModule.CollideOnWJdist(self, actor, Math.Sign(component.savedLiftSpeed.X),
-                    self.Position + Vector2.UnitY * Math.Sign(component.savedLiftSpeed.Y)))
-                {
-                    actor.LiftSpeed = component.savedLiftSpeed;
-                }
-                else if (LeniencyHelperModule.CollideOnWJdist(self, actor, Math.Sign(component.savedLiftSpeed.X), null))
-                {
-                    actor.LiftSpeed = actor.LiftSpeed with { X = component.savedLiftSpeed.X };
-                }
-                else if (self.CollideCheck(actor, self.Position + Math.Sign(component.savedLiftSpeed.Y) * Vector2.UnitY))
-                {
-                    actor.LiftSpeed = actor.LiftSpeed with { Y = component.savedLiftSpeed.Y };
-                }
+
+                if (LeniencyHelperModule.CollideOnWJdist(self, actor, Math.Sign(component.SavedLiftSpeed.X),
+                    self.Position + Vector2.UnitY * Math.Sign(component.SavedLiftSpeed.Y)))
+                    actor.LiftSpeed = component.SavedLiftSpeed;
+                
+                else if (LeniencyHelperModule.CollideOnWJdist(self, actor, Math.Sign(component.SavedLiftSpeed.X), null))
+                    actor.LiftSpeed = actor.LiftSpeed with { X = component.SavedLiftSpeed.X };
+                
+                else if (self.CollideCheck(actor, self.Position + Math.Sign(component.SavedLiftSpeed.Y) * Vector2.UnitY))
+                    actor.LiftSpeed = actor.LiftSpeed with { Y = component.SavedLiftSpeed.Y };
+                
 
                 actor.Collidable = saveCollidable;
             }
         }
-        component.boostSaveTimer -= Engine.DeltaTime;
     }
 
     #endregion

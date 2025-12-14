@@ -10,18 +10,21 @@ namespace Celeste.Mod.LeniencyHelper.Controllers;
 class GenericTweakController : GenericController
 {
     public Tweak tweak;
+    TweakSettings.TweakState state;
 
     List<object> Data = null;
     List<object> savedData = new();
     bool savedEnabled;
 
-    public GenericTweakController(EntityData data, Vector2 offset, Tweak tweak) : base(data, offset, true)
+    public GenericTweakController(EntityData data, Vector2 offset, Tweak tweak) : base(data, offset)
     {
         this.tweak = tweak;
+        state = TweakData.Tweaks[tweak];
+
         if (tweak.HasSettings())
             Data = SettingMaster.ParseSettingsFromData(data, tweak);
     }
-    public override void GetOldSettings()
+    protected override void SaveData()
     {
         savedEnabled = TweakData.Tweaks[tweak].Get(TweakSettings.SettingSource.Controller) == true;
 
@@ -32,12 +35,12 @@ class GenericTweakController : GenericController
         }
     }
 
-    public override void Apply(bool fromFlag)
+    protected override void Apply(bool fromFlag)
     {
         ApplyTweak();
         if(!fromFlag) ApplySettings();
     }
-    public override void Undo(bool fromFlag)
+    protected override void Undo(bool fromFlag)
     {
         UndoTweak();
         if (!fromFlag) UndoSettings();
@@ -52,7 +55,7 @@ class GenericTweakController : GenericController
     }
     public void ApplyTweak()
     {
-        SettingMaster.SetControllerTweak(tweak, true);
+        state.Set(true, TweakSettings.SettingSource.Controller);
     }
 
     public void UndoSettings()
@@ -63,6 +66,6 @@ class GenericTweakController : GenericController
     }
     public void UndoTweak()
     {
-        SettingMaster.SetControllerTweak(tweak, savedEnabled);
+        state.Set(savedEnabled, TweakSettings.SettingSource.Controller);
     }
 }

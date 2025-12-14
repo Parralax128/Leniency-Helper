@@ -25,6 +25,8 @@ class RespectInputOrder : AbstractTweak<RespectInputOrder>
     static void OnInputUpdate(On.Monocle.MInput.orig_Update orig)
     {
         orig();
+
+
         if (Engine.Scene is not Level) return;
 
         List <Inputs> pressed = new();
@@ -66,7 +68,7 @@ class RespectInputOrder : AbstractTweak<RespectInputOrder>
 
         foreach(Inputs input in Queue.Peek())
         {
-            if(InputRequiresBlockboostTrigger.EnumInputToGameInput(input).bufferCounter <= 0f)
+            if(InputRequiresBlockboostTrigger.EnumToGameInput(input).bufferCounter <= 0f)
             {
                 Queue.Dequeue();
                 return;

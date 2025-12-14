@@ -1,5 +1,4 @@
-﻿using Celeste.Mod.LeniencyHelper.Module;
-using Monocle;
+﻿using Monocle;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
@@ -11,12 +10,17 @@ class CustomDashbounceTiming : AbstractTweak<CustomDashbounceTiming>
 {
     static ILHook dashCoroutineHook;
 
+    static Timer DashbounceTimer = new();
+    [SaveState] static bool timerValid = false;
+    [SaveState] static float dashDuration = 0.2f;
+    [SaveState] static float varJumpTime = 0.25f;
+    [SaveState] static bool? canDashbounce = false;
+
     [OnLoad]
     public static void LoadHooks()
     {
         On.Celeste.Player.SuperWallJump += SetCustomTiming;
         On.Celeste.Player.DashEnd += ConsumeDashbounce;
-        Everest.Events.Level.OnAfterUpdate += UpdateTimer;
         On.Celeste.Player.DashBegin += TimerCheck;
         
         dashCoroutineHook = new ILHook(typeof(Player).GetMethod("DashCoroutine", System.Reflection.BindingFlags.NonPublic
@@ -27,7 +31,6 @@ class CustomDashbounceTiming : AbstractTweak<CustomDashbounceTiming>
     {
         On.Celeste.Player.SuperWallJump -= SetCustomTiming;
         On.Celeste.Player.DashEnd -= ConsumeDashbounce;
-        Everest.Events.Level.OnAfterUpdate -= UpdateTimer;
         On.Celeste.Player.DashBegin -= TimerCheck;
 
         dashCoroutineHook.Dispose();
@@ -36,47 +39,39 @@ class CustomDashbounceTiming : AbstractTweak<CustomDashbounceTiming>
     static void SetCustomTiming(On.Celeste.Player.orig_SuperWallJump orig, Player self, int dir)
     {
         orig(self, dir);
-        LeniencyHelperModule.Session.varJumpTime = self.varJumpTimer;
+        varJumpTime = self.varJumpTimer;
         
 
         if (Enabled)
         {
-            LeniencyHelperModule.Session.dashbounceTimer = GetSetting<Time>();
-        }
-    }
-    static void UpdateTimer(Level level)
-    {
-        if (LeniencyHelperModule.Session.dashbounceTimer.HasValue
-            && LeniencyHelperModule.Session.dashbounceTimer > 0f)
-        {
-            LeniencyHelperModule.Session.dashbounceTimer -= Engine.DeltaTime;
+            DashbounceTimer.Launch(GetSetting<Time>());
+            timerValid = true;
         }
     }
     static void TimerCheck(On.Celeste.Player.orig_DashBegin orig, Player self)
     {
         orig(self);
 
-        var s = LeniencyHelperModule.Session;
 
-        if (s.dashbounceTimer == null) return;
+        if (!timerValid) return;
 
-        s.canDashbounce = s.dashbounceTimer > 0f;
-        s.dashbounceTimer = null;
+        canDashbounce = DashbounceTimer;
+        timerValid = false;
+        DashbounceTimer.Abort();
 
-        if (Enabled && s.canDashbounce == false)
+        if (Enabled && canDashbounce == false)
         {
             self.varJumpTimer = 0f;
         }
     }
     static void ConsumeDashbounce(On.Celeste.Player.orig_DashEnd orig, Player self)
     {
-        var s = LeniencyHelperModule.Session;
-        if (s.canDashbounce == true)
+        if (canDashbounce == true)
         {   
-            self.varJumpTimer = Math.Max(self.varJumpTimer, s.varJumpTime - (s.dashDuration + 0.05f + Engine.DeltaTime * 0.9f));
+            self.varJumpTimer = Math.Max(self.varJumpTimer, varJumpTime - (dashDuration + 0.05f + Engine.DeltaTime * 0.9f));
         }
 
-        s.canDashbounce = null;
+        canDashbounce = null;
 
         orig(self);
     }
@@ -91,7 +86,7 @@ class CustomDashbounceTiming : AbstractTweak<CustomDashbounceTiming>
             cursor.EmitDelegate(SetSessionDashDuration);
             cursor.GotoNext(MoveType.After, i => i.MatchBox<float>());
         }
+
+        static void SetSessionDashDuration(float duration) => dashDuration = duration;
     }
-    static void SetSessionDashDuration(float duration) => 
-        LeniencyHelperModule.Session.dashDuration = duration;
 }

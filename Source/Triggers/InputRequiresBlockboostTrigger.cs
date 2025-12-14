@@ -5,32 +5,19 @@ using Celeste.Mod.Entities;
 using Celeste.Mod.LeniencyHelper.Module;
 using System.Collections.Generic;
 using MonoMod.RuntimeDetour;
-
+using System.Linq;
+using MonoMod.Core.Platforms;
+using YamlDotNet.Serialization.BufferedDeserialization;
 namespace Celeste.Mod.LeniencyHelper.Triggers;
 
 [CustomEntity("LeniencyHelper/InputRequiresBlockboostTrigger")]
-class InputRequiresBlockboostTrigger : Trigger
+class InputRequiresBlockboostTrigger : GenericTrigger
 {
-    static Hook pressedHook;
+    [Tweaks.SaveState] static List<BindInfo> BindList = new();
+    [Tweaks.SaveState] static Vector2 playerLiftboost;
 
-    [OnLoad]
-    public static void LoadHooks()
-    {
-        Everest.Events.Player.OnBeforeUpdate += GetLiftboost;
-        pressedHook = new Hook(typeof(VirtualButton).GetProperty("Pressed").GetGetMethod(), HookedPressed);
-    }
-    [OnUnload]
-    public static void UnloadHooks()
-    {
-        Everest.Events.Player.OnBeforeUpdate -= GetLiftboost;
 
-        pressedHook.Dispose();
-    }
-
-    bool oneUse;
-    string flag;
-
-    public enum InputModes
+    public enum BoostComparator
     {
         MoreThan,
         MoreThanOrEqual,
@@ -41,121 +28,121 @@ class InputRequiresBlockboostTrigger : Trigger
 
     public struct BindInfo
     {
-        public LeniencyHelperModule.Inputs bindInput;
-        public float targetLiftspeed;
-        public bool vertical;
-        public InputModes mode;
-        public InputRequiresBlockboostTrigger trigger;
+        VirtualButton input;
+        float targetLiftspeed;
+        bool vertical;
+        BoostComparator mode;
+        InputRequiresBlockboostTrigger trigger;
+
         public BindInfo(LeniencyHelperModule.Inputs input, float boost,
-            bool vert, InputModes mode, InputRequiresBlockboostTrigger trigger)
+            bool vert, BoostComparator mode, InputRequiresBlockboostTrigger trigger)
         {
-            bindInput = input;
+            this.input = EnumToGameInput(input);
             targetLiftspeed = boost;
             vertical = vert;
             this.mode = mode;
             this.trigger = trigger;
         }
+
+        public bool Check(VirtualButton pressedButton)
+        {
+            if (!pressedButton.Equals(input)) return true;
+
+            float boost = vertical ? playerLiftboost.Y : playerLiftboost.X;
+            bool almostEqual = Math.Abs(boost - targetLiftspeed) < 0.001f;
+
+            bool result = mode switch
+            {
+                BoostComparator.MoreThan => Math.Abs(boost) > targetLiftspeed,
+                BoostComparator.MoreThanOrEqual => Math.Abs(boost) > targetLiftspeed || almostEqual,
+                BoostComparator.LessThan => Math.Abs(boost) < targetLiftspeed,
+                BoostComparator.LessThanOrEqual => Math.Abs(boost) < targetLiftspeed || almostEqual,
+                BoostComparator.IsEqual => almostEqual,
+                _ => true
+            };
+            return result;
+        }
+        public void RemoveIfOneUse(int index)
+        {
+            if(trigger.OneUse)
+            {
+                BindList.RemoveAt(index);
+                trigger.RemoveSelf();
+            }
+        }
     }
 
-    public BindInfo localBindInfo;
-    public static List<BindInfo> bindsToRemove;
+
+    static Hook pressedHook;
+
+    [OnLoad]
+    public static void LoadHooks()
+    {
+        Everest.Events.Player.OnBeforeUpdate += UpdatePlayerLiftboost;
+        pressedHook = new Hook(typeof(VirtualButton).GetProperty("Pressed").GetGetMethod(), HookedPressed);
+    }
+    [OnUnload]
+    public static void UnloadHooks()
+    {
+        Everest.Events.Player.OnBeforeUpdate -= UpdatePlayerLiftboost;
+        pressedHook.Dispose();
+    }
+    static void UpdatePlayerLiftboost(Player player) => playerLiftboost = player.LiftBoost.Abs();
+    static bool HookedPressed(Func<VirtualButton, bool> orig, VirtualButton self)
+    {
+        bool pressed = orig(self);
+        if (!pressed || BindList.Count == 0) return pressed;
+
+
+        bool checkBoost = true;
+
+        for (int c = BindList.Count - 1; c >= 0; c--)
+        {
+            if (BindList[c].Check(self)) BindList[c].RemoveIfOneUse(c);
+            else checkBoost = false;
+        }
+
+        return checkBoost;
+    }
+
+    public static VirtualButton EnumToGameInput(LeniencyHelperModule.Inputs inputName) => inputName switch
+    {
+        LeniencyHelperModule.Inputs.Jump => Input.Jump,
+        LeniencyHelperModule.Inputs.Dash => Input.Dash,
+        LeniencyHelperModule.Inputs.Demo => Input.CrouchDash,
+        LeniencyHelperModule.Inputs.Grab => Input.Grab,
+        _ => null
+    };
+
+
+
+    BindInfo localBindInfo;
     public InputRequiresBlockboostTrigger(EntityData data, Vector2 offset) : base(data, offset)
     {
-        flag = data.Attr("Flag", "");
-        oneUse = data.Bool("OneUse", false);
-
         localBindInfo = new BindInfo(
             data.Enum("Input", LeniencyHelperModule.Inputs.Jump),
             data.Float("BlockboostValue", 250f),
             data.Bool("Vertical", false),
-            data.Enum("Mode", InputModes.MoreThanOrEqual),
+            Parse(data.String("Comparator")) ?? data.Enum("Mode", BoostComparator.MoreThan),
             this);
 
-        bindsToRemove = new List<BindInfo>();
-    }
-    public override void Update()
-    {
-        Collidable = flag == "" || (Scene as Level).Session.GetFlag(flag);
-        base.Update();
-    }
-    public override void OnEnter(Player player)
-    {
-        PlayerIsInside = true;
-
-        var s = LeniencyHelperModule.Session;
-        if (!s.BindList.Contains(localBindInfo))
-            s.BindList.Add(localBindInfo);
-    }
-    public override void OnLeave(Player player)
-    {
-        PlayerIsInside = false;
-        RemoveFromBindlist();
-    }
-    void RemoveFromBindlist()
-    {
-        var s = LeniencyHelperModule.Session;
-        if (s.BindList.Contains(localBindInfo))
-            s.BindList.Remove(localBindInfo);
-    }
-
-    static void GetLiftboost(Player player)
-    {
-        LeniencyHelperModule.Session.playerLiftboost = player.LiftBoost.Abs();
-    }
-
-    static bool CheckLiftboost(BindInfo bind, bool origPressed)
-    {
-        float boost = bind.vertical ? LeniencyHelperModule.Session.playerLiftboost.Y : LeniencyHelperModule.Session.playerLiftboost.X;
-        bool almostEqual = Math.Abs(boost - bind.targetLiftspeed) < 0.01f;
-
-        bool result = true;
-        switch (bind.mode)
+        static BoostComparator? Parse(string input) => input switch
         {
-            case InputModes.MoreThan: result = Math.Abs(boost) > bind.targetLiftspeed; break;
-            case InputModes.MoreThanOrEqual: result = Math.Abs(boost) > bind.targetLiftspeed || almostEqual; break;
-            case InputModes.LessThan: result = Math.Abs(boost) < bind.targetLiftspeed; break;
-            case InputModes.LessThanOrEqual: result = Math.Abs(boost) < bind.targetLiftspeed || almostEqual; break;
-            case InputModes.IsEqual: result = almostEqual; break;
-        }
-        if (origPressed && result && bind.trigger.oneUse)
-        {
-            bindsToRemove.Add(bind);
-            bind.trigger.RemoveSelf();
-        }
-
-        return result;
+            ">" => BoostComparator.MoreThan,
+            ">=" => BoostComparator.MoreThanOrEqual,
+            "<" => BoostComparator.LessThan,
+            "<=" => BoostComparator.LessThanOrEqual,
+            "=" => BoostComparator.IsEqual,
+            _ => null
+        };
     }
-
-    static bool HookedPressed(Func<VirtualButton, bool> orig, VirtualButton self)
+    protected override void Apply(Player player)
     {
-        bool origResult = orig(self);
-        if (LeniencyHelperModule.Session == null || LeniencyHelperModule.Session.BindList.Count == 0)
-            return origResult;
-
-
-        bool lockInput = false;
-        foreach (BindInfo bind in LeniencyHelperModule.Session.BindList)
-        {
-            if (self.Equals(EnumInputToGameInput(bind.bindInput)))
-                lockInput = lockInput || !CheckLiftboost(bind, origResult);
-        }
-        foreach (BindInfo bindToRemove in bindsToRemove)
-        {
-            LeniencyHelperModule.Session.BindList.Remove(bindToRemove);
-        }
-        bindsToRemove.Clear();
-
-        return origResult && !lockInput;
+        if (!BindList.Contains(localBindInfo))
+            BindList.Add(localBindInfo);
     }
-    public static VirtualButton EnumInputToGameInput(LeniencyHelperModule.Inputs inputName)
+    protected override void Undo(Player player)
     {
-        switch (inputName)
-        {
-            case LeniencyHelperModule.Inputs.Jump: return Input.Jump;
-            case LeniencyHelperModule.Inputs.Dash: return Input.Dash;
-            case LeniencyHelperModule.Inputs.Demo: return Input.CrouchDash;
-            case LeniencyHelperModule.Inputs.Grab: return Input.Grab;
-        }
-        return null;
-    }
+        BindList.Remove(localBindInfo);
+    }    
 }

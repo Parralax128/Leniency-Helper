@@ -94,6 +94,6 @@ class TweakState : IEnumerable<AbstractSetting>
 
     public List<UI.Items.AbstractTweakItem> CreateMenuEntry()
     {
-        return Settings?.SelectMany(setting => setting.MenuEntry(Tweak)).ToList();
+        return Settings?.Select(setting => setting.MenuEntry(Tweak)).ToList();
     }
 }

@@ -1,47 +1,36 @@
-﻿using Celeste.Mod.LeniencyHelper.Module;
-using Monocle;
+﻿namespace Celeste.Mod.LeniencyHelper.Components;
 
-namespace Celeste.Mod.LeniencyHelper.Components;
-
-class WallCoyoteFramesComponent : PlayerComponent
+class WallCoyoteFramesComponent : TweakComponent<Tweaks.WallCoyoteFrames>
 {
-    public float wallCoyoteTimer;
-    public Tweaks.WallCoyoteFrames.WallCoyoteTypes currentWallCoyoteType;
-
-    public WallCoyoteFramesComponent() : base(Tweak.WallCoyoteFrames)
-    {
-        if (Entity is not Player) RemoveSelf();
-        wallCoyoteTimer = 0f;
-        currentWallCoyoteType = Tweaks.WallCoyoteFrames.WallCoyoteTypes.Right;
-    }
+    Timer timer = new();
+    Timer disableTimer = new(0.09f);
+    Tweaks.WallCoyoteFrames.WallSides side = 0;
 
     public override void Update()
     {
         base.Update();
-        if (!TweakData.Tweaks[Tweak.WallCoyoteFrames].Enabled || LeniencyHelperModule.Session == null) return;
+        if (!TweakEnabled || disableTimer) return;
 
-        if (wallCoyoteTimer > 0f) wallCoyoteTimer -= Engine.DeltaTime;
-        else wallCoyoteTimer = 0f;
 
         Tweaks.WallCoyoteFrames.useOrigWJCheck = true;
-        bool wallLeft = (Entity as Player).WallJumpCheck(-1);
-        bool wallRight = (Entity as Player).WallJumpCheck(1);
+        bool wallLeft = Player.WallJumpCheck(-1);
+        bool wallRight = Player.WallJumpCheck(1);
         Tweaks.WallCoyoteFrames.useOrigWJCheck = false;
 
-        if (wallLeft && wallRight)
+        if(wallLeft || wallRight)
         {
-            wallCoyoteTimer = Tweaks.WallCoyoteFrames.GetSetting<Time>();
-            currentWallCoyoteType = Tweaks.WallCoyoteFrames.WallCoyoteTypes.Both;
+            timer.Launch(Tweaks.WallCoyoteFrames.GetSetting<Time>());
+            side = (Tweaks.WallCoyoteFrames.WallSides)(FromBool(wallRight) - FromBool(wallLeft));
         }
-        else if (wallLeft && !wallRight)
-        {
-            wallCoyoteTimer = Tweaks.WallCoyoteFrames.GetSetting<Time>();
-            currentWallCoyoteType = Tweaks.WallCoyoteFrames.WallCoyoteTypes.Right;
-        }
-        else if (wallRight && !wallLeft)
-        {
-            wallCoyoteTimer = Tweaks.WallCoyoteFrames.GetSetting<Time>();
-            currentWallCoyoteType = Tweaks.WallCoyoteFrames.WallCoyoteTypes.Left;
-        }
+
+        static int FromBool(bool value) => value ? 1 : 0;
     }
-}
+
+    public bool CheckWall(int dir) => -dir != (int)side && timer;
+    public bool NullHorizontal => side == Tweaks.WallCoyoteFrames.WallSides.Both && timer;
+    public void AbortTimer()
+    {
+        timer.Abort();
+        disableTimer.Launch();
+    }
+} 

@@ -2,10 +2,7 @@
 namespace Celeste.Mod.LeniencyHelper.TweakSettings;
 class Bounds<T>
 {
-    bool hasMin = true;
     public T Min { get; private set; }
-    
-    bool hasMax = true;
     public T Max { get; private set; }
 
     public bool Check(T value)
@@ -21,10 +18,7 @@ class Bounds<T>
 
     public Bounds(T min, T max)
     {
-        if (min != null) Min = min;
-        else hasMin = false;
-
-        if (max != null) Max = max;
-        else hasMax = false;
+        Min = min;
+        Max = max;
     }
 }

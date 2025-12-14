@@ -84,7 +84,7 @@ public static class TweakMenuManager
         {
             Audio.Play("event:/ui/main/button_toggle_off");
             resetSettingsButton.SelectWiggler.Start();
-            SettingMaster.ResetPlayerSettings();
+            TweakData.ResetPlayerSettings();
         };
 
         menu.Add(new SubOptionsOffset(32));

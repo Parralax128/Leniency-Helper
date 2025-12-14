@@ -9,34 +9,19 @@ public abstract class GenericController : Entity
     TransitionListener transitionListener;
 
     bool? prevFlagActive = null;
-    public bool GetFlagActive => stopFlag != "" && SceneAs<Level>().Session.GetFlag(stopFlag);
-    bool removeOthers;
+    public bool FlagActive => stopFlag != "" && SceneAs<Level>().Session.GetFlag(stopFlag);
 
-    public GenericController(EntityData data, Vector2 offset, bool removeOthers) : base(data.Position + offset)
+    public GenericController(EntityData data, Vector2 offset) : base(data.Position + offset)
     {
-        this.removeOthers = removeOthers;
-
         stopFlag = data.Attr("StopFlag", "");
         persistent = data.Bool("Persistent", true);
         Add(transitionListener = new TransitionListener());
         transitionListener.OnOutBegin = OnLeave;
-    }
-    public override void Added(Scene scene)
-    {
-        base.Added(scene);
 
-        if (!removeOthers) return;
-        
-        foreach(Entity e in Scene.Entities)
+        void OnLeave() 
         {
-            if(e is GenericController controller)
-            {
-                if (!controller.Equals(this) && controller.GetType() == this.GetType())
-                {
-                    Logger.Warn("LeniencyHelper", $"removed {this.GetType().Name} clone!");
-                    controller.RemoveSelf();
-                }
-            }
+            if (!persistent)
+                Undo(false);
         }
     }
 
@@ -45,7 +30,7 @@ public abstract class GenericController : Entity
         base.Awake(scene);
         if (!persistent)
         {
-            GetOldSettings();
+            SaveData();
         }
 
         Apply(false);
@@ -55,7 +40,7 @@ public abstract class GenericController : Entity
     {
         base.Update();
 
-        bool flagActiveNow = GetFlagActive;
+        bool flagActiveNow = FlagActive;
 
         if (prevFlagActive.HasValue && flagActiveNow != prevFlagActive)
         {
@@ -63,18 +48,10 @@ public abstract class GenericController : Entity
             else Apply(true);
         }
 
-        prevFlagActive = GetFlagActive;
+        prevFlagActive = FlagActive;
     }
 
-    public abstract void Apply(bool fromFlag);
-    public abstract void Undo(bool fromFlag);
-    public abstract void GetOldSettings();
-
-    void OnLeave()
-    {
-        if (!persistent)
-        {
-            Undo(false);
-        }
-    }
+    protected abstract void Apply(bool fromFlag);
+    protected abstract void Undo(bool fromFlag);
+    protected abstract void SaveData();
 }

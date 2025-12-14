@@ -13,6 +13,9 @@ class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
 {
     [SettingIndex] static int OnNormalUpdate;
     [SettingIndex] static int OnDash;
+    
+    [SaveState] static int SafeClimbtriggerDir;
+    public static bool UseOrigCheck = false;
 
 
     [OnLoad]
@@ -57,28 +60,26 @@ class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
 
         if (LeniencyHelperModule.ModLoaded("VivHelper")) UnloadVivHelperHooks();
     }
+
     public static void UnloadVivHelperHooks()
     {
         customWindUpHook.Dispose();
     }
     
-    static int safeClimbtriggerDir;
-    public static bool useOrigCheck = false;
-
 
     static void ClimbTriggerOnClimbJump(On.Celeste.Player.orig_ClimbJump orig, Player self)
     {
         orig(self);
-
         if (Enabled) self.ClimbTrigger((int)self.Facing);
     }
+
     static int ClimbTriggerDuringDash(On.Celeste.Player.orig_DashUpdate orig, Player self)
     {
         if (Enabled && GetSetting<bool>(OnDash)) {
             if (self.Holding == null && Math.Sign(self.Speed.X) != 0 - self.Facing && self.ClimbBoundsCheck((int)self.Facing)
                 && Input.GrabCheck && !self.IsTired && !self.Ducking)
             {
-                safeClimbtriggerDir = (int)self.Facing;
+                SafeClimbtriggerDir = (int)self.Facing;
         }   }
 
         return orig(self);
@@ -96,7 +97,7 @@ class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
                 instr => instr.MatchLdcR4(0f),
                 instr => instr.MatchBltUn(out ILLabel label)))
             {
-                cursor.EmitDelegate(CheckEnabled);
+                cursor.EmitDelegate(CheckEnabledFlyUp);
                 cursor.EmitBrfalse(skipClimbtriggerDelegate);
 
                 cursor.EmitLdarg0();
@@ -107,22 +108,30 @@ class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
             }
             cursor.GotoNext(MoveType.After, instr => instr.MatchCallvirt<Player>("ClimbTrigger"));
         }
+
+
+        static void ClimbtriggerDelegate(Player player)
+        {
+            if (Math.Sign(player.Speed.X) != 0 - player.Facing)
+                SafeClimbtriggerDir = (int)player.Facing;
+        }
+        static bool CheckEnabledFlyUp(Player player) => Enabled && GetSetting<bool>(OnNormalUpdate);
     }
 
 
     static void ClearSafeClimbTrigger(Level level)
     {
-        safeClimbtriggerDir = 0;
+        SafeClimbtriggerDir = 0;
     }
     static void GetDefaultDir(On.Celeste.Player.orig_ClimbTrigger orig, Player self, int dir)
     {
         orig(self, dir);
-        safeClimbtriggerDir = dir;
+        SafeClimbtriggerDir = dir;
     }
 
     static bool ForceRideSolid(On.Celeste.Player.orig_IsRiding_Solid orig, Player self, Solid solid)
     {
-        return !useOrigCheck && GetClimbTriggeringPlayer(solid, self) != null
+        return !UseOrigCheck && GetClimbTriggeringPlayer(solid, self) != null
             || !DelayedClimbtrigger.useOrigCheck && DelayedClimbtrigger.GetClimbtriggeringPlayer(solid, self) != null
             || orig(self, solid);
     }
@@ -144,9 +153,9 @@ class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
         if (!Enabled) return null;
 
         if (player == null) player = LeniencyHelperModule.GetPlayer(solid.Scene);
-        if (safeClimbtriggerDir == 0) return null;
+        if (SafeClimbtriggerDir == 0) return null;
 
-        return LeniencyHelperModule.CollideOnWJdist(player, solid, safeClimbtriggerDir)? player : null;
+        return LeniencyHelperModule.CollideOnWJdist(player, solid, SafeClimbtriggerDir)? player : null;
     }
 
 
@@ -162,19 +171,7 @@ class BufferableClimbtrigger : AbstractTweak<BufferableClimbtrigger>
             c.EmitDelegate(SetUseOrig);
             c.Index++;
         }
-    }
 
-
-    static void SetUseOrig(bool value) { useOrigCheck = DelayedClimbtrigger.useOrigCheck = value; }
-    
-    static void ClimbtriggerDelegate(Player player)
-    {
-        if (Math.Sign(player.Speed.X) != 0 - player.Facing)
-            safeClimbtriggerDir = (int)player.Facing;
+        static void SetUseOrig(bool value) { UseOrigCheck = DelayedClimbtrigger.useOrigCheck = value; }
     }
-    
-    static bool CheckEnabled(Player player)
-    {
-        return Enabled && GetSetting<bool>(OnNormalUpdate);
-    }    
 }

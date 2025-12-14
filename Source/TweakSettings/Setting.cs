@@ -36,23 +36,21 @@ class Setting<T> : AbstractSetting
     {
         return ValidLeniencyBounds.Check(value);
     }
-    public override bool? Set(SettingSource source, object value)
+    public override void Set(SettingSource source, object value)
     {
         T typedValue = (T)value;
 
-        bool? result = true;
-        if (ValueBounds != null && !ValueBounds.Check(typedValue)) result = null;
+        bool? check = true;
+        if (ValueBounds != null && !ValueBounds.Check(typedValue)) check = null;
         else if (source == SettingSource.Player && (ValidLeniencyBounds != null || ValidLeniencyValues != null))
         {
-            result = ValidLeniencyBounds?.Check(typedValue) ?? ValidLeniencyValues.Contains(typedValue);
+            check = ValidLeniencyBounds?.Check(typedValue) ?? ValidLeniencyValues.Contains(typedValue);
         }
         
-        if(result == true)
+        if(check == true)
         {
             Values[(int)source] = typedValue;
         }
-        
-        return result;
     }
 
     
@@ -63,7 +61,7 @@ class Setting<T> : AbstractSetting
     public override object GetTypeless(SettingSource source) => Values[(int)source];
 
 
-    public override bool? Reset(SettingSource source)
+    public override void Reset(SettingSource source)
         => Set(source, Values[(int)SettingSource.Default]);
 
 
@@ -80,6 +78,7 @@ class Setting<T> : AbstractSetting
     public override object ParseFromData(EntityData data)
     {
         T defaultValue = Get(SettingSource.Default);
+
         if (defaultValue is bool defaultBool) return data.Bool(Name, defaultBool);
         if (defaultValue is int defaultInt) return data.Int(Name, defaultInt);
         if (defaultValue is float defaultFloat) return data.Float(Name, defaultFloat);
@@ -88,9 +87,5 @@ class Setting<T> : AbstractSetting
         return null;
     }
 
-    public override List<UI.Items.AbstractTweakItem> MenuEntry(Tweak tweak)
-    {
-        return new() { new UI.Items.TweakSetting<T>(tweak, this) };
-    }
-    public T GetMapValue(Tweak tweak) => Values[(int)tweak.GetMapSource()];
+    public override UI.Items.AbstractTweakItem MenuEntry(Tweak tweak) =>  new UI.Items.TweakSetting<T>(tweak, this);
 }

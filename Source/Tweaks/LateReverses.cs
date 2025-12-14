@@ -1,6 +1,4 @@
-﻿using Monocle;
-using Celeste.Mod.LeniencyHelper.Module;
-using MonoMod.Cil;
+﻿using MonoMod.Cil;
 using Microsoft.Xna.Framework;
 using Celeste.Mod.Helpers;
 using System;
@@ -9,6 +7,10 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 class LateReverses : AbstractTweak<LateReverses>
 {
+    [SaveState] static float redirectSpeed;
+    [SaveState] static Facings prevFrameFacing;
+    static Timer RedirectTimer = new();
+
     [OnLoad]
     public static void LoadHooks()
     {
@@ -39,30 +41,28 @@ class LateReverses : AbstractTweak<LateReverses>
             cursor.EmitLdarg0();
             cursor.EmitDelegate(GetRedirectSpeed);
         }
-    }
-    static void GetRedirectSpeed(Vector2 liftboost, Player player)
-    {
-        LeniencyHelperModule.Session.redirectSpeed = (-player.Speed.X + liftboost.X) * (player.Ducking ? 1.25f : 1f);
-    }
-    static void LaunchTimer(Player player)
-    {
-        if((int)player.Facing == Math.Sign(player.Speed.X))
-            LeniencyHelperModule.Session.redirectTimer = 0f;
-    }
-    static void UpdateRedirectTimer(Player player)
-    {   
-        var s = LeniencyHelperModule.Session;
 
-        if(s.redirectTimer <= GetSetting<Time>())
+        static void GetRedirectSpeed(Vector2 liftboost, Player player) =>
+            redirectSpeed = (-player.Speed.X + liftboost.X) * (player.Ducking ? 1.25f : 1f);
+        static void LaunchTimer(Player player)
         {
-            s.redirectTimer += Engine.DeltaTime;
-            if (Enabled && s.prevFrameFacing != player.Facing)
+            if ((int)player.Facing == Math.Sign(player.Speed.X))
+                RedirectTimer.Launch(GetSetting<Time>());
+        }
+    }
+    
+    
+    static void UpdateRedirectTimer(Player player)
+    {
+        if(RedirectTimer)
+        {
+            if (Enabled && prevFrameFacing != player.Facing)
             {
-                player.Speed.X = s.redirectSpeed;
-                s.redirectTimer = 0f;
+                player.Speed.X = redirectSpeed;
+                RedirectTimer.Abort();
             }
         }
 
-        s.prevFrameFacing = player.Facing;
+        prevFrameFacing = player.Facing;
     }
 }

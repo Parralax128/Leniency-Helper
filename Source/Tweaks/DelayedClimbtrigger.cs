@@ -32,7 +32,7 @@ class DelayedClimbtrigger : AbstractTweak<DelayedClimbtrigger>
         var component = solid.Get<DelayedClimbtriggerComponent>();
         if (component == null) return null;
 
-        return solid.Get<DelayedClimbtriggerComponent>()?.climbtriggerTimer > 0f ?
+        return solid.Get<DelayedClimbtriggerComponent>()?.ClimbtriggerTimer ?
             player ?? LeniencyHelperModule.GetPlayer(solid.Scene) : null;
     }
 }

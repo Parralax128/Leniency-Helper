@@ -61,23 +61,19 @@ class SmoothHorizontalAlignmentTrigger : Trigger
         target = data.Nodes[0];
     }
 
-    static Ease.Easer EnumToEaser(Easings enumValue)
-    {
-        switch(enumValue)
-        {
-            case Easings.Linear: return Ease.Linear;
-            case Easings.Sine: return Ease.SineInOut;
-            case Easings.Quad: return Ease.QuadInOut;
-            case Easings.Cube: return Ease.CubeInOut;
-            case Easings.Quint: return Ease.QuintInOut;
-            case Easings.Exponent: return Ease.ExpoInOut;
-            case Easings.Back: return Ease.BackInOut;
-            case Easings.BigBack: return Ease.BigBackInOut;
-            case Easings.Elastic: return Ease.ElasticInOut;
-        }
-
-        return Ease.Linear;
-    }
+    static Ease.Easer EnumToEaser(Easings enumValue) => enumValue switch {
+        Easings.Linear => Ease.Linear,
+        Easings.Sine => Ease.SineInOut,
+        Easings.Quad => Ease.QuadInOut,
+        Easings.Cube => Ease.CubeInOut,
+        Easings.Quint => Ease.QuintInOut,
+        Easings.Exponent => Ease.ExpoInOut,
+        Easings.Back => Ease.BackInOut,
+        Easings.BigBack => Ease.BigBackInOut,
+        Easings.Elastic => Ease.ElasticInOut,
+        _ => Ease.Linear
+    };
+    
 
     void Start(Vector2 from)
     {
@@ -103,7 +99,6 @@ class SmoothHorizontalAlignmentTrigger : Trigger
 
     public override void Update()
     {
-        base.Update();
         Collidable = FlagActive;
 
         Player player = CollideFirst<Player>();

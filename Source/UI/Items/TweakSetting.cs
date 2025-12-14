@@ -1,9 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Monocle;
 using System;
 using Celeste.Mod.LeniencyHelper.TweakSettings;
 using System.Collections.Generic;
-using Celeste.Mod.LeniencyHelper.Module;
 
 namespace Celeste.Mod.LeniencyHelper.UI.Items;
 

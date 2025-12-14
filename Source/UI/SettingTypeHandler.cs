@@ -1,10 +1,5 @@
 ﻿using Celeste.Mod.LeniencyHelper.TweakSettings;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static Celeste.GaussianBlur;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
 abstract class SettingTypeHandler<T>
@@ -91,33 +86,31 @@ class TimeHandler : ComparableSettingType<Time>
     public override string GetText(Time value) => value.ToString();
 }
 
-class EnumHandler<EnumT>    : SettingTypeHandler<EnumT> where EnumT : struct, Enum
+class EnumHandler<EnumT> : SettingTypeHandler<EnumT>    where EnumT : struct, Enum
 {
-    static EnumT[] values;
-
-    public EnumHandler() => values = Enum.GetValues<EnumT>();
+    static EnumT[] Values => Enum.GetValues<EnumT>();
 
     public override float CalculateMaxWidth(Setting<EnumT> setting)
     {
         float len = 0f;
-        foreach (EnumT value in values) {
+        foreach (EnumT value in Values) {
             len = Math.Max(len, ActiveFont.Measure(GetText(value)).X);
         }
         return len;
     }
 
     public override EnumT Advance(EnumT value, int direction)
-        => values[Math.Clamp(Array.IndexOf(values, value) + direction, 0, values.Length - 1)];
+        => Values[Math.Clamp(Array.IndexOf(Values, value) + direction, 0, Values.Length - 1)];
     public override void CheckBounds(Setting<EnumT> value, out bool left, out bool right)
     {
-        int index = Array.IndexOf(values, value.Player);
+        int index = Array.IndexOf(Values, value.Player);
         left = index > 0;
-        right = index < values.Length - 1;
+        right = index < Values.Length - 1;
     }
     public override bool CheckValidDir(EnumT value, Bounds<EnumT> bounds, int dir)
     {
-        int targetIndex = Array.IndexOf(values, value) + dir;
-        return targetIndex >= 0 && targetIndex <= values.Length - 1;
+        int targetIndex = Array.IndexOf(Values, value) + dir;
+        return targetIndex >= 0 && targetIndex <= Values.Length - 1;
     }
 
     public override string GetText(EnumT value)

@@ -1,38 +1,20 @@
-﻿using Monocle;
-using static Celeste.Mod.LeniencyHelper.SettingMaster;
+﻿namespace Celeste.Mod.LeniencyHelper.Components;
 
-namespace Celeste.Mod.LeniencyHelper.Components;
-
-class RefillCoyoteComponent : PlayerComponent
+class RefillCoyoteComponent : TweakComponent<Tweaks.RefillDashInCoyote>
 {
-    public float refillCoyoteTimer;
-    public RefillCoyoteComponent() : base(Tweak.RefillDashInCoyote) 
-    {
-        refillCoyoteTimer = 0f;
-    }
+    public Timer RefillCoyoteTimer = new();
     public override void Update()
     {
         base.Update();
-        if (!Tweaks.RefillDashInCoyote.Enabled) return;
+        if (!TweakEnabled) return;
 
-        Player player = Entity as Player;
-        if (refillCoyoteTimer > 0f)
+        if (RefillCoyoteTimer && Player.dashRefillCooldownTimer <= 0f)
         {
-            refillCoyoteTimer -= Engine.DeltaTime;
-            if (player.dashRefillCooldownTimer <= 0f)
-            {
-                player.RefillDash();
-                refillCoyoteTimer = 0f;
-            }
+            Player.RefillDash();
+            RefillCoyoteTimer.Abort();
         }
     }
-    public void ResetTimer()
-    {
-        refillCoyoteTimer = Tweaks.RefillDashInCoyote.GetSetting<Time>();
-    }
 
-    public void Cancel()
-    {
-        refillCoyoteTimer = 0f;
-    }
+    public void ResetTimer() => RefillCoyoteTimer.Launch(Tweaks.RefillDashInCoyote.GetSetting<Time>());
+    public void Cancel() => RefillCoyoteTimer.Abort();
 }

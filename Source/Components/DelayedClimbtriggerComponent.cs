@@ -1,32 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Celeste.Mod.LeniencyHelper.Tweaks;
-using Celeste.Mod.LeniencyHelper.Module;
-using Microsoft.Xna.Framework;
-using Monocle;
+﻿using Celeste.Mod.LeniencyHelper.Tweaks;
 
 namespace Celeste.Mod.LeniencyHelper.Components;
 
-public  class DelayedClimbtriggerComponent : Component
+class DelayedClimbtriggerComponent : TweakComponent<Solid, DelayedClimbtrigger>
 {
-    static float Delay => DelayedClimbtrigger.GetSetting<Time>();
-    public float climbtriggerTimer;
-    Solid Solid => (Solid) Entity;
-    public DelayedClimbtriggerComponent() : base(true, false) { }
+    public Timer ClimbtriggerTimer = new();
 
     public override void Update()
     {
         base.Update();
-        if (climbtriggerTimer > 0f) climbtriggerTimer -= Engine.DeltaTime;
 
         DelayedClimbtrigger.useOrigCheck = true;
-
-        if (Scene.Tracker.GetEntity<Player>() is Player player && player.IsRiding(Solid))
+        if (Entity.HasPlayerRider())
         {
-            climbtriggerTimer = Delay;
+            ClimbtriggerTimer.Launch(GetSetting<Time>());
         }
-        
         DelayedClimbtrigger.useOrigCheck = false;
     }
 }

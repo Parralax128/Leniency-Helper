@@ -27,8 +27,13 @@ class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
         origUpdateHook.Dispose();
     }
 
-    static bool groundChecking = false, groundDetected = false, wasDashing = false;
+
+    static bool groundChecking = false, 
+                groundDetected = false, 
+                wasDashing = false;
+
     static Vector2 origPos;
+
     static void HookedUpdate(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
@@ -51,7 +56,7 @@ class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
             if (cursor.TryGotoNext(MoveType.After, i => i.MatchLdfld<Player>("onGround")))
             {
                 cursor.EmitLdarg0();
-                cursor.EmitDelegate((bool orig, Player player) => orig || player.OnGround() && groundChecking);
+                cursor.EmitDelegate(OnGroundChecking);
             }
 
             if(cursor.TryGotoNext(i => i.MatchLdfld<Assists>("Invincible"), i => i.MatchBrfalse(out varJumpTimerLabel)))
@@ -84,46 +89,43 @@ class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
                 cursor.EmitDelegate(ClearGroundChecking);
             }
         }
-    }
-    static void OnGroundDetected(Player player)
-    {
-        if (!groundChecking || !Enabled) return;
 
-        groundDetected = true;
 
-        if (player.DashDir.X != 0f && player.DashDir.Y > 0f && player.Speed.Y > 0f) //performing ultraboost
+        static bool OnGroundChecking(bool orig, Player player) => orig || player.OnGround() && groundChecking;
+        static bool GroundChecking() => groundChecking;
+        static void OnGroundDetected(Player player)
         {
-            player.DashDir.X = Math.Sign(player.DashDir.X);
-            player.DashDir.Y = 0f;
-            player.Speed.Y = 0f;
-            player.Speed.X *= 1.2f;
-            player.Ducking = wasDashing || Input.MoveY.Value == currentGravity;
+            if (!groundChecking || !Enabled) return;
+
+            groundDetected = true;
+
+            if (player.DashDir.X != 0f && player.DashDir.Y > 0f && player.Speed.Y > 0f) //performing ultraboost
+            {
+                player.DashDir.X = Math.Sign(player.DashDir.X);
+                player.DashDir.Y = 0f;
+                player.Speed.Y = 0f;
+                player.Speed.X *= 1.2f;
+                player.Ducking = wasDashing || Input.MoveY.Value == currentGravity;
+            }
+
+            if (wasDashing) player.SuperJump();
+            else player.Jump();
         }
-
-        if (wasDashing) player.SuperJump();
-        else player.Jump();
-    }
-    static bool GroundChecking() => groundChecking;
-    static bool GroundAndCDChecking(Player player) => player.dashRefillCooldownTimer > 0f && groundChecking;
-    static void ClearGroundChecking() => groundChecking = false;
-    static void ReturnPos(Player player)
-    {
-        if (!groundChecking) return;
-
-        if (!groundDetected)
+        static bool GroundAndCDChecking(Player player) => player.dashRefillCooldownTimer > 0f && groundChecking;
+        static void ClearGroundChecking() => groundChecking = false;
+        static void ReturnPos(Player player)
         {
-            player.Position = origPos;
-            player.WallJump(Math.Sign(player.Speed.X)); // if no ground detected - walljumping
+            if (!groundChecking) return;
+
+            if (!groundDetected)
+            {
+                player.Position = origPos;
+                player.WallJump(Math.Sign(player.Speed.X)); // if no ground detected - walljumping
+            }
+            else player.Position.X = origPos.X;
         }
-        else player.Position.X = origPos.X;
     }
-
-    static bool CheckDiag(Player player)
-    {
-        if (!Enabled) return false;
-
-        return player.DashDir.X != 0f && player.DashDir.Y > 0f && player.Speed.Y > 0f;
-    }
+    
     static void RemoveDiagCCorection(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
@@ -145,7 +147,16 @@ class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
             cursor.EmitDelegate(CheckDiag);
             cursor.EmitOr();
         }
+
+
+        static bool CheckDiag(Player player)
+        {
+            if (!Enabled) return false;
+
+            return player.DashDir.X != 0f && player.DashDir.Y > 0f && player.Speed.Y > 0f;
+        }
     }
+
     static void StartGroundCheck(On.Celeste.Player.orig_WallJump orig, Player self, int dir)
     {
         if (Enabled && !groundChecking && Math.Sign(self.Speed.X) == dir && CheckCorner(self, -dir))
@@ -169,8 +180,7 @@ class CornerWaveLeniency : AbstractTweak<CornerWaveLeniency>
             if (LeniencyHelperModule.CollideOnWJdist<Solid>(player, dir, checkPos) 
                 && !LeniencyHelperModule.CollideOnWJdist<Solid>(player, dir, checkPos - Vector2.UnitY * currentGravity))
             {
-                var s = LeniencyHelperModule.Session;
-                for (int x = 0; x < (dir == 1? s.wjDistR : s.wjDistL); x++)
+                for (int x = 0; x < (dir == 1? LeniencyHelperModule.Session.wjDistR : LeniencyHelperModule.Session.wjDistL); x++)
                 {
                     if (player.OnGround(checkPos + Vector2.UnitX * dir * x))
                     {

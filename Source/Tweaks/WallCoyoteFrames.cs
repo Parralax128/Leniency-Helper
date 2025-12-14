@@ -5,11 +5,11 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 class WallCoyoteFrames : AbstractTweak<WallCoyoteFrames>
 {
-    public enum WallCoyoteTypes
+    public enum WallSides
     {
-        Left,
-        Right,
-        Both
+        Left = -1,
+        Right = 1,
+        Both = 0
     }
 
     [OnLoad]
@@ -43,38 +43,26 @@ class WallCoyoteFrames : AbstractTweak<WallCoyoteFrames>
             cursor.EmitDelegate(ConsumeCoyoteTime);
             cursor.Index++;
         }
-    }
-    static void ConsumeCoyoteTime(Player player)
-    {
-        if (!Enabled) return;
 
-        WallCoyoteFramesComponent component = player.Get<WallCoyoteFramesComponent>();
-        if (component == null) return;
+        static void ConsumeCoyoteTime(Player player)
+        {
+            if (!Enabled) return;
 
-        if (component.wallCoyoteTimer > 0f && component.currentWallCoyoteType == WallCoyoteTypes.Both)
-            player.Speed.X = 0f;
-        component.wallCoyoteTimer = 0f;
+            WallCoyoteFramesComponent component = player.Get<WallCoyoteFramesComponent>();
+            if (component == null) return;
+
+            if (component.NullHorizontal) player.Speed.X = 0f;
+            component.AbortTimer();
+        }
     }
+    
 
     public static bool CoyoteWallJumpCheck(On.Celeste.Player.orig_WallJumpCheck orig, Player self, int dir)
     {
-        if (!Enabled || useOrigWJCheck)
-        {
-            return orig(self, dir);
-        }
+        if (!Enabled || useOrigWJCheck) return orig(self, dir);
+
 
         WallCoyoteFramesComponent component = self.Get<WallCoyoteFramesComponent>();
-        switch (dir)
-        {
-            case -1:
-                return orig(self, -1) || component.wallCoyoteTimer > 0 &&
-                    (component.currentWallCoyoteType == WallCoyoteTypes.Right ||
-                    component.currentWallCoyoteType == WallCoyoteTypes.Both);
-            case 1:
-                return orig(self, 1) || component.wallCoyoteTimer > 0 &&
-                    (component.currentWallCoyoteType == WallCoyoteTypes.Left ||
-                    component.currentWallCoyoteType == WallCoyoteTypes.Both);
-        }
-        return false;
+        return component.CheckWall(dir);
     }
 }

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.LeniencyHelper.TweakSettings;
@@ -17,15 +15,9 @@ class SettingContainer : IEnumerable<AbstractSetting>
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public T Get<T>(int index, SettingSource source)
-    {
-        if (settingList[index] is Setting<T> typeSetting) return typeSetting.Get(source);
-        else return (settingList[index] as CompoundSetting<T>).Get(source);
-    }
+    public T Get<T>(int index, SettingSource source) => (settingList[index] as Setting<T>).Get(source);
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public object Get(int index, SettingSource source) => settingList[index].GetTypeless(source);
-
-    // would need to fill up the Dictionary<string, int> (name -> setting index) for that
-    // performance sucks, but ok for one-time assignments like triggers / controllers
-    public bool? Set(int index, SettingSource source, object value) => settingList[index].Set(source, value);
+    public void Set(int index, SettingSource source, object value) => settingList[index].Set(source, value);
 }

@@ -6,6 +6,9 @@ class AutoSlowfall : AbstractTweak<AutoSlowfall>
     [SettingIndex] static int TechOnly;
     [SettingIndex] static int DelayedJumpRelease;
     [SettingIndex] static int ReleaseDelay;
+    
+    static Timer ReleaseTimer = new();
+    [SaveState] static bool TechState;
 
 
     [OnLoad]
@@ -27,11 +30,9 @@ class AutoSlowfall : AbstractTweak<AutoSlowfall>
         Everest.Events.Player.OnBeforeUpdate -= CheckTechSpeed;
     }
 
-    static Timer ReleaseTimer = new();
-    static HelperValueWrapper<bool> TechState;
-
-    static void CheckTechSpeed(Player player) {
-        if (TechState && player.Speed.Y > 0f) TechState.Set(false);
+    static void CheckTechSpeed(Player player) 
+    {
+        if (TechState && player.Speed.Y > 0f) TechState = false;
     }
 
     static void LaunchTimer(ILContext il)
@@ -44,7 +45,7 @@ class AutoSlowfall : AbstractTweak<AutoSlowfall>
 
     static void ToTechState()
     {
-        TechState.Set(true);
+        TechState = true;
         ReleaseTimer.Launch(GetSetting<Time>(ReleaseDelay));
     }
 
@@ -53,8 +54,7 @@ class AutoSlowfall : AbstractTweak<AutoSlowfall>
     {
         if (Enabled)
         {
-            self.AutoJump =
-                (GetSetting<bool>(DelayedJumpRelease) ? ReleaseTimer : true)
+            self.AutoJump = (GetSetting<bool>(DelayedJumpRelease) ? ReleaseTimer : true)
                 && (GetSetting<bool>(TechOnly) ? TechState : true);
         }
         
@@ -62,7 +62,7 @@ class AutoSlowfall : AbstractTweak<AutoSlowfall>
         if(newState != Player.StNormal)
         {
             ReleaseTimer.Abort();
-            TechState.Set(false);
+            TechState = false;
         }
         return newState;
     }

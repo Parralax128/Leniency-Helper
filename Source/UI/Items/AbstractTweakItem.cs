@@ -1,5 +1,4 @@
-﻿using Celeste.Mod.LeniencyHelper.Module;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 

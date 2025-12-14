@@ -86,7 +86,22 @@ class ConsistentWallboosters : AbstractTweak<ConsistentWallboosters>
                 }
             }
         }
+
+
+        static bool InstantAccelerationEnabled() => Enabled && GetSetting<bool>(InstantAcceleration);
+
+        static float GetNewAcceleration(float orig)
+        {
+            if (!Enabled || GetSetting<bool>(InstantAcceleration))
+                return orig;
+
+            return GetSetting<int>(CustomAcceleration) * 60f;
+        }
+
+        static float GetConsistentBlockboost(float orig, float target) =>
+            Enabled && GetSetting<bool>(ConsistentBlockboost) ? target : orig;
     }
+
 
     static bool EdgeJumpCheck(Player player)
     {
@@ -109,18 +124,4 @@ class ConsistentWallboosters : AbstractTweak<ConsistentWallboosters>
 
         return noWallboosterNextFrame;
     }
-
-    static bool InstantAccelerationEnabled() =>
-         Enabled && GetSetting<bool>(InstantAcceleration);
-
-    static float GetNewAcceleration(float orig)
-    {
-        if (!Enabled || GetSetting<bool>(InstantAcceleration))
-            return orig;
-
-        return GetSetting<int>(CustomAcceleration) * 60f;
-    }
-
-    static float GetConsistentBlockboost(float orig, float target) => 
-        Enabled && GetSetting<bool>(ConsistentBlockboost) ? target : orig;         
 }
