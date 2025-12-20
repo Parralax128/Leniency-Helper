@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using static Celeste.TextMenu;
-
+using Celeste.Mod.LeniencyHelper.UI.Items.SettingHandlers;
 
 namespace Celeste.Mod.LeniencyHelper.UI.Items;
 
@@ -16,6 +16,7 @@ class TweakSlider : AbstractTweakItem
 
     public bool addedSubsettings = false;
     Action<bool> SetVisible;
+    EnumHandler<SliderValues> handler = new();
 
     static readonly Color PlayerValueColor = new Color(218, 165, 32);
     static readonly Color MapValueColor = new Color(0, 191, 255);
@@ -39,11 +40,7 @@ class TweakSlider : AbstractTweakItem
     {
         this.tweak = tweak;
 
-        cachedWidth = 0f;
-        foreach (string str in Enum.GetValues<SliderValues>().Select(s => DialogUtils.Enum(s)))
-        {
-            cachedWidth = Math.Max(cachedWidth, ActiveFont.Measure(str).X);
-        }
+        cachedWidth = handler.CalculateMaxWidth(null);
 
         Value = tweak.Get(SettingSource.Player) switch
         {
@@ -68,14 +65,14 @@ class TweakSlider : AbstractTweakItem
     {
         int baseindex = Container.IndexOf(this);
 
-        var beforeOffset = new SubOptionsOffset(8);
+        var beforeOffset = new HeightGap(8);
         SetVisible += (v) => beforeOffset.Visible = v;
 
         Container.Add(beforeOffset);
         foreach (AbstractTweakItem setting in subSettings)
         {
             setting.Parent = this;
-            if (setting.description != null) Container.Add(setting.description);
+            if (setting.Description != null) Container.Add(setting.Description);
             Container.Add(setting);
 
             SetVisible += (v) => { setting.Visible = v; };
@@ -99,7 +96,7 @@ class TweakSlider : AbstractTweakItem
             };
         }
 
-        var afterOffset = new SubOptionsOffset(16);
+        var afterOffset = new HeightGap(16);
         SetVisible += (v) => afterOffset.Visible = v;
 
         Container.Add(afterOffset);
@@ -158,7 +155,7 @@ class TweakSlider : AbstractTweakItem
 
     public override void ChangeValue(int dir)
     {
-        Value = (SliderValues)((int)Value + dir);
+        Value = handler.Advance(Value, dir);
         TweakData.Tweaks[tweak].Set(GetPlayerState, SettingSource.Player);
 
         ValueWiggler.Start();
@@ -171,10 +168,7 @@ class TweakSlider : AbstractTweakItem
 
         if (!tweak.Enabled()) CloseSuboptions();
     }
-    public override bool TryChangeValue(int dir)
-    {
-        return dir > 0 ? (int)Value < 3 : (int)Value > 0;
-    }
+    public override bool TryChangeValue(int dir) => handler.CheckValidDir(Value, null, dir);
 
     public void TweakInfoFromLink()
     {
@@ -190,17 +184,19 @@ class TweakSlider : AbstractTweakItem
     public override float RightWidth() => cachedWidth;
     public override float LeftWidth() => ActiveFont.Measure(Label).X * Layout.SubSettingScale;
 
-    Color GetColor(bool selected)
-    {
-        if (selected) return Container.HighlightColor;
-
-        if (tweak.Get(SettingSource.Player).HasValue) return PlayerValueColor;
-        return tweak.Enabled() ? MapValueColor : UnselectedColor;
-    }
-
     public override void Render(Vector2 position, bool selected)
     {
         position.X = Layout.LeftOffset;
-        base.Render(position, selected, DialogUtils.Enum(Value), (int)Value > 0, (int)Value < 3, GetColor(selected) * Container.Alpha);
+
+        handler.CheckBounds(Value, out bool left, out bool right);
+        base.Render(position, selected, handler.GetText(Value), left, right, GetColor() * Container.Alpha);
+
+        Color GetColor()
+        {
+            if (selected) return Container.HighlightColor;
+
+            if (tweak.Get(SettingSource.Player).HasValue) return PlayerValueColor;
+            return tweak.Enabled() ? MapValueColor : UnselectedColor;
+        }
     }
 }

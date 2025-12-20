@@ -6,6 +6,7 @@ namespace Celeste.Mod.LeniencyHelper.TweakSettings;
 class Setting<T> : AbstractSetting
 {
     public T[] Values = new T[5];
+    string lookupName;
     public T Player
     {
         get => Values[(int)SettingSource.Player];
@@ -20,8 +21,8 @@ class Setting<T> : AbstractSetting
     public Setting(string name, T defaultValue)
     {
         Name = name;
-        
-        if(defaultValue is ICloneable clonable) foreach (var source in Enum.GetValues<SettingSource>())
+
+        if (defaultValue is ICloneable clonable) foreach (var source in Enum.GetValues<SettingSource>())
             Values[(int)source] = (T)clonable.Clone();
         
         else foreach (var source in Enum.GetValues<SettingSource>())
@@ -75,14 +76,15 @@ class Setting<T> : AbstractSetting
         ValidLeniencyValues = validValues;
         ValidLeniencyBounds = null;
     }
-    public override object ParseFromData(EntityData data)
+    public override object ParseFromData(EntityData data, Tweak tweak)
     {
+        if (lookupName == null) lookupName = DialogUtils.Setting(Name, tweak, DialogUtils.Precision.ImmutableKey);
         T defaultValue = Get(SettingSource.Default);
 
-        if (defaultValue is bool defaultBool) return data.Bool(Name, defaultBool);
-        if (defaultValue is int defaultInt) return data.Int(Name, defaultInt);
-        if (defaultValue is float defaultFloat) return data.Float(Name, defaultFloat);
-        if (defaultValue is Time defaultTime) return data.Time(Name, defaultTime);
+        if (defaultValue is bool defaultBool) return data.Bool(lookupName, defaultBool);
+        if (defaultValue is int defaultInt) return data.Int(lookupName, defaultInt);
+        if (defaultValue is float defaultFloat) return data.Float(lookupName, defaultFloat);
+        if (defaultValue is Time defaultTime) return data.Time(lookupName, defaultTime);
 
         return null;
     }

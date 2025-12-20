@@ -23,5 +23,6 @@ class AbstractTweak<TweakType>   where TweakType : AbstractTweak<TweakType>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T GetSetting<T>(int index = 0) => TweakData.Tweaks[tweak].GetSetting<T>(index);
     public static int GetFlexDistance(int settingIndex, float speed) =>
-        FlexDistance.Get(GetSetting<FlexDistance.Modes>(settingIndex), GetSetting<int>(settingIndex+1), GetSetting<Time>(settingIndex+2), speed);
+        FlexDistance.Get(GetSetting<FlexDistance.Modes>(settingIndex),
+        GetSetting<int>(settingIndex+1), GetSetting<Time>(settingIndex+2), speed);
 }

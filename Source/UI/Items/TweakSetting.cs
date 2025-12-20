@@ -2,13 +2,14 @@
 using System;
 using Celeste.Mod.LeniencyHelper.TweakSettings;
 using System.Collections.Generic;
+using Celeste.Mod.LeniencyHelper.UI.Items.SettingHandlers;
 
 namespace Celeste.Mod.LeniencyHelper.UI.Items;
 
 class TweakSetting<T> : AbstractTweakItem
 {
     protected Setting<T> Setting;
-    SettingTypeHandler<T> handler;
+    AbstractHandler<T> handler;
 
     public bool PlayerSource = false;
 
@@ -19,22 +20,23 @@ class TweakSetting<T> : AbstractTweakItem
         { typeof(float), new FloatHandler() },
         { typeof(Time), new TimeHandler() },
     };
-    static SettingTypeHandler<T> GetHandler<T>()
+    static AbstractHandler<T> GetHandler<T>()
     {
         Type type = typeof(T);
         if (Handlers.TryGetValue(type, out var handler))
-            return (SettingTypeHandler<T>)handler;
+            return (AbstractHandler<T>)handler;
 
         if (type.IsEnum)
         {
             Type handlerType = typeof(EnumHandler<>).MakeGenericType(type);
             var enumHadler = Activator.CreateInstance(handlerType);
             Handlers.Add(type, enumHadler);
-            return (SettingTypeHandler<T>)enumHadler;
+            return (AbstractHandler<T>)enumHadler;
         }
 
         throw new ArgumentException($"Could not find a corresponding SettingTypeHandler for the type \"{type.Name}\"");
     }
+
 
     public TweakSetting(Tweak tweak, Setting<T> setting) : base(tweak, setting.Name)
     {

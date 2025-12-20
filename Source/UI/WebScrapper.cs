@@ -41,7 +41,7 @@ class WebScrapper
         }
         catch (Exception e)
         {
-            Logger.Error(Module.LeniencyHelperModule.Instance.Metadata.Name, $"Error fetching {url}:\n{e.Message}\n{e.InnerException}");
+            Logger.Error(Module.LeniencyHelperModule.Name, $"Error fetching {url}:\n{e.Message}\n{e.InnerException}");
             TweaksInfo.TryAdd(tweak, default);
             return;
         }

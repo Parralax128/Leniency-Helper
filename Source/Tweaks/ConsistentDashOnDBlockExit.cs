@@ -27,7 +27,7 @@ class ConsistentDashOnDBlockExit : AbstractTweak<ConsistentDashOnDBlockExit>
     static void DetectDreamDashEnd(On.Celeste.Player.orig_DreamDashEnd orig, Player self)
     {
         orig(self);
-        if(Enabled) dreamDashEnded = true;
+        if (Enabled) dreamDashEnded = true;
     }
 
     static void MoveToDBlock(Player player)
@@ -39,7 +39,7 @@ class ConsistentDashOnDBlockExit : AbstractTweak<ConsistentDashOnDBlockExit>
             {
                 if (player.CollideCheck<DreamBlock>(player.Position + Vector2.UnitX * (c * negSign)))
                 {
-                    player.MoveHExact(Math.Max(c - 4, 0 )*negSign);
+                    player.MoveHExact(Math.Max(c - 4, 0) * negSign);
                     break;
                 }
             }
@@ -47,17 +47,17 @@ class ConsistentDashOnDBlockExit : AbstractTweak<ConsistentDashOnDBlockExit>
             dreamDashEnded = false;
         }
     }
-    
+
     static void InstantDBlockExit(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
-            
-        if(cursor.TryGotoNext(MoveType.After, 
+
+        if (cursor.TryGotoNext(MoveType.After,
             instr => instr.MatchStfld<Player>("dreamDashCanEndTimer"),
             instr => instr.MatchLdarg0(),
             instr => instr.MatchCall<Entity>("CollideFirst")))
         {
-            if(cursor.TryGotoNext(MoveType.After,
+            if (cursor.TryGotoNext(MoveType.After,
                 instr => instr.MatchLdfld<Player>("dreamDashCanEndTimer"),
                 instr => instr.MatchLdcR4(0f),
                 instr => instr.MatchBgtUn(out ILLabel label)))
@@ -67,7 +67,7 @@ class ConsistentDashOnDBlockExit : AbstractTweak<ConsistentDashOnDBlockExit>
             }
         }
 
-        if(cursor.TryGotoNext(MoveType.Before,
+        if (cursor.TryGotoNext(MoveType.Before,
             instr => instr.MatchLdcI4(0),
             instr => instr.MatchRet()))
         {

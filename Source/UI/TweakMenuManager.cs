@@ -25,7 +25,7 @@ public static class TweakMenuManager
     public static MenuLayout Layout;
     static void RestrictMove(On.Celeste.TextMenu.orig_MoveSelection orig, TextMenu self, int dir, bool wiggle)
     {
-        if (self.Components.Get<LHmenuTracker>() != null && InSingleSubsettingMenu && InSubsettingsMode)
+        if (self.Components.Get<MenuTracker>() != null && InSingleSubsettingMenu && InSubsettingsMode)
         {
             return;
         }
@@ -64,7 +64,7 @@ public static class TweakMenuManager
         menu.OnUpdate += () => OnUpdate(menu);
         menu.Add(new TextMenu.Header(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENU")));
         AddItemsToMenu(menu);
-        menu.Add(new LHmenuTracker());
+        menu.Add(new MenuTracker());
         
         searchLabel = OuiModOptions.AddSearchBox(menu);
 
@@ -87,13 +87,13 @@ public static class TweakMenuManager
             TweakData.ResetPlayerSettings();
         };
 
-        menu.Add(new SubOptionsOffset(32));
+        menu.Add(new HeightGap(32));
         menu.Add(new OptionsHint());
 
         foreach (Tweak tweak in LeniencyHelperModule.TweakList)
         {
             TweakSlider newTweak = new TweakSlider(tweak);
-            if(newTweak.description != null) menu.Add(newTweak.description);
+            if(newTweak.Description != null) menu.Add(newTweak.Description);
 
             resetTweaksButton.OnPressed += () => { while ((int)newTweak.Value > 0) newTweak.ChangeValue(-1); };
             menu.Add(newTweak);

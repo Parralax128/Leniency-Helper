@@ -6,12 +6,14 @@ namespace Celeste.Mod.LeniencyHelper.TweakSettings;
 class SettingContainer : IEnumerable<AbstractSetting>
 {
     readonly List<AbstractSetting> settingList = new();
-
     public IEnumerator<AbstractSetting> GetEnumerator() => settingList.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => settingList.GetEnumerator();
 
-    public void Add(AbstractSetting setting) => settingList.Add(setting);
-    public void Add<T>(Setting<T> setting) => settingList.Add(setting);
+
+    public void Add<T>(Setting<T> setting)
+    {
+        settingList.Add(setting);
+    }
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

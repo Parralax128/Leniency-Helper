@@ -2,10 +2,10 @@
 
 namespace Celeste.Mod.LeniencyHelper.UI.Items
 {
-    class SubOptionsOffset : SubHeader
+    class HeightGap : SubHeader
     {
         public int offset;
-        public SubOptionsOffset(int offset) : base(string.Empty)
+        public HeightGap(int offset) : base(string.Empty)
         {
             this.offset = offset;
         }

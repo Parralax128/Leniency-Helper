@@ -16,7 +16,7 @@ class DisableAirMovementTrigger : GenericTrigger
         IL.Celeste.Glider.Update += DisableSpriteChanges;
     }
     [OnUnload]
-    public static void UnloadHooks()
+    public static void UnloadHooks() 
     {
         IL.Celeste.Player.NormalUpdate -= DisableAirMovementOnUpdate;
         IL.Celeste.Glider.Update -= DisableSpriteChanges;
@@ -99,6 +99,10 @@ class DisableAirMovementTrigger : GenericTrigger
         }
     }
 
-    static bool AirMovementDisabled(Player For) => For.Get<Components.DisableAirMovementComponent>().Activated;
-    static void SetAirMovementDisabled(Player For, bool value) => For.Get<Components.DisableAirMovementComponent>().Activated = value;
+    static bool AirMovementDisabled(Player For)
+    {
+        // mistically removed the component
+        return For.Get<Components.DisableAirMovementComponent>().Activated;
+    }
+   static void SetAirMovementDisabled(Player For, bool value) => For.Get<Components.DisableAirMovementComponent>().Activated = value;
 }

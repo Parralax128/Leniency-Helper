@@ -9,7 +9,7 @@ using System.Reflection;
 
 namespace Celeste.Mod.LeniencyHelper.Components;
 
-abstract class PersistentComponent<T> : Monocle.Component where T : Entity
+abstract class PersistentComponent<T> : Monocle.Component   where T : Entity
 {
     protected new T Entity => (T)base.Entity;
 
@@ -94,14 +94,17 @@ static class Manager
         orig(self, pos);
         AddEntityComponents(self);
     }
-        
+
     static void AddEntityComponents(Entity entity)
     {
         foreach (Type componentType in persistentComponentTypes.Where(
             pair => pair.Value.IsAssignableFrom(entity.GetType())).Select(pair => pair.Key))
         {
             if (!entity.Components.Any(c => c.GetType() == componentType))
+            {
                 entity.Add(Activator.CreateInstance(componentType) as Monocle.Component);
+            }
+                
         }
     }
 }

@@ -21,8 +21,7 @@ class GenericTweakController : GenericController
         this.tweak = tweak;
         state = TweakData.Tweaks[tweak];
 
-        if (tweak.HasSettings())
-            Data = SettingMaster.ParseSettingsFromData(data, tweak);
+        Data = EntityDataUtils.ExtractSettings(data, tweak);
     }
     protected override void SaveData()
     {

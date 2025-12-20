@@ -5,22 +5,52 @@ namespace Celeste.Mod.LeniencyHelper;
 
 public static class DialogUtils
 {
-    public static string Lookup(string key) => Dialog.Clean(key, Dialog.Languages["english"]);
-    public static string Lookup(Tweak tweak) => Lookup($"{LeniencyHelperModule.Name}_Tweaks_{tweak}");
-    public static string Lookup(Tweak tweak, string setting) => Lookup($"{LeniencyHelperModule.Name}_Settings_{tweak}_{setting}");
-    public static string Lookup(object value) => Lookup($"{LeniencyHelperModule.Name}_Enums_{value.GetType()}_{value}");
-    
-    public static string Enum<T>(T value)
+    static string LeniencyHelper = LeniencyHelperModule.Name;
+    public enum Precision
+    {
+        Localized,
+        EnglishOnly,
+        ImmutableKey
+    }
+    public static string Tweak(Tweak tweak, Precision level)
+    {
+        return level switch
+        {
+            Precision.Localized => Dialog.Clean($"{LeniencyHelper}_Tweaks_{tweak}"),
+            Precision.EnglishOnly => Dialog.Clean($"{LeniencyHelper}_Tweaks_{tweak}", Dialog.Languages["english"]),
+            _ => null
+        };
+    }
+    public static string Setting(string setting, Tweak tweak, Precision level)
+    {
+        return level switch
+        {
+            Precision.Localized => Dialog.Clean($"{LeniencyHelper}_Settings_{tweak}_{setting}"),
+            Precision.EnglishOnly => Dialog.Clean($"{LeniencyHelper}_Settings_{tweak}_{setting}", Dialog.Languages["english"]),
+            Precision.ImmutableKey => Dialog.Clean($"{LeniencyHelper}_Lookup_{tweak}_{setting}", Dialog.Languages["english"]),
+            _ => null
+        };
+    }
+    public static string Enum<T>(T value, Precision level)
+    {
+        return level switch
+        {
+            Precision.Localized => Dialog.Clean($"{LeniencyHelper}_{GetEnumID(value)}"),
+            Precision.EnglishOnly => Dialog.Clean($"{LeniencyHelper}_{GetEnumID(value)}", Dialog.Languages["english"]),
+            _ => null
+        };
+    }
+    static string GetEnumID<T>(T value)
     {
         Type type = typeof(T);
-        return Dialog.Clean($"{LeniencyHelperModule.Name}_Enums_{(type.DeclaringType != null
-            ? type.DeclaringType.Name+ '_' + type.Name : type.Name)}_{value}");
+        return $"Enums_{(type.DeclaringType != null ? type.DeclaringType.Name + '_' + type.Name : type.Name)}_{value}";
     }
+
 
     public static string TweakToUrl(Tweak tweak)
     {
         return "https://github.com/Parralax128/Leniency-Helper/wiki/" +
-            ToWikiPageName(Lookup(tweak));
+            ToWikiPageName(Tweak(tweak, Precision.EnglishOnly));
     }
     static string ToWikiPageName(string tweakNameUpper)
     {
@@ -35,24 +65,5 @@ public static class DialogUtils
         }
 
         return result;
-    }
-
-
-    public static Time Time(this EntityData data, string key, Time defaultValue)
-    {
-        string str = data.String(key);
-        if (string.IsNullOrEmpty(str)) return defaultValue;
-
-        if (str.ToLower().EndsWith('f'))
-        {
-            if (int.TryParse(str[0..(str.Length - 1)], null, out int frames))
-                return new Time(frames, LeniencyHelper.Time.Modes.Frames);
-
-            else throw new ArgumentException($"Invalid time provided: \"{str}\". Could not parse \"{str[0..(str.Length - 1)]}\" as an integer value!");
-        }
-        else if (float.TryParse(str, null, out float time))
-            return new Time(time);
-
-        else throw new ArgumentException($"Invalid time provided: \"{str}\". Could not parse \"{str}\" as a floating-point value!");
     }
 }
