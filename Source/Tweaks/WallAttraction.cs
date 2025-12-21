@@ -8,7 +8,7 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 class WallAttraction : AbstractTweak<WallAttraction>
 {
-    [SettingIndex("Mode")] static int FlexDistance;
+    [SettingIndex("Mode")] static int Distance;
 
 
     [OnLoad]
@@ -32,7 +32,7 @@ class WallAttraction : AbstractTweak<WallAttraction>
         if (Input.GrabCheck && !player.IsTired && !noGrabStates.Contains(player.StateMachine.State) && player.CanUnDuck &&
             Math.Sign(player.Speed.X) != -(int)player.Facing && player.Holding == null && player.Speed.Y >= 0)
         {
-            float distance = GetFlexDistance(FlexDistance, Math.Abs(player.Speed.X));
+            float distance = GetFlexDistance(Distance, Math.Abs(player.Speed.X));
 
             Vector2 origPos = player.Position;
             for (int c = 0; c < (int)distance; c++)

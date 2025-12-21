@@ -6,7 +6,7 @@ namespace Celeste.Mod.LeniencyHelper.Tweaks;
 
 class CustomSnapDownDistance : AbstractTweak<CustomSnapDownDistance>
 {
-    [SettingIndex("Mode")] static int FlexDistance;
+    [SettingIndex("Mode")] static int Distance;
 
     static ILHook origUpdateHook;
 
@@ -51,7 +51,7 @@ class CustomSnapDownDistance : AbstractTweak<CustomSnapDownDistance>
         {
             if (!Enabled) return defaultValue;
 
-            return GetFlexDistance(FlexDistance, Math.Max(Math.Abs(player.beforeDashSpeed.Y), Math.Abs(player.Speed.Y)));
+            return GetFlexDistance(Distance, Math.Max(Math.Abs(player.beforeDashSpeed.Y), Math.Abs(player.Speed.Y)));
         }
     }
 }

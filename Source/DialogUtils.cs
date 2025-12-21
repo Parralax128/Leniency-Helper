@@ -5,7 +5,7 @@ namespace Celeste.Mod.LeniencyHelper;
 
 public static class DialogUtils
 {
-    static string LeniencyHelper = LeniencyHelperModule.Name;
+    static readonly string LeniencyHelper = LeniencyHelperModule.Name;
     public enum Precision
     {
         Localized,

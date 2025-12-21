@@ -93,9 +93,10 @@ LeniencyHelper_Settings_CustomBufferTime_CountInFrames= Count time in frames
 
 LeniencyHelper_Settings_CustomDashbounceTiming_Timing= Timing
 
-LeniencyHelper_Settings_CustomSnapDownDistance_StaticDistance= Static snap down distance
+
+LeniencyHelper_Settings_CustomSnapDownDistance_Mode= Distance mode
+LeniencyHelper_Settings_CustomSnapDownDistance_StaticDistance= Static distance
 LeniencyHelper_Settings_CustomSnapDownDistance_Time= Snap down timing
-LeniencyHelper_Settings_CustomSnapDownDistance_Dynamic= Dynamic snap down distance
 
 LeniencyHelper_Settings_DelayedClimbtrigger_MaxDelay= Trigger Delay
 
@@ -112,8 +113,8 @@ LeniencyHelper_Settings_DynamicWallLeniency_Timing= Wall leniency timing
 
 LeniencyHelper_Settings_ExtendDashAttackOnPickup_ExtendTime= Extend time
 
-LeniencyHelper_Settings_ExtendBufferOnFreezeAndPickup_OnPickup= Extend buffers on pickup
-LeniencyHelper_Settings_ExtendBufferOnFreezeAndPickup_OnFreeze= Extend buffers on freeze frames
+LeniencyHelper_Settings_ExtendBufferOnFreezeAndPickup_OnPickup= On pickup
+LeniencyHelper_Settings_ExtendBufferOnFreezeAndPickup_OnFreeze= On freeze frames
 
 LeniencyHelper_Settings_GultraCancel_MaxCancelDelay= Max cancel delay
 
@@ -135,8 +136,10 @@ LeniencyHelper_Settings_WallAttraction_WallApproachTime= Approach time
 LeniencyHelper_Settings_WallAttraction_StaticApproachDistance= Static approach distance
 LeniencyHelper_Settings_WallAttraction_UseDynamicApproachDistance= Use Dynamic distance
 
+LeniencyHelper_Settings_SuperdashSteeringProtection_CloseAngleRestriction= Close angle restriction
+
 LeniencyHelper_Settings_WallAttraction_StaticDistance= Static attraction distance
-LeniencyHelper_Settings_WallAttraction_Dynamic= Distance mode
+LeniencyHelper_Settings_WallAttraction_Mode= Distance mode
 LeniencyHelper_Settings_WallAttraction_Time= Wall Approach time
 
 LeniencyHelper_Settings_WallCoyoteFrames_WallCoyoteTime= Wall coyote time

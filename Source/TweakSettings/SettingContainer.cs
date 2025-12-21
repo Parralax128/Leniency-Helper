@@ -17,7 +17,10 @@ class SettingContainer : IEnumerable<AbstractSetting>
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public T Get<T>(int index, SettingSource source) => (settingList[index] as Setting<T>).Get(source);
+    public T Get<T>(int index, SettingSource source)
+    {
+        return (settingList[index] as Setting<T>).Get(source);
+    }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public object Get(int index, SettingSource source) => settingList[index].GetTypeless(source);

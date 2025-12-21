@@ -9,6 +9,7 @@ namespace Celeste.Mod.LeniencyHelper.Triggers;
 [CustomEntity("LeniencyHelper/DisableAirMovementTrigger")]
 class DisableAirMovementTrigger : GenericTrigger
 {
+    #region Hooks
     [OnLoad]
     public static void LoadHooks()
     {
@@ -22,19 +23,8 @@ class DisableAirMovementTrigger : GenericTrigger
         IL.Celeste.Glider.Update -= DisableSpriteChanges;
     }
 
-    public DisableAirMovementTrigger(EntityData data, Vector2 offset) : base(data, offset) { }
-    protected override void Apply(Player player)
-    {
-        SetAirMovementDisabled(player, true);
-    }
-    protected override void Undo(Player player)
-    {
-        SetAirMovementDisabled(player, false);
-    }
-
     static readonly VirtualIntegerAxis zero = new VirtualIntegerAxis(Settings.Instance.Up,
         Settings.Instance.UpMoveOnly, Settings.Instance.Down, Settings.Instance.DownMoveOnly, Input.Gamepad, 0.7f); 
-
 
     public static void DisableAirMovementOnUpdate(ILContext il)
     {
@@ -99,10 +89,13 @@ class DisableAirMovementTrigger : GenericTrigger
         }
     }
 
-    static bool AirMovementDisabled(Player For)
-    {
-        // mistically removed the component
-        return For.Get<Components.DisableAirMovementComponent>().Activated;
-    }
-   static void SetAirMovementDisabled(Player For, bool value) => For.Get<Components.DisableAirMovementComponent>().Activated = value;
+    static bool AirMovementDisabled(Player For) => For.Get<Components.DisableAirMovementComponent>().Activated;
+    static void SetAirMovementDisabled(Player For, bool value) => For.Get<Components.DisableAirMovementComponent>().Activated = value;
+
+    #endregion
+
+
+    public DisableAirMovementTrigger(EntityData data, Vector2 offset) : base(data, offset) { }
+    protected override void Apply(Player player) => SetAirMovementDisabled(player, true);
+    protected override void Undo(Player player) => SetAirMovementDisabled(player, false);
 }

@@ -4,6 +4,7 @@ using Monocle;
 using MonoMod.RuntimeDetour;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
 
@@ -42,11 +43,14 @@ class TweakComponent<TweakType> : PersistentComponent<Player> where TweakType : 
 
 static class Manager
 {
-    // Key = component type | Value = entity type
+    // currently: Key = component type | Value = entity type
     static Dictionary<Type, Type> persistentComponentTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypesSafe()).
         Where(x => x.IsClass && !x.IsAbstract && !x.ContainsGenericParameters && IsPersistentComponentType(x)).
         Select(GetTypePair).ToDictionary();
-    
+
+
+    static Dictionary<Type, List<Type>> cachedComponentTypes = new();
+
     static bool IsPersistentComponentType(Type type)
     {
         if (type.BaseType == null || type.BaseType == typeof(object)) return false;
@@ -76,12 +80,14 @@ static class Manager
     {
         On.Monocle.Entity.ctor += AddOnCtor;
         On.Monocle.Entity.ctor_Vector2 += AddOnCtorVector2;
+        On.Celeste.Player.Update += CheckComponents;
     }
     [OnUnload]
     public static void UnloadHooks()
     {
         On.Monocle.Entity.ctor -= AddOnCtor;
         On.Monocle.Entity.ctor_Vector2 -= AddOnCtorVector2;
+        On.Celeste.Player.Update -= CheckComponents;
     }
 
     static void AddOnCtor(On.Monocle.Entity.orig_ctor orig, Entity self)
@@ -97,14 +103,42 @@ static class Manager
 
     static void AddEntityComponents(Entity entity)
     {
-        foreach (Type componentType in persistentComponentTypes.Where(
-            pair => pair.Value.IsAssignableFrom(entity.GetType())).Select(pair => pair.Key))
+        Type entityType = entity.GetType();
+
+
+        if (cachedComponentTypes.TryGetValue(entity.GetType(), out List<Type> componentTypes))
         {
-            if (!entity.Components.Any(c => c.GetType() == componentType))
-            {
-                entity.Add(Activator.CreateInstance(componentType) as Monocle.Component);
+            foreach (Type componentType in componentTypes) {
+                if (!entity.Components.Any(c => c.GetType() == componentType))
+                    entity.Add(Activator.CreateInstance(componentType) as Monocle.Component);
             }
-                
+
+            return;
+        }
+
+        cachedComponentTypes.Add(entityType, new());
+
+        foreach (Type componentType in persistentComponentTypes.Where(
+            pair => pair.Value.IsAssignableFrom(entityType)).Select(pair => pair.Key))
+        {
+            cachedComponentTypes[entityType].Add(componentType);
+
+            if (!entity.Components.Any(c => c.GetType() == componentType))
+                entity.Add(Activator.CreateInstance(componentType) as Monocle.Component);
+        }
+    }
+
+
+    static void CheckComponents(On.Celeste.Player.orig_Update orig, Player self)
+    {
+        orig(self);
+        IEnumerable<Type> current = self.Components.GetAll<PersistentComponent<Player>>().Select(c => c.GetType());
+        if(current.Count() < cachedComponentTypes[typeof(Player)].Count())
+        {
+            foreach(var component in cachedComponentTypes[typeof(Player)].Where(c => !current.Contains(c)))
+            {
+                Debug.Warn($"missing {component.GetType().Name}!");
+            }
         }
     }
 }

@@ -1,7 +1,4 @@
-﻿using Celeste.Mod.LeniencyHelper.TweakSettings;
-using MonoMod;
-using MonoMod.Core.Platforms;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +8,7 @@ using static System.Reflection.CustomAttributeExtensions;
 
 namespace Celeste.Mod.LeniencyHelper.TweakSettings;
 
-class TweakState : IEnumerable<AbstractSetting>
+class TweakState
 {
     public Tweak Tweak;
 
@@ -89,11 +86,5 @@ class TweakState : IEnumerable<AbstractSetting>
     public static implicit operator string(TweakState state) => state.Tweak.ToString();
     public static implicit operator bool(TweakState state) => state.Enabled;
 
-    public IEnumerator<AbstractSetting> GetEnumerator() => Settings.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => Settings.GetEnumerator();
-
-    public List<UI.Items.AbstractTweakItem> CreateMenuEntry()
-    {
-        return Settings?.Select(setting => setting.MenuEntry(Tweak)).ToList();
-    }
+    public List<UI.Items.AbstractTweakItem> CreateMenuEntry() => Settings?.Select(setting => setting.MenuEntry(Tweak)).ToList();
 }

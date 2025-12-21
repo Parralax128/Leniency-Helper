@@ -89,5 +89,5 @@ class Setting<T> : AbstractSetting
         return null;
     }
 
-    public override UI.Items.AbstractTweakItem MenuEntry(Tweak tweak) =>  new UI.Items.TweakSetting<T>(tweak, this);
+    public override UI.Items.AbstractTweakItem MenuEntry(Tweak tweak) => new UI.Items.TweakSetting<T>(tweak, this);
 }

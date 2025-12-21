@@ -64,10 +64,11 @@ public class Time : IComparable<Time>, ICloneable
     public static Time operator +(Time time, float seconds) => new Time(time.Value + seconds);
     public static Time operator +(Time time, int frames) => new Time(time.Frames + frames, Modes.Frames);
 
-    public override string ToString()
+    public override string ToString() => ToString(Mode);
+    public string ToString(Modes mode)
     {
-        return Mode == Modes.Seconds
-            ? MathF.Round(Math.Abs(Value), 2).ToString()+'s'
-            : Frames.ToString()+'f';
+        return mode == Modes.Seconds
+            ? MathF.Round(Value, 2).ToString() + 's'
+            : Frames.ToString() + 'f';
     }
 }

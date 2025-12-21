@@ -20,7 +20,7 @@ class TweakSetting<T> : AbstractTweakItem
         { typeof(float), new FloatHandler() },
         { typeof(Time), new TimeHandler() },
     };
-    static AbstractHandler<T> GetHandler<T>()
+    static AbstractHandler<T> GetHandler()
     {
         Type type = typeof(T);
         if (Handlers.TryGetValue(type, out var handler))
@@ -42,7 +42,7 @@ class TweakSetting<T> : AbstractTweakItem
     {
         Setting = setting;
 
-        handler = GetHandler<T>();
+        handler = GetHandler();
         cachedWidth = handler.CalculateMaxWidth(Setting);
         OnAltPressed += () => { handler.OnJournalPressed?.Invoke(Setting); };
 

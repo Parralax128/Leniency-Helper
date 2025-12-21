@@ -1,229 +1,164 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Monocle;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Celeste.Mod.LeniencyHelper.UI.Items;
 
 class Description : TextMenu.Item
 {
-    class FancyText
+    static readonly Dictionary<string, ValueTuple<string, string>> MarkDownTags = new()
     {
-        struct TextFragment
+        { "ins", ("#708090", "#") },
+        { "em", ("%", "/%") },
+        { "br", ("n", "n") }
+    };
+
+    static string ReplaceMarkDownTags(string text)
+    {
+        string result = new string(text);
+        foreach(KeyValuePair<string, ValueTuple<string, string>> pair in MarkDownTags)
         {
-            public string Text;
-            public Color Color;
+            result = result.Replace($"<{pair.Key}>", $"{{{pair.Value.Item1}}}");
+            result = result.Replace($"</{pair.Key}>", $"{{{pair.Value.Item2}}}");
         }
-
-        static readonly Dictionary<string, Color> TagColors = new()
-        {
-            { "ins", Color.SlateGray }
-        };
-
-        public string String;
-        static readonly float BaseScale = 0.8f;
-        public Func<float> ScaleGetter { get; set; } = null;
-        float EffectiveScale => ScaleGetter?.Invoke() ?? BaseScale;
-
-        List<TextFragment> parsedFragments = new();
-        List<List<TextFragment>> wrappedLines = new(); // Final layout: Lines contain Fragments
-
-        public float LineWidth { get; set; }
-        public float Height => wrappedLines.Count * ActiveFont.LineHeight * EffectiveScale;
-
-        public FancyText(string text)
-        {
-            String = text;
-            LineWidth = 1920f - TweakMenuManager.Layout.LeftOffset - TweakMenuManager.Layout.RightOffset;
-
-            ParseFragments();
-            WrapLines();
-        }
-        public FancyText(string text, Func<float> scaleGetter) : this(text)
-        {
-            ScaleGetter = scaleGetter;
-        }
-
-        void ParseFragments()
-        {
-            if (string.IsNullOrEmpty(String))
-            {
-                parsedFragments = new() { new TextFragment() { Text = "", Color = Color.White } };
-                return;
-            }
-
-            parsedFragments.Clear();
-            Color currentColor = Color.DarkSlateGray;
-            var currentText = new System.Text.StringBuilder();
-            bool insideTag = false;
-            var tagBuffer = new System.Text.StringBuilder();
-
-            for (int i = 0; i < String.Length; i++)
-            {
-                char c = String[i];
-
-                if (c == '<' && !insideTag)
-                {
-                    if (currentText.Length > 0)
-                    {
-                        parsedFragments.Add(new TextFragment
-                        {
-                            Text = currentText.ToString(),
-                            Color = currentColor
-                        });
-                        currentText.Clear();
-                    }
-                    insideTag = true;
-                    tagBuffer.Clear();
-                    continue;
-                }
-
-                if (c == '>' && insideTag)
-                {
-                    insideTag = false;
-                    string tag = tagBuffer.ToString();
-
-                    if (tag.StartsWith("/"))
-                        currentColor = Color.DarkSlateGray;
-
-                    else if (TagColors.TryGetValue(tag, out Color newColor))
-                        currentColor = newColor;
-
-                    continue;
-                }
-
-                if (insideTag) tagBuffer.Append(c);
-                else currentText.Append(c);
-            }
-
-            if (currentText.Length > 0)
-            {
-                parsedFragments.Add(new TextFragment
-                {
-                    Text = currentText.ToString(),
-                    Color = currentColor
-                });
-            }
-        }
-
-        void WrapLines()
-        {
-            wrappedLines.Clear();
-            List<TextFragment> currentLine = new();
-            float currentWidth = 0f;
-
-            if(string.IsNullOrEmpty(String))
-            {
-                wrappedLines = new() { parsedFragments };
-            }
-
-            foreach (var fragment in parsedFragments)
-            {
-                string[] words = fragment.Text.Split(new char[] { ' ', '\n' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string word in words)
-                {
-                    if (word == "\n" || word.Contains("\n"))
-                    {
-                        if (currentLine.Count > 0) wrappedLines.Add(currentLine);
-                        currentLine.Clear();
-                        currentWidth = 0f;
-                        continue;
-                    }
-
-                    float wordWidth = ActiveFont.Measure(word + ' ').X * EffectiveScale;
-
-                    if (currentWidth + wordWidth > LineWidth && currentLine.Count > 0)
-                    {
-                        wrappedLines.Add(new List<TextFragment>(currentLine));
-                        currentLine.Clear();
-                        currentWidth = 0f;
-                    }
-
-                    currentLine.Add(new TextFragment
-                    {
-                        Text = word,
-                        Color = fragment.Color
-                    });
-                    currentWidth += wordWidth;
-                }
-            }
-
-            if (currentLine.Count > 0)
-                wrappedLines.Add(currentLine);
-        }
-
-
-        public void Render(Vector2 position)
-        {
-            position.Y -= Height / 2f;
-
-            float scale;
-            float lineHeight = ActiveFont.LineHeight * (scale = EffectiveScale);
-            float y = position.Y;
-
-            foreach (List<TextFragment> line in wrappedLines)
-            {
-                float x = position.X;
-                foreach (TextFragment fragment in line)
-                {
-                    ActiveFont.DrawOutline(
-                        fragment.Text + ' ',
-                        new Vector2(x, y),
-                        Vector2.Zero,
-                        Vector2.One * scale,
-                        fragment.Color,
-                        2f,
-                        Color.Black
-                    );
-                    x += ActiveFont.Measure(fragment.Text + " ").X * scale;
-                }
-                y += lineHeight;
-            }
-        }
+        return result;
     }
 
+    FancyText.Text Text;
+    Coroutine coroutine;
+    int currentLine = 0;
+    
+    float heightWigglerCounter = 0f;
+    const float HeightWiggleDuration = 0.5f;
+    float? staticHeight = null;
 
-    FancyText text;
-    static float Scale => 0.8f * TweakMenuManager.Layout.SubSettingScale;
-    static float Offset;
-    public float TextWidth;
+    static readonly float Scale = 0.8f * TweakMenuManager.Layout.SubSettingScale;
+    float Offset;
+    bool selected = false;
 
-    public Description(WebScrapper.TweakInfo info, string setting = null, float? textWidth = null)
+    public static string? GetText(WebScrapper.TweakInfo info, string setting = null)
     {
-        Offset = setting != null ? TweakMenuManager.Layout.LeftOffset
-            : TweakMenuManager.Layout.LeftOffset + TweakMenuManager.Layout.SubSettingOffset;
-
-        if (setting == null)
+        if (setting == null) return info.tweakDescription;
+        
+        if (info.settingDescs != null
+            && info.settingDescs.TryGetValue(setting, out string settingDesc)
+            && !string.IsNullOrEmpty(settingDesc))
         {
-            if(info.tweakDescription != null)
-                text = new FancyText(info.tweakDescription, () => 0.8f * TweakMenuManager.Layout.TweakScale);
+            return settingDesc;
         }
-        else
-        {
-            if(info.settingDescs != null && info.settingDescs.TryGetValue(setting, out string settingDesc))
-            {
-                text = new FancyText(settingDesc, () => Scale);
-            }
-            else
-            {
-                string log = $"\nfailed loading {setting}";
 
-                if (info.settingDescs != null && info.settingDescs.Count > 0)
-                {
-                    log += "\nexisting settings:";
-                    foreach (var desc in info.settingDescs)
-                        log += $"\n\"{desc.Key}\" - \"{desc.Value}\"";
-                }
-            }
+
+        string log = $"\nfailed loading {setting}";
+
+        if (info.settingDescs != null && info.settingDescs.Count > 0)
+        {
+            log += "\nexisting settings:";
+            foreach (var desc in info.settingDescs)
+                log += $"\n\"{desc.Key}\" - \"{desc.Value}\"";
         }
+
+        return null;
+    }
+
+    public Description(string text, float offsetX)
+    {
+        MenuLayout layout = TweakMenuManager.Layout;
+
+        Offset = offsetX;
+
+        Text = FancyText.Parse(
+            ReplaceMarkDownTags(text),
+            (int)((1920f-Offset-layout.RightOffset) / Scale),
+            1024, 0f,
+            Color.DarkSlateGray,
+            Dialog.Languages["english"]);
+
+        coroutine = new();
+        coroutine.Active = false;
 
         Selectable = false;
         Disabled = true;
     }
 
-    public override float Height() => text.String == "" ? 0f : text.Height + 4f;
+    System.Collections.IEnumerator TextAppearRoutine()
+    {
+        foreach(FancyText.Char letter in Text.Nodes.Where(node => node is FancyText.Char))
+        {
+            letter.Fade = 0f;
+            letter.Delay = 0.001f;
+        }
+
+        int index = 0;
+        while(index < Text.Count)
+        {
+            FancyText.Node current = Text[index];
+            if (current is FancyText.Char letter)
+            {
+                if(letter.Line > currentLine)
+                {
+                    currentLine = letter.Line;
+                    heightWigglerCounter = 0f;
+                }
+
+                while (letter.Fade < 1f) 
+                {
+                    letter.Fade = Math.Min(1f, letter.Fade + Engine.RawDeltaTime / letter.Delay);
+                    yield return null;
+                }
+                index++;
+            }
+            else if (current is FancyText.Wait delay)
+            {
+                yield return delay.Duration;
+                index++;
+            }
+            else
+            {
+                yield return null;
+                index++;
+            }
+        }
+    }
+    public override void Update()
+    {
+        if (Visible && !selected)
+        {
+            coroutine.Replace(TextAppearRoutine());
+            staticHeight = null;
+            currentLine = 0;
+            heightWigglerCounter = 0f;
+        }
+        else if (Visible && selected)
+        {   
+            coroutine.Update();
+
+            if (heightWigglerCounter < HeightWiggleDuration)
+            {
+                heightWigglerCounter += Engine.RawDeltaTime;
+
+                if(heightWigglerCounter >= HeightWiggleDuration && currentLine == Text.Lines)
+                    staticHeight = Height();
+            }
+        }
+
+        selected = Visible;
+    }
+
+    const float e = 2.71828f;
+    public override float Height()
+    {
+        if (staticHeight.HasValue) return staticHeight.Value;
+
+        float x = heightWigglerCounter / HeightWiggleDuration;
+        float wiggle = 1f - (float)Math.Pow(e, -(x*x * e*e));
+
+        return (currentLine + wiggle) * ActiveFont.LineHeight * Scale + 8f;
+    }
     public override void Render(Vector2 position, bool selected)
     {
-        position.X = Offset;
-        text.Render(position);
+        Text.Draw(new Vector2(Offset, position.Y - Height() / 2f + 4f),
+            Vector2.Zero, new Vector2(Scale), 1f);
     }
 }

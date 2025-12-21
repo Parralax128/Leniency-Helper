@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.MaxHelpingHand.Entities;
+using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 
@@ -9,35 +10,30 @@ class AbstractTweakItem : TextMenu.Item
     public TweakSlider Parent;
     public string Label;
     protected Tweak tweak;
+
     protected int lastDir = 0;
     protected bool ViolateLeniency = false;
-    
-    float sineCounter;
-    protected float SineShift => (float)Math.Sin(sineCounter * 4f);
-    public Description Description { get; private set; }
 
-    public bool RenderDescription
+    public Description Description = null;
+    public void SetDescriptionVisible(bool visible)
     {
-        set 
-        { 
-            if (Description != null) Description.Visible = value;
-            if (Parent?.Description != null) Parent.Description.Visible = value;
-        }
+        if (Description != null) Description.Visible = visible;
+        if (Parent?.Description != null) Parent.Description.Visible = visible;
     }
 
+    float sineCounter;
+    protected float SineShift => (float)Math.Sin(sineCounter * 4f);
+    
+
     public static readonly Color InactiveColor = Color.DarkSlateGray;
-    public Color StrokeColor => Color.Black * Container.Alpha * Container.Alpha * Container.Alpha;
-    public Color MainColor(bool selected) => (Disabled ? InactiveColor : selected
+    public Color GetStrokeColor() => Color.Black * Container.Alpha * Container.Alpha * Container.Alpha;
+    public Color GetMainColor(bool selected) => (Disabled ? InactiveColor : selected
         ? Container.HighlightColor : UnselectedColor) * Container.Alpha;
     protected static readonly Color UnselectedColor = Color.White;
 
     protected MenuLayout Layout => TweakMenuManager.Layout;
 
-    Color cachedMainColor;
-    Color cachedStrokeColor;
-    Vector2 cachedPosition;    
     protected float cachedWidth;
-
     protected float TextScale = 1f;
 
     AbstractTweakItem(Tweak tweak)
@@ -52,10 +48,15 @@ class AbstractTweakItem : TextMenu.Item
 
         if (WebScrapper.TweaksInfo.ContainsKey(tweak))
         {
-            Description = new Description(WebScrapper.TweaksInfo[tweak], settingName != null ?
+            string? descText = Description.GetText(WebScrapper.TweaksInfo[tweak], settingName != null ?
                 DialogUtils.Setting(settingName, tweak, DialogUtils.Precision.EnglishOnly) : null);
-            
-            Description.Visible = false;
+
+            if (descText != null)
+            {
+                float offset = Layout.LeftOffset + (settingName == null ? 0f : Layout.SubSettingOffset);
+                Description = new Description(descText, offset);
+                Description.Visible = false;
+            }
         }
     }
 
@@ -97,42 +98,36 @@ class AbstractTweakItem : TextMenu.Item
             + lastDir * ValueWiggler.Value * 8f, orig.Y) + offset;
     }
 
-    public virtual void Render(
-        Vector2 position, bool selected,
-        string value, bool left, bool right,
-        Color? overrideColor = null)
+    public virtual void Render(Vector2 position, bool selected, string value, bool left, bool right, Color? overrideColor = null)
     {
-        cachedPosition = position;
-        cachedMainColor = overrideColor ?? MainColor(selected);
-        cachedStrokeColor = StrokeColor;
+        Color mainColor = overrideColor ?? GetMainColor(selected);
+        Color stokeColor = GetStrokeColor();
 
-        // -render label-
-        ActiveFont.DrawOutline(Label, cachedPosition, new Vector2(0f, 0.5f),
-            Vector2.One * TextScale, cachedMainColor, 2f, cachedStrokeColor);
-
-
-        // -render value-
-        ActiveFont.DrawOutline(value, RightColumn(cachedPosition), new Vector2(0.5f),
-            Vector2.One * TextScale, cachedMainColor, 2f, cachedStrokeColor);
+        // render label
+        ActiveFont.DrawOutline(Label, position, new Vector2(0f, 0.5f),
+            Vector2.One * TextScale, mainColor, 2f, stokeColor);
 
 
-        // -render indicators-
+        // render value
+        ActiveFont.DrawOutline(value, RightColumn(position), new Vector2(0.5f),
+            Vector2.One * TextScale, mainColor, 2f, stokeColor);
+
+
+        // render indicators
         float sineShift = selected ? SineShift : 0f;
-        Color indicatorColor = !left ?  InactiveColor * Container.Alpha : cachedMainColor;
-        Vector2 indicatorPosition = RightColumn(cachedPosition,
-            Vector2.UnitX * (-20f - cachedWidth/2f - (left ? sineShift : 0f)));
+        Color indicatorColor = !left ?  InactiveColor * Container.Alpha : mainColor;
+        Vector2 indicatorPosition = RightColumn(position, Vector2.UnitX * (-20f - cachedWidth*TextScale / 2f - (left ? sineShift : 0f)));
 
         // left
         ActiveFont.DrawOutline("<", indicatorPosition, new Vector2(0.5f),
-            Vector2.One * TextScale, indicatorColor, 2f, cachedStrokeColor);
+            Vector2.One * TextScale, indicatorColor, 2f, stokeColor);
 
 
-        indicatorColor = !right ? InactiveColor * Container.Alpha : cachedMainColor;
-        indicatorPosition = RightColumn(cachedPosition,
-            Vector2.UnitX * (20f + cachedWidth/2f - (right ? sineShift : 0f)));
+        indicatorColor = !right ? InactiveColor * Container.Alpha : mainColor;
+        indicatorPosition = RightColumn(position, Vector2.UnitX * (20f + cachedWidth*TextScale / 2f - (right ? sineShift : 0f)));
 
         // right
         ActiveFont.DrawOutline(">", indicatorPosition, new Vector2(0.5f),
-            Vector2.One * TextScale, indicatorColor, 2f, cachedStrokeColor);
+            Vector2.One * TextScale, indicatorColor, 2f, stokeColor);
     }
 }

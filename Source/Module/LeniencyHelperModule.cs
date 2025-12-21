@@ -132,17 +132,6 @@ class LeniencyHelperModule : EverestModule
         typeof(GravityHelperImports).ModInterop();
         typeof(ExtendedVariantImports).ModInterop();
         typeof(ModInteropExports).ModInterop();
-
-        string text = "";
-        foreach(Tweak tweak in TweakList.Where(t => t.HasSettings()))
-        {
-            foreach (AbstractSetting setting in TweakData.Tweaks[tweak].Settings)
-            {
-                text += $"\n{Name}_Lookup_{tweak}_{setting.Name}= {setting.Name}";
-            }
-            text += '\n';
-        }
-        Debug.Log(text);
     }
 
     public override void Unload()

@@ -71,13 +71,18 @@ class TweakSlider : AbstractTweakItem
         Container.Add(beforeOffset);
         foreach (AbstractTweakItem setting in subSettings)
         {
+            if (setting.Description != null)
+            {
+                Container.Add(setting.Description);
+                SetVisible += (v) => { if (v == false) setting.Description.Visible = v; };
+            }
+
             setting.Parent = this;
-            if (setting.Description != null) Container.Add(setting.Description);
             Container.Add(setting);
 
             SetVisible += (v) => { setting.Visible = v; };
         }
-
+            
         if(subSettings.Count > 1)
         {
             int minIndex = Container.IndexOf(subSettings[0]);
@@ -118,13 +123,17 @@ class TweakSlider : AbstractTweakItem
         foreach (Item item in subSettings) item.Disabled = disabled;
 
         SetVisible(true);
-        
+
         TweakMenuManager.InSingleSubsettingMenu = subSettings.Count == 1;
         TweakMenuManager.InSubsettingsMode = true;
         addedSubsettings = true;
         Container.SceneAs<Level>().AllowHudHide = false;
 
-        if (Value == SliderValues.On) Container.Current = subSettings[0];
+        if (Value == SliderValues.On)
+        {
+            Container.Current = subSettings[0];
+            subSettings[0].SetDescriptionVisible(true);
+        }
     }
     public void CloseSuboptions()
     {
@@ -160,7 +169,7 @@ class TweakSlider : AbstractTweakItem
 
         ValueWiggler.Start();
 
-        if (addedSubsettings) //if switched from "Map" to "ON" - updating suboptions via reopening
+        if (addedSubsettings) //updating suboptions via reopening
         {
             CloseSuboptions();
             OpenSuboptions();

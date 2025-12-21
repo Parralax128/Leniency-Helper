@@ -30,15 +30,11 @@ public static class TweakMenuManager
             return;
         }
 
-        if (self.Current is AbstractTweakItem customItem)
-        {
-            customItem.RenderDescription = false;
-        }
+        if (self.Current is AbstractTweakItem customItem) customItem.SetDescriptionVisible(false);
+        
         orig(self, dir, wiggle);
-        if (self.Current is AbstractTweakItem newCustomItem)
-        {
-            newCustomItem.RenderDescription = true;
-        }
+
+        if (self.Current is AbstractTweakItem newCustomItem) newCustomItem.SetDescriptionVisible(true);
     }
 
     public static bool InSingleSubsettingMenu = false;

@@ -79,7 +79,7 @@ static class TweakData
 
         new TweakState(Tweak.BufferableExtends, new SettingContainer {
             new Setting<bool>("ForceWaitForRefill", false),
-            new Setting<bool>("ExtendTiming", true)
+            new Setting<Time>("ExtendTiming", 4, 0, 12)
         }),
 
         new TweakState(Tweak.ConsistentDashOnDBlockExit, new SettingContainer {
