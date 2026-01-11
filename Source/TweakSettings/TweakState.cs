@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Reflection;
 using static System.Reflection.CustomAttributeExtensions;
+using AsmResolver;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Celeste.Mod.LeniencyHelper.TweakSettings;
 
@@ -50,8 +52,6 @@ class TweakState
         ?? Values[(int)SettingSource.Controller] == true;
 
     public SettingContainer Settings;
-    public List<object> Temps;
-
     public TweakState(Tweak tweak, SettingContainer settings = null)
     {
         Tweak = tweak;
@@ -60,7 +60,7 @@ class TweakState
         if(settings != null) AssignTweakIndices();
     }
 
-    void AssignTweakIndices()
+    public void AssignTweakIndices()
     {
         Type tweakType = TweakData.TweakList.Types[Tweak];
 
@@ -82,6 +82,8 @@ class TweakState
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T GetSetting<T>(int index) => Settings.Get<T>(index, CurrentSettingSource);
+    public object GetSetting(string name) => Settings.Get(name, CurrentSettingSource);
+    
 
     public static implicit operator string(TweakState state) => state.Tweak.ToString();
     public static implicit operator bool(TweakState state) => state.Enabled;

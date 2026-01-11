@@ -1,26 +1,26 @@
-﻿using System.Collections.Generic;
-using System;
+﻿using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Celeste.Mod.LeniencyHelper.TweakSettings;
 class Setting<T> : AbstractSetting
 {
     public T[] Values = new T[5];
+
     string lookupName;
+    public ValueTuple<string, object>? DisableOn;
     public T Player
     {
         get => Values[(int)SettingSource.Player];
         set => Values[(int)SettingSource.Player] = value;
     }
 
-    public Bounds<T> ValueBounds { get; set; }
+    public Bounds<T> ValueBounds;
 
-    List<T> ValidLeniencyValues = null;
-    Bounds<T> ValidLeniencyBounds = null;
-
-    public Setting(string name, T defaultValue)
+    public Setting(string name, T defaultValue, ValueTuple<string, object>? disableOn = null)
     {
         Name = name;
+        DisableOn = disableOn;
 
         if (defaultValue is ICloneable clonable) foreach (var source in Enum.GetValues<SettingSource>())
             Values[(int)source] = (T)clonable.Clone();
@@ -28,27 +28,16 @@ class Setting<T> : AbstractSetting
         else foreach (var source in Enum.GetValues<SettingSource>())
             Values[(int)source] = defaultValue;
     }
-    public Setting(string name, T defaultValue, T min, T max) : this(name, defaultValue)
+    public Setting(string name, T defaultValue, T min, T max, ValueTuple<string, object>? disableOn = null)
+        : this(name, defaultValue, disableOn)
     {
         ValueBounds = new Bounds<T>(min, max);
-    }
-
-    public bool CheckLeniencyViolation(T value)
-    {
-        return ValidLeniencyBounds.Check(value);
     }
     public override void Set(SettingSource source, object value)
     {
         T typedValue = (T)value;
-
-        bool? check = true;
-        if (ValueBounds != null && !ValueBounds.Check(typedValue)) check = null;
-        else if (source == SettingSource.Player && (ValidLeniencyBounds != null || ValidLeniencyValues != null))
-        {
-            check = ValidLeniencyBounds?.Check(typedValue) ?? ValidLeniencyValues.Contains(typedValue);
-        }
-        
-        if(check == true)
+       
+        if(ValueBounds != null && !ValueBounds.Check(typedValue))
         {
             Values[(int)source] = typedValue;
         }
@@ -65,26 +54,16 @@ class Setting<T> : AbstractSetting
     public override void Reset(SettingSource source)
         => Set(source, Values[(int)SettingSource.Default]);
 
-
-    public void SetValidLeniency(T min, T max)
-    {        
-        ValidLeniencyBounds = new Bounds<T>(min, max);
-        ValidLeniencyValues = null;
-    }
-    public void SetValidLeniency(List<T> validValues)
-    {
-        ValidLeniencyValues = validValues;
-        ValidLeniencyBounds = null;
-    }
     public override object ParseFromData(EntityData data, Tweak tweak)
     {
-        if (lookupName == null) lookupName = DialogUtils.Setting(Name, tweak, DialogUtils.Precision.ImmutableKey);
-        T defaultValue = Get(SettingSource.Default);
+        lookupName ??= DialogUtils.Setting(Name, tweak, DialogUtils.Precision.ImmutableKey);
+        object defaultValue = GetTypeless(SettingSource.Default);
 
-        if (defaultValue is bool defaultBool) return data.Bool(lookupName, defaultBool);
-        if (defaultValue is int defaultInt) return data.Int(lookupName, defaultInt);
-        if (defaultValue is float defaultFloat) return data.Float(lookupName, defaultFloat);
-        if (defaultValue is Time defaultTime) return data.Time(lookupName, defaultTime);
+
+        if (defaultValue is bool defaultBool)    return data.Bool(lookupName, defaultBool);
+        if (defaultValue is int defaultInt)      return data.Int(lookupName, defaultInt);
+        if (defaultValue is float defaultFloat)  return data.Float(lookupName, defaultFloat);
+        if (defaultValue is Time defaultTime)    return data.Time(lookupName, defaultTime);
 
         return null;
     }

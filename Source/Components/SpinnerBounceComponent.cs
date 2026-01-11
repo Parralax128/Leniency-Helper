@@ -1,126 +1,159 @@
-﻿using System;
+﻿using Celeste.Mod.LeniencyHelper.Triggers;
 using Microsoft.Xna.Framework;
 using Monocle;
-using static Celeste.Mod.LeniencyHelper.Triggers.ConsistentTheoSpinnerBounceTrigger;
-using System.Reflection;
+using System;
 using System.Collections.Generic;
-using Celeste.Mod.LeniencyHelper.Triggers;
+using System.Reflection;
+using static Celeste.Mod.LeniencyHelper.Triggers.SpinnerBounceTrigger;
 
 namespace Celeste.Mod.LeniencyHelper.Components;
 
 class SpinnerBounceComponent : Component
 {
-    public bool enabled;
-    public BounceDirections direction;
+    public bool Enabled;
+    public BounceDirections Direction;
 
-    public bool wasEnabled;
-    public BounceDirections wasDirection;
+    bool savedEnabled;
+    BounceDirections savedDirection;
 
-    public Dictionary<ConsistentTheoSpinnerBounceTrigger, bool> collidingWith = 
-        new Dictionary<ConsistentTheoSpinnerBounceTrigger, bool>();
+    private enum SpeedAccessor
+    { 
+        Field, 
+        Property, 
+        None 
+    };
+    SpeedAccessor accessor = SpeedAccessor.None;
 
-    public Holdable holdComponent
+    FieldInfo speedField;
+    PropertyInfo speedProperty;
+
+    public bool this[SpinnerBounceTrigger trigger]
     {
-        get
+        get => triggersCollided.Contains(trigger);
+        set
         {
-            foreach(Component item in this.Entity)
-            {
-                if (item is Holdable hold) return hold;
-            }
-            return null;
+            if(value) triggersCollided.Add(trigger);
+            else triggersCollided.Remove(trigger);
         }
     }
+
+    HashSet<SpinnerBounceTrigger> triggersCollided = new();
+
+    public Holdable HoldComponent;
     public SpinnerBounceComponent(bool enable, BounceDirections dir) : base(true, false) 
     {
-        enabled = enable;
-        direction = dir;
+        Enabled = enable;
+        Direction = dir;
+    }
+    public override void Added(Entity entity)
+    {
+        base.Added(entity);
+        HoldComponent = entity.Get<Holdable>();
+
+        Action<Entity> orig = HoldComponent.OnHitSpinner;
+
+        HoldComponent.OnHitSpinner = (spinner) =>
+        {
+            if (Enabled)
+            {
+                Vector2 savedSpeed = HoldComponent.GetSpeed();
+                orig?.Invoke(spinner);
+                ProcessBounceSpeed(savedSpeed);
+            }
+            else orig?.Invoke(spinner);
+        };
+
+
+
+        if (entity.GetType().GetField("Speed") is FieldInfo field && field.FieldType == typeof(Vector2))
+        {
+            speedField = field;
+            accessor = SpeedAccessor.Field;
+            return;
+        }
+
+        
+        if (entity.GetType().GetProperty("Speed") is PropertyInfo property
+            && property.PropertyType == typeof(Vector2) && property.GetSetMethod() != null)
+        {
+            speedProperty = property;
+            accessor = SpeedAccessor.Property;
+        }
+    }
+
+    public void SaveSettings()
+    {
+        savedEnabled = Enabled;
+        savedDirection = Direction;
     }
     public void UndoSettings()
     {
-        enabled = wasEnabled;
-        direction = wasDirection;
+        Enabled = savedEnabled;
+        Direction = savedDirection;
     }
-    public void SaveSettings()
+
+    
+    void SetEntitySpeed(Entity entity, Vector2 speed)
     {
-        wasEnabled = enabled;
-        wasDirection = direction;
-    }
-    public override void Update()
-    {
-        var orig = holdComponent.OnHitSpinner;
-        if (enabled)
+        if(accessor == SpeedAccessor.Field)
         {
-            holdComponent.OnHitSpinner = (spinner) =>
-            {
-                Vector2 saveSpeed = holdComponent.GetSpeed();
-                if(orig != null) orig(spinner);
-                SetSpeed(saveSpeed);
-            };
+            speedField.SetValue(entity, speed);
+            return;
+        }
+
+        if(accessor == SpeedAccessor.Property)
+            speedProperty.SetValue(entity, speed);
+    }
+    public void ProcessBounceSpeed(Vector2 savedSpeed)
+    {
+        Vector2 currentSpeed = HoldComponent.GetSpeed();
+        if (currentSpeed.LengthSquared() <= savedSpeed.LengthSquared()
+            || Math.Abs(savedSpeed.X) >= 0.01f
+            || Direction == BounceDirections.All) 
+        { 
+            return; 
+        }
+
+        if(HoldComponent.SpeedSetter != null)
+        {
+            HoldComponent.SetSpeed(new Vector2(
+                Math.Abs(currentSpeed.X) * (int)Direction,
+                currentSpeed.Y * Math.Abs((int)Direction)));
         }
         else
         {
-            holdComponent.OnHitSeeker = orig;
+            SetEntitySpeed(HoldComponent.Entity, new Vector2(
+                Math.Abs(currentSpeed.X) * (int)Direction,
+                currentSpeed.Y * Math.Abs((int)Direction)));
         }
-    }
-    void SetEntitySpeed(Entity entity, Vector2 speed)
-    {
-        FieldInfo speedField = entity.GetType().GetField("Speed");
-        if (speedField != null)
+        return;
+
+        switch (Direction)
         {
-            if (speedField.FieldType == typeof(Vector2))
-            {
-                speedField.SetValue(entity, speed);
+
+            case BounceDirections.None:
+                HoldComponent.SetSpeed(savedSpeed);
+
+                if (HoldComponent.GetSpeed().LengthSquared() > 0.1f)
+                    SetEntitySpeed(HoldComponent.Entity, Vector2.Zero);
                 return;
-            }
-        }
 
-        PropertyInfo speedProperty = entity.GetType().GetProperty("Speed");
-        if (speedProperty != null)
-        {
-            if (speedProperty.PropertyType == typeof(Vector2) && speedProperty.GetSetMethod() != null)
-            {
-                speedProperty.SetValue(entity, speed);
-            }
-        }
 
-    }
-    public void SetSpeed(Vector2 saveSpeed)
-    {
-        if (holdComponent.GetSpeed().LengthSquared() > saveSpeed.LengthSquared() && Math.Abs(saveSpeed.X) < 0.01f)
-        {
-            switch (direction)
-            {
-                case BounceDirections.None:
-                    holdComponent.SetSpeed(saveSpeed);
+            case BounceDirections.Left when HoldComponent.GetSpeed().X > 0f:
+                HoldComponent.SetSpeed(new Vector2(-HoldComponent.GetSpeed().X, HoldComponent.GetSpeed().Y));
 
-                    if (holdComponent.GetSpeed().Length() > 0.1f)
-                        SetEntitySpeed(holdComponent.Entity, Vector2.Zero);
+                if (HoldComponent.GetSpeed().X > 0f)
+                    SetEntitySpeed(HoldComponent.Entity, new Vector2(-HoldComponent.GetSpeed().X, HoldComponent.GetSpeed().Y));
+                return;
 
-                    break;
 
-                case BounceDirections.Left:
-                    if (holdComponent.GetSpeed().X > 0f)
-                    {
-                        holdComponent.SetSpeed(new Vector2(-holdComponent.GetSpeed().X, holdComponent.GetSpeed().Y));
-                        
-                        if (holdComponent.GetSpeed().X > 0f)
-                            SetEntitySpeed(holdComponent.Entity, new Vector2(-holdComponent.GetSpeed().X, holdComponent.GetSpeed().Y));
-                    }
-                    break;
+            case BounceDirections.Right when HoldComponent.GetSpeed().X < 0f:
+                HoldComponent.SetSpeed(new Vector2(-HoldComponent.GetSpeed().X, HoldComponent.GetSpeed().Y));
 
-                case BounceDirections.Right:
-                    if (holdComponent.GetSpeed().X < 0f)
-                    {
-                        holdComponent.SetSpeed(new Vector2(-holdComponent.GetSpeed().X, holdComponent.GetSpeed().Y));
+                if (HoldComponent.GetSpeed().X < 0f)
+                    SetEntitySpeed(HoldComponent.Entity, new Vector2(-HoldComponent.GetSpeed().X, HoldComponent.GetSpeed().Y));
 
-                        if (holdComponent.GetSpeed().X < 0f)
-                            SetEntitySpeed(holdComponent.Entity, new Vector2(-holdComponent.GetSpeed().X, holdComponent.GetSpeed().Y));
-                    }
-                    break;
-
-                case BounceDirections.All:
-                    break;
-            }
+                return;
         }
     }
 }

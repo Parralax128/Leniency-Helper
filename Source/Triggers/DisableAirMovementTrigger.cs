@@ -10,6 +10,7 @@ namespace Celeste.Mod.LeniencyHelper.Triggers;
 class DisableAirMovementTrigger : GenericTrigger
 {
     #region Hooks
+
     [OnLoad]
     public static void LoadHooks()
     {
@@ -59,15 +60,16 @@ class DisableAirMovementTrigger : GenericTrigger
             if (player.onGround || !player.Get<Components.DisableAirMovementComponent>().Activated) return orig;
             return 0;
         }
+        static VirtualIntegerAxis MoveYToZero(VirtualIntegerAxis orig, Player player)
+        {
+            zero.Value = 0;
+            if (player == null || !AirMovementDisabled(player) || player.onGround) return orig;
+
+            return zero;
+        }
     }
     
-    static VirtualIntegerAxis MoveYToZero(VirtualIntegerAxis orig, Player player)
-    {
-        zero.Value = 0;
-        if (player == null || !AirMovementDisabled(player) || player.onGround) return orig;
-
-        return zero;
-    }
+    
     static void DisableSpriteChanges(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
@@ -87,9 +89,17 @@ class DisableAirMovementTrigger : GenericTrigger
             cursor.EmitLdarg0();
             cursor.EmitDelegate(MoveYToZero);
         }
+
+        static VirtualIntegerAxis MoveYToZero(VirtualIntegerAxis orig, Glider jelly)
+        {
+            zero.Value = 0;
+            if (jelly.Hold.Holder == null || !AirMovementDisabled(jelly.Hold.Holder) || jelly.Hold.Holder.OnGround()) return orig;
+
+            return zero;
+        }
     }
 
-    static bool AirMovementDisabled(Player For) => For.Get<Components.DisableAirMovementComponent>().Activated;
+    static bool AirMovementDisabled(Player For) => For.Get<Components.DisableAirMovementComponent>().Activated;    
     static void SetAirMovementDisabled(Player For, bool value) => For.Get<Components.DisableAirMovementComponent>().Activated = value;
 
     #endregion

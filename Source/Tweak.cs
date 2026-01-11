@@ -1,10 +1,5 @@
 ﻿using Celeste.Mod.LeniencyHelper.TweakSettings;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Celeste.Mod.LeniencyHelper;
 
@@ -54,4 +49,10 @@ public static class TweakExtension
     public static bool HasSettings(this Tweak tweak) => TweakData.Tweaks[tweak].Settings != null;
     public static bool Enabled(this Tweak tweak) => TweakData.Tweaks[tweak].Enabled;
     public static bool? Get(this Tweak tweak, SettingSource source) => TweakData.Tweaks[tweak].Get(source);
+
+    public static Tweak? FromString(string tweakName)
+    {
+        if (Enum.TryParse(tweakName, false, out Tweak result)) return result;
+        return null;
+    }
 }

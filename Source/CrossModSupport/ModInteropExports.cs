@@ -9,6 +9,7 @@ namespace Celeste.Mod.LeniencyHelper.CrossModSupport;
 public static class ModInteropExports
 {
     static TweakState Parse(string tweakName) => TweakData.Tweaks[Enum.Parse<Tweak>(tweakName)];
+    
     public static bool GetTweakEnabled(string tweakName, bool ignoreOverride = false)
     {
         TweakState tweakState = Parse(tweakName);
@@ -37,7 +38,7 @@ public static class ModInteropExports
     public static bool GetTweakDisabledByPlayer(string tweakName)
         => Parse(tweakName).Get(SettingSource.Player) == false;
 
-    public static void SetTweak(string tweakName, bool? state, bool overridePlayerSettings)
+    public static void SetTweak(string tweakName, bool? state)
     {
         TweakState tweakState = Parse(tweakName);
 

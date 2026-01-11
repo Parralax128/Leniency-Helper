@@ -12,18 +12,12 @@ class AbstractTweakItem : TextMenu.Item
     protected Tweak tweak;
 
     protected int lastDir = 0;
-    protected bool ViolateLeniency = false;
-
     public Description Description = null;
-    public void SetDescriptionVisible(bool visible)
-    {
-        if (Description != null) Description.Visible = visible;
-        if (Parent?.Description != null) Parent.Description.Visible = visible;
-    }
 
     float sineCounter;
     protected float SineShift => (float)Math.Sin(sineCounter * 4f);
-    
+
+    public float? OverrideHeight = null;
 
     public static readonly Color InactiveColor = Color.DarkSlateGray;
     public Color GetStrokeColor() => Color.Black * Container.Alpha * Container.Alpha * Container.Alpha;
@@ -34,14 +28,15 @@ class AbstractTweakItem : TextMenu.Item
     protected MenuLayout Layout => TweakMenuManager.Layout;
 
     protected float cachedWidth;
-    protected float TextScale = 1f;
+    public float TextScale = 1f;
+
 
     AbstractTweakItem(Tweak tweak)
     {
         this.tweak = tweak;
         Selectable = true;
     }
-    public AbstractTweakItem(Tweak tweak, string settingName = null) : this(tweak)
+    public AbstractTweakItem(Tweak tweak, string? settingName = null) : this(tweak)
     {
         Label = settingName == null ? DialogUtils.Tweak(tweak, DialogUtils.Precision.Localized)
             : DialogUtils.Setting(settingName, tweak, DialogUtils.Precision.Localized);
@@ -55,11 +50,16 @@ class AbstractTweakItem : TextMenu.Item
             {
                 float offset = Layout.LeftOffset + (settingName == null ? 0f : Layout.SubSettingOffset);
                 Description = new Description(descText, offset);
-                Description.Visible = false;
             }
         }
-    }
 
+
+        if (Description == null) return;
+
+        OnEnter += Description.Unroll;
+        if (settingName == null) OnLeave += () => { if (!TweakMenuManager.InSubsettingsMode) Description.Collapse(); };
+        else OnLeave += Description.Collapse;
+    }
     public override void Update()
     {
         base.Update();
@@ -88,10 +88,8 @@ class AbstractTweakItem : TextMenu.Item
     }
 
     public override string SearchLabel() => Label;
-    public override float Height() => ActiveFont.LineHeight * TextScale;
+    public override float Height() => OverrideHeight ?? ActiveFont.LineHeight * TextScale * 0.8f;
     
-
-
     public Vector2 RightColumn(Vector2 orig, Vector2 offset = default)
     {
         return new Vector2(1920f - Layout.RightOffset

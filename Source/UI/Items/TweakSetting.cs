@@ -3,6 +3,7 @@ using System;
 using Celeste.Mod.LeniencyHelper.TweakSettings;
 using System.Collections.Generic;
 using Celeste.Mod.LeniencyHelper.UI.Items.SettingHandlers;
+using Celeste.Mod.MaxHelpingHand.Entities;
 
 namespace Celeste.Mod.LeniencyHelper.UI.Items;
 
@@ -10,8 +11,6 @@ class TweakSetting<T> : AbstractTweakItem
 {
     protected Setting<T> Setting;
     AbstractHandler<T> handler;
-
-    public bool PlayerSource = false;
 
     static readonly Dictionary<Type, object> Handlers = new()
     {
@@ -47,6 +46,16 @@ class TweakSetting<T> : AbstractTweakItem
         OnAltPressed += () => { handler.OnJournalPressed?.Invoke(Setting); };
 
         TextScale = Layout.SubSettingScale;
+    }
+
+    public override void Update()
+    {
+        base.Update();
+
+        if(Setting.DisableOn.HasValue && Parent?.Value == TweakSlider.Values.On)
+        {
+            Disabled = Setting.DisableOn.Value.Item2.Equals(TweakData.Tweaks[tweak].GetSetting(Setting.DisableOn.Value.Item1));
+        }
     }
 
     public override bool TryChangeValue(int dir)

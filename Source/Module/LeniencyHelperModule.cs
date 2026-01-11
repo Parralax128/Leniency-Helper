@@ -12,6 +12,21 @@ using System.Reflection;
 namespace Celeste.Mod.LeniencyHelper.Module;
 class LeniencyHelperModule : EverestModule
 {
+    public enum Inputs
+    {
+        Jump,
+        Dash,
+        Demo,
+        Grab
+    }
+    public enum Dirs
+    {
+        Up, Down,
+        Left, Right,
+        All, None
+    }
+
+
     #region very important generic stuff
 
     public static LeniencyHelperModule Instance { get; set; }
@@ -35,19 +50,7 @@ class LeniencyHelperModule : EverestModule
         { "ExtendedVariantMode", (new Version(0,35,0), false) }
     };
     public static bool ModLoaded(string mod) => ModsLoaded[mod].Item2;
-    public enum Inputs
-    {
-        Jump,
-        Dash,
-        Demo,
-        Grab
-    }
-    public enum Dirs
-    {
-        Up, Down,
-        Left, Right,
-        All, None
-    }
+    
     #endregion
 
     public static string Name => Instance.Metadata.Name;
@@ -95,9 +98,7 @@ class LeniencyHelperModule : EverestModule
         foreach (string mod in ModsLoaded.Keys)
         {
             ModsLoaded[mod] = ModsLoaded[mod] with 
-            { 
-                Item2 = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = mod, Version = ModsLoaded[mod].Item1 }) 
-            };
+            { Item2 = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = mod, Version = ModsLoaded[mod].Item1 }) };
         }
         
         if (ModLoaded("MaxHelpingHand"))
@@ -114,6 +115,10 @@ class LeniencyHelperModule : EverestModule
     }
     public override void Load()
     {
+        TweakData.SetupIndices();
+        Instance.LoadSettings();
+
+
         var loadHooksMethods = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypesSafe()).
             Where(x => x.IsClass).SelectMany(x => x.GetMethods()).
             Where(x => x.GetCustomAttributes(typeof(OnLoad), false).FirstOrDefault() != null);

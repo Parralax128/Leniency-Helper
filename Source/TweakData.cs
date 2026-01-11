@@ -14,8 +14,8 @@ static class TweakData
         FlexDistance.Modes defaultMode = FlexDistance.Modes.Static, int defaultStatic = 4, Time defaultTime = null) =>
     new SettingContainer() {
         new Setting<FlexDistance.Modes>(name + "Mode", defaultMode),
-        new Setting<int>(name + "StaticDistance", defaultStatic, 0, 12),
-        new Setting<Time>(name + "Time", defaultTime ?? 0.05f, 0f, 0.25f)
+        new Setting<int>(name + "StaticDistance", defaultStatic, 0, 12, disableOn: (name + "Mode", FlexDistance.Modes.Dynamic)),
+        new Setting<Time>(name + "Time", defaultTime ?? 0.05f, 0f, 0.25f, disableOn: (name + "Mode", FlexDistance.Modes.Static))
     };
 
     public class TweakList : IEnumerable<TweakState>
@@ -28,12 +28,13 @@ static class TweakData
         public void ForEach(Action<TweakState> action) => tweakStates.ForEach(action);
 
         // LINQ mess :P
+        // just getting appropriate tweak types (from Tweaks namespace) for each tweak
         public static Dictionary<Tweak, Type> Types = 
             AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypesSafe()).
             Where(x => x.IsClass && x.BaseType != null && x.BaseType.IsGenericType
             && typeof(Tweaks.AbstractTweak<>) == x.BaseType.GetGenericTypeDefinition()).
             ToDictionary(t => Enum.Parse<Tweak>(t.Name));
-            
+
         public TweakList()
         {
             int size = System.Enum.GetValues<Tweak>().Length;
@@ -54,15 +55,17 @@ static class TweakData
         }
     }
 
-    public static TweakList Tweaks;
+    public static void SetupIndices()
+    {
+        Tweaks.ForEach(tweak => tweak.AssignTweakIndices());
+    }
 
-    [System.Runtime.CompilerServices.ModuleInitializer]
-    internal static void SetupTweaklist() { Tweaks = new()
+    public static TweakList Tweaks = new TweakList()
     {
         new TweakState(Tweak.AutoSlowfall, new SettingContainer {
             new Setting<bool>("TechOnly", true),
             new Setting<bool>("DelayedJumpRelease", true),
-            new Setting<Time>("ReleaseDelay", 0.2f, 0f, 1f)
+            new Setting<Time>("ReleaseDelay", 0.2f, 0f, 1f, disableOn: ("DelayedJumpRelease", false))
         }),
 
         new TweakState(Tweak.BackboostProtection, new SettingContainer {
@@ -79,7 +82,7 @@ static class TweakData
 
         new TweakState(Tweak.BufferableExtends, new SettingContainer {
             new Setting<bool>("ForceWaitForRefill", false),
-            new Setting<Time>("ExtendTiming", 4, 0, 12)
+            new Setting<Time>("ExtendTiming", 4, 0, 12, disableOn: ("ForceWaitForRefill", true))
         }),
 
         new TweakState(Tweak.ConsistentDashOnDBlockExit, new SettingContainer {
@@ -89,7 +92,7 @@ static class TweakData
         new TweakState(Tweak.ConsistentWallboosters, new SettingContainer {
             new Setting<bool>("ConsistentBlockboost", true),
             new Setting<bool>("InstantAcceleration", false),
-            new Setting<int>("CustomAcceleration", 10, 0, 250),
+            new Setting<int>("CustomAcceleration", 10, 0, 250, disableOn: ("InstantAcceleration", true)),
             new Setting<bool>("BufferableMaxjumps", true)
         }),
 
@@ -101,7 +104,7 @@ static class TweakData
             new Setting<Time>("JumpBufferTime", 4, 0f, 0.25f),
             new Setting<Time>("DashBufferTime", 4, 0f, 0.25f),
             new Setting<Time>("DemoDashBufferTime", 4, 0f, 0.25f)
-        }), 
+        }),
 
         new TweakState(Tweak.CustomDashbounceTiming, new SettingContainer {
             new Setting<Time>("Timing", 0.1f, 0f, 0.5f)
@@ -184,7 +187,7 @@ static class TweakData
         new TweakState(Tweak.SolidBlockboostProtection, new SettingContainer {
             new Setting<Time>("MaxSaveTime", 0.1f, 0f, 0.5f)
         }),
-         
+
         new TweakState(Tweak.SuperdashSteeringProtection, new SettingContainer {
             new Setting<bool>("CloseAngleRestriction", true)
         }),
@@ -196,7 +199,7 @@ static class TweakData
         new TweakState(Tweak.WallCoyoteFrames, new SettingContainer {
             new Setting<Time>("WallCoyoteTime", 4, 0, 0.1f)
         })
-    };  }
+    };
 
 
     public static void ResetPlayerSettings()

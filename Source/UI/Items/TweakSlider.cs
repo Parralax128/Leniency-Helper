@@ -1,12 +1,12 @@
 ﻿using Celeste.Mod.LeniencyHelper.Module;
 using Celeste.Mod.LeniencyHelper.TweakSettings;
+using Celeste.Mod.LeniencyHelper.UI.Items.SettingHandlers;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using static Celeste.TextMenu;
-using Celeste.Mod.LeniencyHelper.UI.Items.SettingHandlers;
 
 namespace Celeste.Mod.LeniencyHelper.UI.Items;
 
@@ -14,22 +14,30 @@ class TweakSlider : AbstractTweakItem
 {
     public List<AbstractTweakItem> subSettings = new ();
 
+
+    const float SubsettingUnroll = 0.4f;
+    const float SubsettingCollapse = 0.25f;
+    UnrollCollapseHelper heightHelper;
+
+
     public bool addedSubsettings = false;
     Action<bool> SetVisible;
-    EnumHandler<SliderValues> handler = new();
+    EnumHandler<Values> handler = new();
 
     static readonly Color PlayerValueColor = new Color(218, 165, 32);
     static readonly Color MapValueColor = new Color(0, 191, 255);
-    public enum SliderValues
+    public enum Values
     {
         Map = 0, On = 1, Off = 2
     }
 
-    public SliderValues Value;
-    
+    public Values Value;
 
 
-    bool? GetPlayerState => Value == SliderValues.Map ? null : Value == SliderValues.On;
+    public float VertRenderPos;
+
+
+    bool? PlayerState => Value == Values.Map ? null : Value == Values.On;
     public static int GetIndexFromTweakName(Tweak tweak)
     {
         if (tweak.Get(SettingSource.Player) != null)
@@ -44,12 +52,16 @@ class TweakSlider : AbstractTweakItem
 
         Value = tweak.Get(SettingSource.Player) switch
         {
-            true => SliderValues.On,
-            false => SliderValues.Off,
-            null => SliderValues.Map
+            true => Values.On,
+            false => Values.Off,
+            null => Values.Map
         };
 
         TextScale = Layout.TweakScale;
+
+        heightHelper = new UnrollCollapseHelper(SubsettingCollapse, SubsettingUnroll);
+
+        OnEnter += () => TutorialPlayer.LoadVideo(tweak);
     }
     public override void Added()
     {
@@ -74,7 +86,7 @@ class TweakSlider : AbstractTweakItem
             if (setting.Description != null)
             {
                 Container.Add(setting.Description);
-                SetVisible += (v) => { if (v == false) setting.Description.Visible = v; };
+                SetVisible += (v) => { if(!v) setting.Description.SetVisible(v); };
             }
 
             setting.Parent = this;
@@ -106,8 +118,19 @@ class TweakSlider : AbstractTweakItem
 
         Container.Add(afterOffset);
 
-        SetVisible(false);
+
+        SetVisible.Invoke(false);
     }
+    public override void Update()
+    {
+        base.Update();
+        heightHelper.Update();
+        float currentSubsettingsHeight = heightHelper.GetHeight(addedSubsettings, ActiveFont.LineHeight);
+
+        foreach (AbstractTweakItem setting in subSettings)
+            setting.OverrideHeight = currentSubsettingsHeight * setting.TextScale;
+    }
+
 
     public override void ConfirmPressed()
     {
@@ -119,7 +142,9 @@ class TweakSlider : AbstractTweakItem
     {
         if (addedSubsettings || subSettings.Count <= 0) return;
 
-        bool disabled = Value != SliderValues.On;
+        heightHelper.Unroll();
+
+        bool disabled = Value != Values.On;
         foreach (Item item in subSettings) item.Disabled = disabled;
 
         SetVisible(true);
@@ -129,15 +154,17 @@ class TweakSlider : AbstractTweakItem
         addedSubsettings = true;
         Container.SceneAs<Level>().AllowHudHide = false;
 
-        if (Value == SliderValues.On)
+        if (Value == Values.On)
         {
             Container.Current = subSettings[0];
-            subSettings[0].SetDescriptionVisible(true);
+            subSettings[0].Description?.Unroll();
         }
     }
     public void CloseSuboptions()
     {
         if (!addedSubsettings || subSettings.Count <= 0) return;
+
+        heightHelper.Collapse();
 
         SetVisible(false);
 
@@ -162,20 +189,21 @@ class TweakSlider : AbstractTweakItem
     }
 
 
+    public void Reset()
+    {
+        base.ChangeValue(-1);
+
+        Value = Values.Map;
+        TweakData.Tweaks[tweak].Set(null, SettingSource.Player);
+
+        ValueWiggler.Start();
+    }
     public override void ChangeValue(int dir)
     {
         Value = handler.Advance(Value, dir);
-        TweakData.Tweaks[tweak].Set(GetPlayerState, SettingSource.Player);
+        TweakData.Tweaks[tweak].Set(PlayerState, SettingSource.Player);
 
         ValueWiggler.Start();
-
-        if (addedSubsettings) //updating suboptions via reopening
-        {
-            CloseSuboptions();
-            OpenSuboptions();
-        }
-
-        if (!tweak.Enabled()) CloseSuboptions();
     }
     public override bool TryChangeValue(int dir) => handler.CheckValidDir(Value, null, dir);
 
@@ -192,9 +220,10 @@ class TweakSlider : AbstractTweakItem
     }
     public override float RightWidth() => cachedWidth;
     public override float LeftWidth() => ActiveFont.Measure(Label).X * Layout.SubSettingScale;
-
     public override void Render(Vector2 position, bool selected)
     {
+        VertRenderPos = position.Y;
+
         position.X = Layout.LeftOffset;
 
         handler.CheckBounds(Value, out bool left, out bool right);

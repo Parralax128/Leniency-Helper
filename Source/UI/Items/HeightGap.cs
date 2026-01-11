@@ -1,17 +1,10 @@
-﻿using static Celeste.TextMenu;
+﻿using Microsoft.Xna.Framework;
 
-namespace Celeste.Mod.LeniencyHelper.UI.Items
+namespace Celeste.Mod.LeniencyHelper.UI.Items;
+
+class HeightGap : TextMenu.Item
 {
-    class HeightGap : SubHeader
-    {
-        public int offset;
-        public HeightGap(int offset) : base(string.Empty)
-        {
-            this.offset = offset;
-        }
-        public override float Height()
-        {
-            return offset;
-        }
-    }
+    public int offset;
+    public HeightGap(int offset) : base() => this.offset = offset;
+    public override float Height() => offset;
 }

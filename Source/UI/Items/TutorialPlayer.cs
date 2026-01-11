@@ -6,34 +6,44 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Celeste.Mod.LeniencyHelper.UI.Items;
 
-public static class TutorialPlayer
+public class TutorialPlayer : TextMenu.Item
 {
     static VideoPlayer player = new() { IsLooped = true, IsMuted = true };
-    public static Video CurrentVideo;
+    public static Video CurrentVideo = null;
 
     static Rectangle SourceRectangle;
 
-    public static void LoadVideo(string tweakName)
+    public TutorialPlayer()
     {
-        string path = $"Graphics/Videos/{tweakName}.ogv";
+        Selectable = false;
+        Disabled = true;
+    
+        AboveAll = true;
+    }
+
+    public override bool AlwaysRender => true;
+
+    public static void LoadVideo(Tweak tweak)
+    {
+        string path = $"Graphics/Videos/{tweak}.ogv";
 
         if(!Everest.Content.TryGet(path, out ModAsset asset))
         {
-            Logger.Error(Module.LeniencyHelperModule.Instance.Metadata.Name, $"No file found with path: {path}");
+            Logger.Error(Module.LeniencyHelperModule.Name, $"No file found with path: {path}");
+            CurrentVideo = null;
             return;
         }
 
         CurrentVideo = Engine.Instance.Content.Load<Video>(asset.GetCachedPath());
         SourceRectangle = new Rectangle(0, 0, CurrentVideo.Width, CurrentVideo.Height);
-    }
-    public static void PlayTutorial()
-    {
-        //player.Play(CurrentVideo);
+
+        player.Play(CurrentVideo);
     }
 
-
-    public static void Render(Vector2 position, bool highlighted)
+    public override float Height() => 0f;
+    public override void Render(Vector2 position, bool selected)
     {
-        //Draw.SpriteBatch.Draw(player.GetTexture(), Vector2.Zero, Color.White);
+        if (CurrentVideo == null) return;
+        Draw.SpriteBatch.Draw(player.GetTexture(), TweakMenuManager.Layout.VideoDestination, SourceRectangle, Color.White);
     }
 }

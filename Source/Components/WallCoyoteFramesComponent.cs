@@ -26,7 +26,7 @@ class WallCoyoteFramesComponent : TweakComponent<Tweaks.WallCoyoteFrames>
         static int FromBool(bool value) => value ? 1 : 0;
     }
 
-    public bool CheckWall(int dir) => -dir != (int)side && timer;
+    public bool CheckWall(int dir) => (-dir != (int)side) && timer;
     public bool NullHorizontal => side == Tweaks.WallCoyoteFrames.WallSides.Both && timer;
     public void AbortTimer()
     {

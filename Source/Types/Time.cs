@@ -14,44 +14,44 @@ public class Time : IComparable<Time>, ICloneable
 
     public Modes Mode = Modes.Seconds;
 
-    public float Value;
+    public float Seconds;
 
     public Time(float time, Modes mode = Modes.Seconds)
     {
-        Value = mode == Modes.Frames ? (float)time / FPS : time;       
+        Seconds = mode == Modes.Frames ? (float)time / FPS : time;       
         Mode = mode;
     }
 
-    public int Frames => (int)(Value * FPS);
+    public int Frames => (int)(Seconds * FPS);
     public void SwapMode() => Mode = (Modes)(1 - (int)Mode);
 
     int IComparable<Time>.CompareTo(Time other)
     {
-        if (Math.Abs(Value - other.Value) < 0.0001f) return 0;
-        return Value < other.Value ? -1 : 1;
+        if (Math.Abs(Seconds - other.Seconds) < 0.0001f) return 0;
+        return Seconds < other.Seconds ? -1 : 1;
     }
 
     object ICloneable.Clone()
     {
-        return new Time(Mode == Modes.Frames ? Frames : Value, Mode);
+        return new Time(Mode == Modes.Frames ? Frames : Seconds, Mode);
     }
     public static bool operator >=(Time left, Time right)
     {
-        return left.Value >= right.Value;
+        return left.Seconds >= right.Seconds;
     }
     public static bool operator <=(Time left, Time right)
     {
-        return left.Value <= right.Value;
+        return left.Seconds <= right.Seconds;
     }
 
 
     public static implicit operator int(Time time)
     {
-        return (int)(time.Value * FPS);
+        return (int)(time.Seconds * FPS);
     }
     public static implicit operator float(Time time)
     {
-        return time.Value;
+        return time.Seconds;
     }
 
 
@@ -59,16 +59,16 @@ public class Time : IComparable<Time>, ICloneable
     public static implicit operator Time(int frames) => new Time(frames, Modes.Frames);
 
     public static Time operator +(Time left, Time right)
-        => new Time(left.Value + right.Value, left.Mode == Modes.Seconds ? Modes.Seconds : right.Mode);
+        => new Time(left.Seconds + right.Seconds, left.Mode == Modes.Seconds ? Modes.Seconds : right.Mode);
 
-    public static Time operator +(Time time, float seconds) => new Time(time.Value + seconds);
+    public static Time operator +(Time time, float seconds) => new Time(time.Seconds + seconds);
     public static Time operator +(Time time, int frames) => new Time(time.Frames + frames, Modes.Frames);
 
     public override string ToString() => ToString(Mode);
     public string ToString(Modes mode)
     {
         return mode == Modes.Seconds
-            ? MathF.Round(Value, 2).ToString() + 's'
+            ? MathF.Round(Seconds, 2).ToString() + 's'
             : Frames.ToString() + 'f';
     }
 }

@@ -1,5 +1,4 @@
-﻿using Monocle;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 
 namespace Celeste.Mod.LeniencyHelper.UI;
 
@@ -19,11 +18,22 @@ public struct MenuLayout
     public Vector2 VideoSize;
     public float VideoOffsetX;
     public float VideoPosY;
+    public Rectangle VideoDestination;
 
     public float TweakScale;
-    public float SubSettingScale; 
+    public float SubSettingScale;
+
+    public DescriptionPos DescriptionPos;
+    public float DescVerticalOffset;
+    public Vector2 DescUnderVideo;
     
-    public Rectangle VideoDestination => new Rectangle((int)(Engine.ViewWidth - RightOffset + VideoOffsetX),
-        (int)VideoPosY, (int)VideoSize.X, (int)VideoSize.Y);
-    public MenuLayout() { }
+    
+    public MenuLayout() { Update(); }
+    public void Update()
+    {
+        VideoDestination = new Rectangle((int)(1920f - RightOffset + VideoOffsetX),
+            (int)VideoPosY, (int)VideoSize.X, (int)VideoSize.Y);
+
+        DescUnderVideo = new Vector2(1920f - RightOffset + VideoOffsetX, VideoPosY + DescVerticalOffset + VideoSize.Y);
+    }
 }

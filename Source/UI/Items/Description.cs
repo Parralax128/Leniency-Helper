@@ -1,5 +1,5 @@
-﻿using Monocle;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
+using Monocle;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,10 +11,9 @@ class Description : TextMenu.Item
     static readonly Dictionary<string, ValueTuple<string, string>> MarkDownTags = new()
     {
         { "ins", ("#708090", "#") },
-        { "em", ("%", "/%") },
+        { "em", ("#4f606b", "#") },
         { "br", ("n", "n") }
     };
-
     static string ReplaceMarkDownTags(string text)
     {
         string result = new string(text);
@@ -26,17 +25,28 @@ class Description : TextMenu.Item
         return result;
     }
 
+    string inputText;
     FancyText.Text Text;
     Coroutine coroutine;
-    int currentLine = 0;
-    
-    float heightWigglerCounter = 0f;
-    const float HeightWiggleDuration = 0.5f;
-    float? staticHeight = null;
 
+    const float UnrollDelay = 0.25f;
+    const float UnrollDuration = 0.5f;
     static readonly float Scale = 0.8f * TweakMenuManager.Layout.SubSettingScale;
-    float Offset;
-    bool selected = false;
+    static readonly Vector2 ScaleFactor = new Vector2(Scale);
+
+    float HorizontalOffset;
+    const float VerticalOffset = 8f;
+
+    const float CollapseDelay = 0.15f;
+    const float CollapseDuration = 0.15f;
+
+    UnrollCollapseHelper heightHelper;
+    float maxHeight;
+
+    int currentIndex;
+
+    static DescriptionPos Mode => TweakMenuManager.Layout.DescriptionPos;
+    public static bool AboveTweak => Mode == DescriptionPos.AboveTweak;
 
     public static string? GetText(WebScrapper.TweakInfo info, string setting = null)
     {
@@ -62,103 +72,173 @@ class Description : TextMenu.Item
         return null;
     }
 
+
     public Description(string text, float offsetX)
     {
         MenuLayout layout = TweakMenuManager.Layout;
 
-        Offset = offsetX;
+        HorizontalOffset = offsetX;
 
-        Text = FancyText.Parse(
-            ReplaceMarkDownTags(text),
-            (int)((1920f-Offset-layout.RightOffset) / Scale),
-            1024, 0f,
-            Color.DarkSlateGray,
-            Dialog.Languages["english"]);
+        float maxLine = Mode == DescriptionPos.AboveTweak ? (1920f - HorizontalOffset - layout.RightOffset) : layout.VideoSize.X;
+        Text = FancyText.Parse(inputText = ReplaceMarkDownTags(text), (int)(maxLine / Scale), 1024, 0f, Color.DarkSlateGray, Dialog.Languages["english"]);
 
-        coroutine = new();
+        float delayPerChar = UnrollDuration / Text.Count;
+        foreach (FancyText.Char letter in Text.Nodes.Where(node => node is FancyText.Char))
+            letter.Delay = delayPerChar;
+
+
+        coroutine = new Coroutine();
         coroutine.Active = false;
+
+        heightHelper = new UnrollCollapseHelper(CollapseDuration, UnrollDuration,
+            (v) => Visible = v, coroutine, UnrollRoutine, CollapseRoutine);
+        maxHeight = (Text.Lines + 1f) * Scale * ActiveFont.LineHeight + VerticalOffset;
+
 
         Selectable = false;
         Disabled = true;
     }
 
-    System.Collections.IEnumerator TextAppearRoutine()
+
+    public void SetVisible(bool value)
     {
-        foreach(FancyText.Char letter in Text.Nodes.Where(node => node is FancyText.Char))
+        if (value) Unroll();
+        else Collapse();
+    }
+
+    System.Collections.IEnumerator UnrollRoutine()
+    {
+        if(heightHelper.State != UnrollCollapseHelper.States.Collapsing)
         {
-            letter.Fade = 0f;
-            letter.Delay = 0.001f;
+            yield return UnrollDelay;
+
+            if (heightHelper.State == UnrollCollapseHelper.States.Collapsing)
+                yield break;
         }
 
-        int index = 0;
-        while(index < Text.Count)
+        heightHelper.State = UnrollCollapseHelper.States.Unrolling;
+
+        float delayCounter = 0f;
+
+        currentIndex = Math.Clamp(currentIndex, 0, Text.Count - 1);
+        while (currentIndex < Text.Count)
         {
-            FancyText.Node current = Text[index];
+            FancyText.Node current = Text[currentIndex];
             if (current is FancyText.Char letter)
             {
-                if(letter.Line > currentLine)
+                bool longDelay = letter.Delay >= Engine.RawDeltaTime;
+
+                if (!longDelay)
                 {
-                    currentLine = letter.Line;
-                    heightWigglerCounter = 0f;
+                    letter.Fade = 1f;
+
+                    delayCounter += letter.Delay;
+                    if(delayCounter >= Engine.RawDeltaTime)
+                    {
+                        yield return null;
+                        delayCounter = 0f;
+                    }
+                }
+                else
+                {
+                    while (letter.Fade < 1f)
+                    {
+                        letter.Fade = Math.Min(1f, letter.Fade + Engine.RawDeltaTime / letter.Delay);
+                        yield return null;
+                    }
                 }
 
-                while (letter.Fade < 1f) 
-                {
-                    letter.Fade = Math.Min(1f, letter.Fade + Engine.RawDeltaTime / letter.Delay);
-                    yield return null;
-                }
-                index++;
+                currentIndex++;
             }
             else if (current is FancyText.Wait delay)
             {
                 yield return delay.Duration;
-                index++;
+                currentIndex++;
             }
             else
             {
                 yield return null;
-                index++;
+                currentIndex++;
             }
         }
     }
-    public override void Update()
+    public void Unroll() => heightHelper.Unroll();
+    System.Collections.IEnumerator CollapseRoutine()
     {
-        if (Visible && !selected)
+        if (heightHelper.State != UnrollCollapseHelper.States.Unrolling) yield return CollapseDelay;
+        heightHelper.State = UnrollCollapseHelper.States.Collapsing;
+
+        float delayCounter = 0f;
+
+        currentIndex = Math.Clamp(currentIndex, 0, Text.Count - 1);
+        while (currentIndex >= 0)
         {
-            coroutine.Replace(TextAppearRoutine());
-            staticHeight = null;
-            currentLine = 0;
-            heightWigglerCounter = 0f;
-        }
-        else if (Visible && selected)
-        {   
-            coroutine.Update();
-
-            if (heightWigglerCounter < HeightWiggleDuration)
+            FancyText.Node current = Text[currentIndex];
+            if (current is FancyText.Char letter)
             {
-                heightWigglerCounter += Engine.RawDeltaTime;
+                bool longDelay = letter.Delay >= Engine.RawDeltaTime;
 
-                if(heightWigglerCounter >= HeightWiggleDuration && currentLine == Text.Lines)
-                    staticHeight = Height();
+                if (!longDelay)
+                {
+                    letter.Fade = 0f;
+
+                    delayCounter += letter.Delay;
+                    if (delayCounter >= Engine.RawDeltaTime)
+                    {
+                        yield return null;
+                        delayCounter = 0f;
+                    }
+                }
+                else
+                {
+                    while (letter.Fade > 0f)
+                    {
+                        letter.Fade = Math.Max(0f, letter.Fade - Engine.RawDeltaTime/letter.Delay);
+                        yield return null;
+                    }
+                }
+
+                currentIndex--;
+            }
+            else if (current is FancyText.Wait delay)
+            {
+                yield return delay.Duration;
+                currentIndex--;
+            }
+            else
+            {
+                yield return null;
+                currentIndex--;
             }
         }
-
-        selected = Visible;
     }
+    public void Collapse() => heightHelper.Collapse();
 
-    const float e = 2.71828f;
-    public override float Height()
-    {
-        if (staticHeight.HasValue) return staticHeight.Value;
+    public override void Update() => heightHelper.Update();
 
-        float x = heightWigglerCounter / HeightWiggleDuration;
-        float wiggle = 1f - (float)Math.Pow(e, -(x*x * e*e));
-
-        return (currentLine + wiggle) * ActiveFont.LineHeight * Scale + 8f;
-    }
+    public override float Height() => Mode == DescriptionPos.UnderPlayer ? 0f : heightHelper.GetHeight(Visible, maxHeight);
+    
     public override void Render(Vector2 position, bool selected)
     {
-        Text.Draw(new Vector2(Offset, position.Y - Height() / 2f + 4f),
-            Vector2.Zero, new Vector2(Scale), 1f);
+        position = Mode switch
+        {
+            DescriptionPos.AboveTweak => new Vector2(HorizontalOffset, position.Y - Height() / 2f + VerticalOffset),
+            DescriptionPos.UnderPlayer => TweakMenuManager.Layout.DescUnderVideo - Vector2.UnitY * (maxHeight - heightHelper.GetHeight(Visible, maxHeight)),
+            _ => throw new InvalidOperationException("what the fuck?!")
+        };
+
+        Text.Draw(position, Vector2.Zero, ScaleFactor, Container.Alpha);
+    }
+    public void RebuildText()
+    {
+        var layout = TweakMenuManager.Layout;
+        float maxLine = Mode == DescriptionPos.AboveTweak ? (1920f - HorizontalOffset - layout.RightOffset) / Scale : layout.VideoSize.X;
+        Text = FancyText.Parse(ReplaceMarkDownTags(inputText), (int)maxLine, 1024, 0f, Color.DarkSlateGray, Dialog.Languages["english"]);
+    }
+
+    [Command("desc", "")]
+    public static void Switch()
+    {
+        TweakMenuManager.Layout.DescriptionPos = 1 - TweakMenuManager.Layout.DescriptionPos;
     }
 }

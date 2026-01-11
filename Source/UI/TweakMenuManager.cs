@@ -3,6 +3,7 @@ using Celeste.Mod.LeniencyHelper.UI.Items;
 using Celeste.Mod.UI;
 using Monocle;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Numerics;
 
@@ -30,11 +31,7 @@ public static class TweakMenuManager
             return;
         }
 
-        if (self.Current is AbstractTweakItem customItem) customItem.SetDescriptionVisible(false);
-        
         orig(self, dir, wiggle);
-
-        if (self.Current is AbstractTweakItem newCustomItem) newCustomItem.SetDescriptionVisible(true);
     }
 
     public static bool InSingleSubsettingMenu = false;
@@ -45,17 +42,23 @@ public static class TweakMenuManager
     {
         TextMenu menu = new TextMenu();
 
-        Layout = new MenuLayout();
-        Layout.LeftOffset = 80f;
-        Layout.RightOffset = 960f;
-        Layout.SubSettingOffset = 100f;
-        
-        Layout.VideoSize = new Microsoft.Xna.Framework.Vector2(0.4f);
-        Layout.VideoOffsetX = 0.1f;
-        Layout.VideoPosY = 0.4f;
+        Layout = new MenuLayout()
+        {
+            LeftOffset = 80f,
+            RightOffset = 960f,
+            SubSettingOffset = 100f,
 
-        Layout.TweakScale = 0.8f;
-        Layout.SubSettingScale = 0.7f;
+            VideoSize = new Microsoft.Xna.Framework.Vector2(800f, 450f),
+            VideoOffsetX = 100f,
+            VideoPosY = 250f,
+
+            TweakScale = 0.8f,
+            SubSettingScale = 0.7f,
+
+            DescVerticalOffset = 10f,
+            DescriptionPos = DescriptionPos.UnderPlayer
+        };
+        Layout.Update();
 
         menu.OnUpdate += () => OnUpdate(menu);
         menu.Add(new TextMenu.Header(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENU")));
@@ -66,6 +69,7 @@ public static class TweakMenuManager
 
         return menu;
     }
+
     static void AddItemsToMenu(TextMenu menu)
     {
         TextMenu.Button resetTweaksButton = new TextMenu.Button(Dialog.Clean("MODOPTIONS_LENIENCYHELPER_MENU_RESETTWEAKS"));
@@ -83,6 +87,7 @@ public static class TweakMenuManager
             TweakData.ResetPlayerSettings();
         };
 
+        menu.Add(new TutorialPlayer());
         menu.Add(new HeightGap(32));
         menu.Add(new OptionsHint());
 
@@ -91,16 +96,16 @@ public static class TweakMenuManager
             TweakSlider newTweak = new TweakSlider(tweak);
             if(newTweak.Description != null) menu.Add(newTweak.Description);
 
-            resetTweaksButton.OnPressed += () => { while ((int)newTweak.Value > 0) newTweak.ChangeValue(-1); };
+            resetTweaksButton.OnPressed += newTweak.Reset;
             menu.Add(newTweak);
         }
         menu.Insert(1, resetTweaksButton);
         menu.Insert(2, resetSettingsButton);
-        menu.Selection = 1;       
+        menu.Selection = 1;
     }
     static void OnUpdate(TextMenu menu)
     {
-        UI.Items.AbstractTweakItem selectedItem = menu.Items[menu.Selection] as AbstractTweakItem;
+        AbstractTweakItem selectedItem = menu.Items[menu.Selection] as AbstractTweakItem;
 
         if (Input.Grab.Pressed)
         {
@@ -130,6 +135,8 @@ public static class TweakMenuManager
     }
     static void OnButtonPress(TextMenu parentMenu)
     {
+        LeniencyHelperModule.Instance.LoadSettings();
+
         Level level = Engine.Scene as Level;
         parentMenu.RemoveSelf();
         TextMenu thisMenu = BuildMenu();

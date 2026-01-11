@@ -1,7 +1,7 @@
 ﻿namespace Celeste.Mod.LeniencyHelper;
 static class FlexDistance
 {
-    public enum Modes
+    public enum Modes : int
     { 
         Static,
         Dynamic

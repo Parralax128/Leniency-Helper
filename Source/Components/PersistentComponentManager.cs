@@ -80,14 +80,12 @@ static class Manager
     {
         On.Monocle.Entity.ctor += AddOnCtor;
         On.Monocle.Entity.ctor_Vector2 += AddOnCtorVector2;
-        On.Celeste.Player.Update += CheckComponents;
     }
     [OnUnload]
     public static void UnloadHooks()
     {
         On.Monocle.Entity.ctor -= AddOnCtor;
         On.Monocle.Entity.ctor_Vector2 -= AddOnCtorVector2;
-        On.Celeste.Player.Update -= CheckComponents;
     }
 
     static void AddOnCtor(On.Monocle.Entity.orig_ctor orig, Entity self)
@@ -125,20 +123,6 @@ static class Manager
 
             if (!entity.Components.Any(c => c.GetType() == componentType))
                 entity.Add(Activator.CreateInstance(componentType) as Monocle.Component);
-        }
-    }
-
-
-    static void CheckComponents(On.Celeste.Player.orig_Update orig, Player self)
-    {
-        orig(self);
-        IEnumerable<Type> current = self.Components.GetAll<PersistentComponent<Player>>().Select(c => c.GetType());
-        if(current.Count() < cachedComponentTypes[typeof(Player)].Count())
-        {
-            foreach(var component in cachedComponentTypes[typeof(Player)].Where(c => !current.Contains(c)))
-            {
-                Debug.Warn($"missing {component.GetType().Name}!");
-            }
         }
     }
 }
