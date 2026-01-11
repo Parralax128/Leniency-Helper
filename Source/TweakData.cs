@@ -228,6 +228,13 @@ static class TweakData
     static void DisableTriggerTweaksHook(ILContext il)
     {
         new ILCursor(il).EmitDelegate(DisableTriggerTweaks);
-        static void DisableTriggerTweaks() => Tweaks.ForEach(state => state.Set(null, SettingSource.Trigger));
+        static void DisableTriggerTweaks() => Tweaks.ForEach(state =>
+        {
+            state.Set(null, SettingSource.Trigger);
+
+            if (state.Settings != null)
+                foreach (AbstractSetting setting in state.Settings)
+                    setting.Reset(SettingSource.Trigger);
+        });
     }
 }

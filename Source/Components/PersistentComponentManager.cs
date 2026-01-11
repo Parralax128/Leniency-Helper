@@ -24,7 +24,7 @@ abstract class PersistentComponent<T> : Monocle.Component   where T : Entity
 
 class TweakComponent<T, TweakType> : PersistentComponent<T>     where T : Entity where TweakType : Tweaks.AbstractTweak<TweakType>
 {
-    static Tweak tweak => Enum.Parse<Tweak>(typeof(TweakType).Name);
+    static Tweak tweak = Enum.Parse<Tweak>(typeof(TweakType).Name);
 
 
     protected static TSetting GetSetting<TSetting>(int index = 0) => TweakData.Tweaks[tweak].GetSetting<TSetting>(index);
@@ -33,7 +33,7 @@ class TweakComponent<T, TweakType> : PersistentComponent<T>     where T : Entity
 
 class TweakComponent<TweakType> : PersistentComponent<Player> where TweakType : Tweaks.AbstractTweak<TweakType>
 {
-    static Tweak tweak => Enum.Parse<Tweak>(typeof(TweakType).Name);
+    static Tweak tweak = Enum.Parse<Tweak>(typeof(TweakType).Name);
 
     protected static TSetting GetSetting<TSetting>(int index = 0) => TweakData.Tweaks[tweak].GetSetting<TSetting>(index);
     protected static bool TweakEnabled => TweakData.Tweaks[tweak].Enabled;

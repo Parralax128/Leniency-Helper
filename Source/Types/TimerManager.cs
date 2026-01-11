@@ -21,8 +21,7 @@ static class TimerManager
     static void UpdateGameplayTimers(Level l) => GameplayTimers.Update();
     static void UpdateInputTimers(ILContext il)
     {
-        new ILCursor(il).EmitDelegate(_UpdateInputTimers);
-        static void _UpdateInputTimers() => InputTimers.Update();
+        new ILCursor(il).EmitDelegate(InputTimers.Update);
     }
 
 
