@@ -64,6 +64,7 @@ class RemoveDBlockCCorrection : AbstractTweak<RemoveDBlockCCorrection>
         return player.CollideCheck<DreamBlock>(at + Vector2.UnitY * shift * GravityHelperImports.currentGravity) 
             && Enabled;
     }
+
     public static void CustomOnCollideV(ILContext il)
     {
         ILCursor cursor = new ILCursor(il);
