@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Celeste.Mod.LeniencyHelper.TweakSettings;
+using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ class GenericTweakController : GenericController
         this.tweak = tweak;
         state = TweakData.Tweaks[tweak];
 
-        Data = EntityDataUtils.ExtractSettings(data, tweak);
+        Data = state.ExtractSettings(data);
     }
     protected override void SaveData()
     {
@@ -50,7 +51,9 @@ class GenericTweakController : GenericController
         if (Data == null) return;
 
         for (int c = 0; c < Data.Count; c++)
-            TweakData.Tweaks[tweak].Settings.Set(c, TweakSettings.SettingSource.Controller, Data[c]);
+        {
+            state.Settings.Set(c, TweakSettings.SettingSource.Controller, Data[c]);
+        }
     }
     public void ApplyTweak()
     {

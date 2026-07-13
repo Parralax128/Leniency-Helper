@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using static MonoMod.InlineRT.MonoModRule;
 
 namespace Celeste.Mod.LeniencyHelper;
 
@@ -20,6 +21,40 @@ public class Time : IComparable<Time>, ICloneable
     {
         Seconds = mode == Modes.Frames ? (float)time / FPS : time;       
         Mode = mode;
+    }
+    public static Time FromObject(object obj)
+    {
+        if (obj is string str) return Parse(str);
+        if (obj is float time) return new Time(time, Modes.Seconds);
+        if (obj is int frames) return new Time(frames, Modes.Frames);
+
+        throw new ArgumentException($"Invalid time format: {obj.GetType().Name}: {obj}");
+    }
+
+
+    public static Time Parse(string str)
+    {
+        if (string.IsNullOrEmpty(str)) return null;
+
+        if (str.StartsWith('-'))
+            throw new ArgumentException($"Invalid time setting provided: \"{str}\". Time cannot be negative!");
+
+        if (str.ToLower().EndsWith('f'))
+        {
+            if (int.TryParse(str[0..(str.Length - 1)], null, out int frames)) return new Time(frames, Modes.Frames);
+
+
+            else throw new ArgumentException($"Invalid time setting provided: \"{str}\"." +
+                $" Could not parse \"{str[0..(str.Length - 1)]}\" as an integer value (frame count)!");
+        }
+        else if (float.TryParse(str, null, out float time) || (str.ToLower().EndsWith('s')
+            && float.TryParse(str[0..(str.Length - 1)], null, out float seconds)))
+            return new Time(time);
+
+
+        else throw new ArgumentException($"Invalid time setting provided: \"{str}\"." +
+            $" Could not parse \"{str}\" as a floating-point value" +
+            $" or \"{str[0..(str.Length - 1)]}\" as frames!");
     }
 
     public int Frames => (int)(Seconds * FPS);
@@ -53,7 +88,6 @@ public class Time : IComparable<Time>, ICloneable
     {
         return time.Seconds;
     }
-
 
     public static implicit operator Time(float time) => new Time(time, Modes.Seconds);
     public static implicit operator Time(int frames) => new Time(frames, Modes.Frames);

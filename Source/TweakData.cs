@@ -10,6 +10,22 @@ using MonoMod.Cil;
 namespace Celeste.Mod.LeniencyHelper;
 static class TweakData
 {
+    [Monocle.Command("r", "")]
+    public static void LogBuffers()
+    {
+        Debug.Warn($"Current source: {Tweaks[Tweak.CustomBufferTime].CurrentSettingSource}");
+
+        foreach(SettingSource source in Enum.GetValues<SettingSource>())
+        {
+            Debug.Warn(source);
+            foreach (AbstractSetting setting in Tweaks[Tweak.CustomBufferTime].Settings)
+            {
+                Debug.Warn($"{setting.Name} = {setting.GetTypeless(source)}");
+            }
+            Debug.Log("");
+        }
+    }
+
     static SettingContainer FlexDistanceSettings(string name="",
         FlexDistance.Modes defaultMode = FlexDistance.Modes.Static, int defaultStatic = 4, Time defaultTime = null) =>
     new SettingContainer() {

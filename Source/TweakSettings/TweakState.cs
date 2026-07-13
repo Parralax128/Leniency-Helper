@@ -80,10 +80,12 @@ class TweakState
     }
 
 
+    public List<object> ExtractSettings(EntityData data) => Settings?.Select(s => s.ParseFromData(data, Tweak)).ToList();
+
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T GetSetting<T>(int index) => Settings.Get<T>(index, CurrentSettingSource);
     public object GetSetting(string name) => Settings.Get(name, CurrentSettingSource);
-    
 
     public static implicit operator string(TweakState state) => state.Tweak.ToString();
     public static implicit operator bool(TweakState state) => state.Enabled;

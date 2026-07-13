@@ -32,7 +32,9 @@ class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeniency>
 
         int newValue = defaultValue;
 
-        if (DynamicWallLeniency.Enabled && (Math.Sign(player.Speed.X) != dir || player.DashAttacking && player.SuperWallJumpAngleCheck))
+        if (DynamicWallLeniency.Enabled && 
+            (Math.Sign(player.Speed.X) != dir
+            || (player.DashAttacking && player.SuperWallJumpAngleCheck)))
         {
             newValue = DynamicWallLeniency.GetDynamicLeniency(player, defaultValue);
         }
@@ -48,7 +50,7 @@ class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeniency>
             Vector2 at = player.Position + Vector2.UnitX * dir * c;
             if (player.CollideCheck<WallBooster>(at))
             {
-                if ((int)player.CollideFirst<WallBooster>(player.Position + Vector2.UnitX * dir * c).Facing == dir)
+                if ((int)player.CollideFirst<WallBooster>(at).Facing == dir)
                 {
                     SetWjDist(iceLeni + newValue, dir);
                     return iceLeni + newValue;
@@ -70,7 +72,7 @@ class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeniency>
         if (!LeniencyHelperModule.ModLoaded("ShroomHelper")) return false;
 
         return player.CollideCheck<AttachedIceWall>(at) &&
-            (int)player.CollideFirst<AttachedIceWall>(player.Position + Vector2.UnitX * dir * c).Facing == dir;
+            (int)player.CollideFirst<AttachedIceWall>(at).Facing == dir;
     }
     static void SetWjDist(int value, int dir)
     {
@@ -98,7 +100,7 @@ class IceWallIncreaseWallLeniency : AbstractTweak<IceWallIncreaseWallLeniency>
 
         cursor.EmitDelegate(BothDisabled);
         cursor.EmitStloc(orig);
-        cursor.MarkLabel(origStart);        
+        cursor.MarkLabel(origStart);
 
         if (cursor.TryGotoNext(MoveType.Before, i => i.MatchStloc0()))
         {

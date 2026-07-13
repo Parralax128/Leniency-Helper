@@ -7,6 +7,7 @@ class Setting<T> : AbstractSetting
 {
     public T[] Values = new T[5];
 
+
     string lookupName;
     public ValueTuple<string, object>? DisableOn;
     public T Player
@@ -36,8 +37,9 @@ class Setting<T> : AbstractSetting
     public override void Set(SettingSource source, object value)
     {
         T typedValue = (T)value;
-       
-        if(ValueBounds != null && !ValueBounds.Check(typedValue))
+        
+
+        if(ValueBounds == null || ValueBounds.Check(typedValue))
         {
             Values[(int)source] = typedValue;
         }
@@ -57,16 +59,20 @@ class Setting<T> : AbstractSetting
     public override object ParseFromData(EntityData data, Tweak tweak)
     {
         lookupName ??= DialogUtils.Setting(Name, tweak, DialogUtils.Precision.ImmutableKey);
-        object defaultValue = GetTypeless(SettingSource.Default);
 
+        if (data.Values.TryGetValue(lookupName, out object found))
+        {
+            if (typeof(T) == typeof(Time))
+            {
+                Debug.Warn($"Parsing {found.GetType().Name} {tweak}.{lookupName} = {found} as Time!");
+                return Time.FromObject(found);
+            }
+            return (T)found;
+        }
 
-        if (defaultValue is bool defaultBool)    return data.Bool(lookupName, defaultBool);
-        if (defaultValue is int defaultInt)      return data.Int(lookupName, defaultInt);
-        if (defaultValue is float defaultFloat)  return data.Float(lookupName, defaultFloat);
-        if (defaultValue is Time defaultTime)    return data.Time(lookupName, defaultTime);
-
-        return null;
+        return GetTypeless(SettingSource.Default);
     }
+
 
     public override UI.Items.AbstractTweakItem MenuEntry(Tweak tweak) => new UI.Items.TweakSetting<T>(tweak, this);
 }

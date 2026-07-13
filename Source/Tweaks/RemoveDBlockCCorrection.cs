@@ -56,13 +56,11 @@ class RemoveDBlockCCorrection : AbstractTweak<RemoveDBlockCCorrection>
     }
     static bool CollidingDBlockX(Player player)
     {
-        return player.CollideCheck<DreamBlock>(player.Position + Vector2.UnitX
-            * Math.Sign(player.Speed.X)) && Enabled;
+        return player.CollideCheck<DreamBlock>(player.Position + Vector2.UnitX * Math.Sign(player.Speed.X)) && Enabled;
     }
     static bool CollidingDBlockY(Vector2 at, Player player, int shift)
     {
-        return player.CollideCheck<DreamBlock>(at + Vector2.UnitY * shift * GravityHelperImports.currentGravity) 
-            && Enabled;
+        return player.CollideCheck<DreamBlock>(at + Vector2.UnitY * shift * GravityHelperImports.currentGravity) && Enabled;
     }
     public static void CustomOnCollideV(ILContext il)
     {

@@ -14,9 +14,6 @@ public static class EntityDataUtils
         return defaultValue.ToList();
     }
 
-    public static List<object> ExtractSettings(this EntityData data, Tweak tweak) => 
-        TweakData.Tweaks[tweak].Settings?.Select(s => s.ParseFromData(data, tweak)).ToList();
-
     public static Time Time(this EntityData data, string key, Time defaultValue)
     {
         string str = data.String(key);

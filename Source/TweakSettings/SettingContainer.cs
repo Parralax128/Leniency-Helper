@@ -37,4 +37,7 @@ class SettingContainer : IEnumerable<AbstractSetting>
 
         throw new ArgumentException($"Invalid Setting<{typeof(T).Name}> name: {name}");
     }
+
+    public int Count => settingList.Count;
+    public AbstractSetting this[int index] => settingList[index];
 }

@@ -21,4 +21,9 @@ class Bounds<T>
         Min = min;
         Max = max;
     }
+
+    public override string ToString()
+    {
+        return $"[{Min}, {Max}]";
+    }
 }

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Monocle;
 using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 
 namespace Celeste.Mod.LeniencyHelper.Triggers;
 
@@ -21,7 +22,25 @@ class GenericTweakTrigger : GenericTrigger
         this.tweak = tweak;
         state = TweakData.Tweaks[tweak];
 
-        Data = EntityDataUtils.ExtractSettings(data, tweak);
+        Data = state.ExtractSettings(data);
+
+
+        if(tweak == Tweak.SolidBlockboostProtection)
+        {
+            for(int c=0; c<state.Settings.Count; c++)
+            {
+                AbstractSetting setting = state.Settings[c];
+
+                string dataVal = Data[c]?.ToString() ?? "null";
+                Debug.Warn($"[{c}] {setting.Name}: {dataVal}");
+            }
+            Debug.Warn("DATA");
+
+            foreach((string name, object value) in data.Values)
+            {
+                Debug.Warn($"{name}: {value}");
+            }
+        }
     }
     protected override void Apply(Player player)
     {
@@ -30,7 +49,9 @@ class GenericTweakTrigger : GenericTrigger
         if (Data != null && Enabled)
         {
             for (int c = 0; c < Data.Count; c++)
+            {
                 TweakData.Tweaks[tweak].Settings.Set(c, SettingSource.Trigger, Data[c]);
+            }
         }
     }
     protected override void SaveData()
