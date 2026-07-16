@@ -115,6 +115,8 @@ public class LeniencyHelperModule : EverestModule
     }
     public static bool CollideOnWJdist<T>(Monocle.Entity entity, int dir, Vector2? at) where T : Monocle.Entity
     {
+        if (entity.Collider == null) return false;
+
         Vector2 savePos = entity.Position;
         if (at.HasValue) entity.Position = at.Value;
 
@@ -130,6 +132,9 @@ public class LeniencyHelperModule : EverestModule
 
     public static bool CollideOnWJdist(Monocle.Entity entity, Monocle.Entity with, int dir, Vector2? at = null)
     {
+        if (entity.Collider == null || !entity.Collidable || with.Collider == null || !with.Collidable) return false;
+
+
         Vector2 savePos = entity.Position;
 
         if (at.HasValue) entity.Position = at.Value;

@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Monocle;
-using static Celeste.Mod.LeniencyHelper.Triggers.ConsistentTheoSpinnerBounceTrigger;
+using static Celeste.Mod.LeniencyHelper.Triggers.ConsistentSpinnerBounceTrigger;
 using System.Reflection;
 using System.Collections.Generic;
 using Celeste.Mod.LeniencyHelper.Triggers;
@@ -16,8 +16,8 @@ public class SpinnerBounceComponent : Component
     public bool wasEnabled;
     public BounceDirections wasDirection;
 
-    public Dictionary<ConsistentTheoSpinnerBounceTrigger, bool> collidingWith = 
-        new Dictionary<ConsistentTheoSpinnerBounceTrigger, bool>();
+    public Dictionary<ConsistentSpinnerBounceTrigger, bool> collidingWith = 
+        new Dictionary<ConsistentSpinnerBounceTrigger, bool>();
 
     public Holdable holdComponent
     {
