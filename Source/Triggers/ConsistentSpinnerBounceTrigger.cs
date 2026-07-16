@@ -33,8 +33,11 @@ public class ConsistentSpinnerBounceTrigger : GenericTrigger
     }
     private static void LoadSpinners(Level level)
     {
-        if (!level.Tracker.Entities.ContainsKey(typeof(ConsistentSpinnerBounceTrigger)))
-            return;
+        if (!level.Tracker.Entities.TryGetValue(typeof(ConsistentSpinnerBounceTrigger), out List<Entity> triggers)
+            || triggers == null || triggers.Count == 0)
+        { 
+            return; 
+        }
 
         foreach(Entity entity in level)
         {
