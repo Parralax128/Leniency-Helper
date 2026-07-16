@@ -30,7 +30,9 @@ public class LeniencyHelperModule : EverestModule
 
     public override Type SaveDataType => typeof(LeniencyHelperSaveData);
     public static LeniencyHelperSaveData SaveData => (LeniencyHelperSaveData)Instance._SaveData;
+    
     #endregion
+
 
     private static Dictionary<string, (Version, bool)> ModsLoaded = new Dictionary<string, (Version, bool)>
     {
