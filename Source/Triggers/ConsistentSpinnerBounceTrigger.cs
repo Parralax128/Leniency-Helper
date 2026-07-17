@@ -35,8 +35,8 @@ public class ConsistentSpinnerBounceTrigger : GenericTrigger
     {
         if (!level.Tracker.Entities.TryGetValue(typeof(ConsistentSpinnerBounceTrigger), out List<Entity> triggers)
             || triggers == null || triggers.Count == 0)
-        { 
-            return; 
+        {
+            return;
         }
 
         foreach(Entity entity in level)
@@ -84,7 +84,7 @@ public class ConsistentSpinnerBounceTrigger : GenericTrigger
             //if has component but hasnt "collide with me" value in dict
             if (hold.Entity.Components.Get<SpinnerBounceComponent>() is SpinnerBounceComponent sbc)
             {
-                if (!sbc.collidingWith.Keys.Contains(this))
+                if (!sbc.collidingWith.ContainsKey(this))
                     sbc.collidingWith.Add(this, false);
 
                 component = sbc;

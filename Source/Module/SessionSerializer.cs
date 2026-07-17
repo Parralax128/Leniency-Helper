@@ -69,6 +69,7 @@ public static class SessionSerializer
         StreamReader reader = new StreamReader(path);
 
         string version = reader.ReadLine();
+        if (version != "v1.2.1") return result;
 
         string line;
         string mode = "";

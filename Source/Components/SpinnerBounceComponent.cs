@@ -16,20 +16,9 @@ public class SpinnerBounceComponent : Component
     public bool wasEnabled;
     public BounceDirections wasDirection;
 
-    public Dictionary<ConsistentSpinnerBounceTrigger, bool> collidingWith = 
-        new Dictionary<ConsistentSpinnerBounceTrigger, bool>();
+    public Dictionary<ConsistentSpinnerBounceTrigger, bool> collidingWith = new();
 
-    public Holdable holdComponent
-    {
-        get
-        {
-            foreach(Component item in this.Entity)
-            {
-                if (item is Holdable hold) return hold;
-            }
-            return null;
-        }
-    }
+    public Holdable HoldComponent => Entity?.Get<Holdable>();
     public SpinnerBounceComponent(bool enable, BounceDirections dir) : base(true, false) 
     {
         enabled = enable;
@@ -45,22 +34,18 @@ public class SpinnerBounceComponent : Component
         wasEnabled = enabled;
         wasDirection = direction;
     }
-    public override void Update()
+    public override void Added(Entity to)
     {
-        var orig = holdComponent.OnHitSpinner;
-        if (enabled)
+        base.Added(to);
+
+        Action<Entity> orig = HoldComponent.OnHitSpinner;
+
+        HoldComponent.OnHitSpinner = (spinner) =>
         {
-            holdComponent.OnHitSpinner = (spinner) =>
-            {
-                Vector2 saveSpeed = holdComponent.GetSpeed();
-                if(orig != null) orig(spinner);
-                SetSpeed(saveSpeed);
-            };
-        }
-        else
-        {
-            holdComponent.OnHitSeeker = orig;
-        }
+            Vector2 savedSpeed = HoldComponent.GetSpeed();
+            orig?.Invoke(spinner);
+            if(enabled) SetSpeed(savedSpeed);
+        };
     }
     private void SetEntitySpeed(Entity entity, Vector2 speed)
     {
@@ -82,45 +67,47 @@ public class SpinnerBounceComponent : Component
                 speedProperty.SetValue(entity, speed);
             }
         }
-
     }
-    public void SetSpeed(Vector2 saveSpeed)
+    public void SetSpeed(Vector2 savedSpeed)
     {
-        if (holdComponent.GetSpeed().LengthSquared() > saveSpeed.LengthSquared() && Math.Abs(saveSpeed.X) < 0.01f)
+        Vector2 speed = HoldComponent.GetSpeed();
+
+        if (speed.LengthSquared() <= savedSpeed.LengthSquared() || Math.Abs(savedSpeed.X) >= 0.01f)
+            return;
+        
+        switch (direction)
         {
-            switch (direction)
-            {
-                case BounceDirections.None:
-                    holdComponent.SetSpeed(saveSpeed);
+            case BounceDirections.None:
+                HoldComponent.SetSpeed(savedSpeed);
 
-                    if (holdComponent.GetSpeed().Length() > 0.1f)
-                        SetEntitySpeed(holdComponent.Entity, Vector2.Zero);
+                if (HoldComponent.GetSpeed().Length() > 0.1f)
+                    SetEntitySpeed(HoldComponent.Entity, Vector2.Zero);
 
-                    break;
+                break;
 
-                case BounceDirections.Left:
-                    if (holdComponent.GetSpeed().X > 0f)
-                    {
-                        holdComponent.SetSpeed(new Vector2(-holdComponent.GetSpeed().X, holdComponent.GetSpeed().Y));
+            case BounceDirections.Left:
+                if (speed.X > 0f)
+                {
+                    HoldComponent.SetSpeed(new Vector2(-speed.X, speed.Y));
                         
-                        if (holdComponent.GetSpeed().X > 0f)
-                            SetEntitySpeed(holdComponent.Entity, new Vector2(-holdComponent.GetSpeed().X, holdComponent.GetSpeed().Y));
-                    }
-                    break;
+                    if ((speed = HoldComponent.GetSpeed()).X > 0f)
+                        SetEntitySpeed(HoldComponent.Entity, new Vector2(-speed.X, speed.Y));
+                }
+                break;
 
-                case BounceDirections.Right:
-                    if (holdComponent.GetSpeed().X < 0f)
-                    {
-                        holdComponent.SetSpeed(new Vector2(-holdComponent.GetSpeed().X, holdComponent.GetSpeed().Y));
+            case BounceDirections.Right:
+                if (speed.X < 0f)
+                {
+                    HoldComponent.SetSpeed(new Vector2(-speed.X, speed.Y));
 
-                        if (holdComponent.GetSpeed().X < 0f)
-                            SetEntitySpeed(holdComponent.Entity, new Vector2(-holdComponent.GetSpeed().X, holdComponent.GetSpeed().Y));
-                    }
-                    break;
+                    if ((speed = HoldComponent.GetSpeed()).X < 0f)
+                        SetEntitySpeed(HoldComponent.Entity, new Vector2(-speed.X, speed.Y));
+                }
+                break;
 
-                case BounceDirections.All:
-                    break;
-            }
+            case BounceDirections.All:
+                break;
         }
+        
     }
 }
