@@ -35,7 +35,7 @@ public static class SessionSerializer
 
         StreamWriter writer = new StreamWriter(path);
 
-        writer.Write("v1.2.1");
+        writer.Write("v1.2.3");
         string controllerTweaks = "\n[break]\nControllerTweaks", useController = "\n[break]\nUseController";
         foreach (string tweak in TweakList)
         {
@@ -69,7 +69,7 @@ public static class SessionSerializer
         StreamReader reader = new StreamReader(path);
 
         string version = reader.ReadLine();
-        if (version != "v1.2.1") return result;
+        if (!version.StartsWith("v1.2")) return result;
 
         string line;
         string mode = "";
